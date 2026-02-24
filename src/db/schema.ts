@@ -57,3 +57,10 @@ export const postTagsTable = pgTable("post_tags_table", {
     primaryKey({ columns: [table.postId, table.tagId] }),
   ]
 );
+
+export type InsertPost = typeof postsTable.$inferInsert;
+export type InsertTag = typeof tagsTable.$inferInsert;
+export type InsertPostTag = typeof postTagsTable.$inferInsert;
+export type SelectPost = typeof postsTable.$inferSelect;
+export type SelectTag = typeof tagsTable.$inferSelect;
+export type SelectPostTag = typeof postTagsTable.$inferSelect;

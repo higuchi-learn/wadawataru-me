@@ -32,7 +32,7 @@ Enum articles_status_enum {
 Table tags {
   id uuid [pk, note: 'RFC 4122']
   name varchar(20) [unique, not null]
-  sort_order smallserial [unique, not null, default: 0]
+  sort_order integer [unique, not null, default: 0]
 }
 
 Table post_tags {
