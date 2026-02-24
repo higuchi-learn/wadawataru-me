@@ -23,7 +23,7 @@ export const articlesStatusEnum = pgEnum("articles_status_enum", [
   "archived",
 ]);
 
-export const posts = pgTable("posts", {
+export const postsTable = pgTable("posts_table", {
   id: uuid("id").defaultRandom().primaryKey(),
   genre: articlesGenreEnum("genre").notNull(),
   slug: varchar("slug", { length: 20 }).notNull().unique(),
@@ -37,7 +37,7 @@ export const posts = pgTable("posts", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
 });
 
-export const tags = pgTable("tags", {
+export const tagsTable = pgTable("tags_table", {
     id: uuid("id").defaultRandom().primaryKey(),
     name: varchar("name", { length: 20 }).notNull().unique(),
     sortOrder: integer("sort_order").notNull().default(0),
@@ -48,9 +48,9 @@ export const tags = pgTable("tags", {
   ]
 );
 
-export const postTags = pgTable("post_tags", {
-    postId: uuid("post_id").notNull().references(() => posts.id),
-    tagId: uuid("tag_id").notNull().references(() => tags.id),
+export const postTagsTable = pgTable("post_tags_table", {
+    postId: uuid("post_id").notNull().references(() => postsTable.id),
+    tagId: uuid("tag_id").notNull().references(() => tagsTable.id),
   },
   // 複合主キーの定義
   (table) => [
