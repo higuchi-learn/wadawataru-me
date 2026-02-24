@@ -1,0 +1,59 @@
+// src/db/schema.ts
+import {
+  pgTable,
+  uuid,
+  varchar,
+  text,
+  timestamp,
+  pgEnum,
+  primaryKey,
+  integer,
+  index,
+} from "drizzle-orm/pg-core";
+
+export const articlesGenreEnum = pgEnum("articles_genre_enum", [
+  "blogs",
+  "products",
+  "books",
+]);
+
+export const articlesStatusEnum = pgEnum("articles_status_enum", [
+  "draft",
+  "published",
+  "archived",
+]);
+
+export const posts = pgTable("posts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  genre: articlesGenreEnum("genre").notNull(),
+  slug: varchar("slug", { length: 20 }).notNull().unique(),
+  title: varchar("title", { length: 30 }).notNull(),
+  description: varchar("description", { length: 50 }).notNull(),
+  content: text("content").notNull(),
+  thumbnail: text("thumbnail"),
+  status: articlesStatusEnum("status").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+  publishedAt: timestamp("published_at", { withTimezone: true }),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
+});
+
+export const tags = pgTable("tags", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    name: varchar("name", { length: 20 }).notNull().unique(),
+    sortOrder: integer("sort_order").notNull().default(0),
+  },
+  // インデックスをソート順に並べ直す
+  (table) => [
+    index("tags_sort_order_idx").on(table.sortOrder),
+  ]
+);
+
+export const postTags = pgTable("post_tags", {
+    postId: uuid("post_id").notNull().references(() => posts.id),
+    tagId: uuid("tag_id").notNull().references(() => tags.id),
+  },
+  // 複合主キーの定義
+  (table) => [
+    primaryKey({ columns: [table.postId, table.tagId] }),
+  ]
+);

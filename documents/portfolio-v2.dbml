@@ -1,0 +1,44 @@
+Project portfolio_v2 {
+  database_type: 'PostgreSQL'
+  Note: 'wadawataru-me database'
+}
+
+Table posts {
+  id uuid [pk, note: 'RFC 4122']
+  genre articles_genre_enum [not null]
+  slug varchar(20) [unique, not null]
+  title varchar(30) [not null]
+  description varchar(50) [not null]
+  content text [not null]
+  thumbnail text
+  status articles_status_enum [not null]
+  created_at timestamptz [not null]
+  published_at timestamptz
+  updated_at timestamptz [not null]
+}
+
+Enum articles_genre_enum {
+  blogs
+  products
+  books
+}
+
+Enum articles_status_enum {
+  draft
+  published
+  archived
+}
+
+Table tags {
+  id uuid [pk, note: 'RFC 4122']
+  name varchar(20) [unique, not null]
+  sort_order smallserial [unique, not null, default: 0]
+}
+
+Table post_tags {
+  post_id uuid [ref: > posts.id]
+  tag_id uuid [ref: > tags.id]
+  indexes {
+    (post_id, tag_id) [pk]
+  }
+}
