@@ -17,10 +17,14 @@
 		"@opennextjs/cloudflare": "^1.15.1",
 		"dotenv": "^17.3.1",
 		"drizzle-orm": "^0.45.1",
+		"easymde": "^2.20.0",
 		"hono": "^4.12.2",
 		"next": "16.1.5",
 		"react": "19.1.5",
-		"react-dom": "19.1.5"
+		"react-dom": "19.1.5",
+		"react-markdown": "^10.1.0",
+		"react-simplemde-editor": "^5.2.0",
+		"remark-gfm": "^4.0.1"
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "^3",
