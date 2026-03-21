@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import PageSelectButton from "@/components/PageSelectButton";
 
 type SelectPageBarProps = {
@@ -9,12 +9,19 @@ type SelectPageBarProps = {
 };
 
 export default function SelectPageBar({ totalPages, className }: SelectPageBarProps) {
-  const [currentPage, setCurrentPage] = useState(1);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentPage = Math.max(1, Number(searchParams.get("page") ?? "1"));
+
+  const setPage = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", String(page));
+    router.push(`?${params.toString()}`);
+  };
 
   const isFirst = currentPage === 1;
   const isLast = currentPage === totalPages;
 
-  // 表示するページ番号を計算 (最大5件)
   const getPageNumbers = (): number[] => {
     if (totalPages <= 5) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -28,35 +35,19 @@ export default function SelectPageBar({ totalPages, className }: SelectPageBarPr
 
   return (
     <div className={className ?? "flex items-center gap-0.5"}>
-      <PageSelectButton
-        category="First"
-        isDisabled={isFirst}
-        onClick={() => setCurrentPage(1)}
-      />
-      <PageSelectButton
-        category="Before"
-        isDisabled={isFirst}
-        onClick={() => setCurrentPage((p) => p - 1)}
-      />
+      <PageSelectButton category="First" isDisabled={isFirst} onClick={() => setPage(1)} />
+      <PageSelectButton category="Before" isDisabled={isFirst} onClick={() => setPage(currentPage - 1)} />
       {getPageNumbers().map((page) => (
         <PageSelectButton
           key={page}
           category="Number"
           page={page}
           isActive={page === currentPage}
-          onClick={() => setCurrentPage(page)}
+          onClick={() => setPage(page)}
         />
       ))}
-      <PageSelectButton
-        category="Next"
-        isDisabled={isLast}
-        onClick={() => setCurrentPage((p) => p + 1)}
-      />
-      <PageSelectButton
-        category="Last"
-        isDisabled={isLast}
-        onClick={() => setCurrentPage(totalPages)}
-      />
+      <PageSelectButton category="Next" isDisabled={isLast} onClick={() => setPage(currentPage + 1)} />
+      <PageSelectButton category="Last" isDisabled={isLast} onClick={() => setPage(totalPages)} />
     </div>
   );
 }
