@@ -15,11 +15,11 @@ export async function getPostById(slug: SelectPost["slug"]) {
       updatedAt: postsTable.updatedAt,
     })
     .from(postsTable)
-    .where(eq(postsTable.slug, slug));
+    .where(and(eq(postsTable.slug, slug), eq(postsTable.status, "published")));
   return rows[0] ?? null;
 }
 
-export async function getPostByIdForAdmin(slug: SelectPost["slug"]) {
+export async function getPostByIdForAdmin(id: SelectPost["id"]) {
   const rows = await db
     .select({
       id: postsTable.id,
@@ -33,7 +33,7 @@ export async function getPostByIdForAdmin(slug: SelectPost["slug"]) {
       updatedAt: postsTable.updatedAt,
     })
     .from(postsTable)
-    .where(eq(postsTable.slug, slug));
+    .where(eq(postsTable.id, id));
   return rows[0] ?? null;
 }
 

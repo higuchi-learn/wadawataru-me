@@ -48,6 +48,7 @@ export type AdminHeaderProps = {
   status?: "create" | "edit";
   publishStatus?: PublishStatus;
   savedAt?: string;
+  isLoading?: boolean;
   onArchive?: () => void;
   onSaveDraft?: () => void;
   onPublish?: () => void;
@@ -59,11 +60,14 @@ export default function AdminHeader({
   status = "create",
   publishStatus = "draft",
   savedAt,
+  isLoading = false,
   onArchive,
   onSaveDraft,
   onPublish,
   className,
 }: AdminHeaderProps) {
+  const buttonClass = "flex items-center justify-center px-1 rounded-md bg-white shadow-sm text-[var(--lighttext)] text-sm leading-7 whitespace-nowrap hover:bg-[var(--onmouseorange)] hover:text-[var(--ogangetext)] transition-colors disabled:opacity-40 disabled:pointer-events-none";
+
   return (
     <div className={`flex h-10 items-center justify-between w-full bg-white shrink-0 ${className ?? ""}`}>
       <AdminHeaderTag genre={genre} status={status} publishStatus={publishStatus} />
@@ -84,7 +88,8 @@ export default function AdminHeader({
           <button
             type="button"
             onClick={onArchive}
-            className="flex items-center justify-center px-1 rounded-md bg-white shadow-sm text-[var(--lighttext)] text-sm leading-7 whitespace-nowrap hover:bg-[var(--onmouseorange)] hover:text-[var(--ogangetext)] transition-colors"
+            disabled={isLoading}
+            className={buttonClass}
           >
             アーカイブ
           </button>
@@ -92,16 +97,18 @@ export default function AdminHeader({
         <button
           type="button"
           onClick={onSaveDraft}
-          className="flex items-center justify-center px-1 rounded-md bg-white shadow-sm text-[var(--lighttext)] text-sm leading-7 whitespace-nowrap hover:bg-[var(--onmouseorange)] hover:text-[var(--ogangetext)] transition-colors"
+          disabled={isLoading}
+          className={buttonClass}
         >
-          下書き保存
+          {isLoading ? "処理中..." : "下書き保存"}
         </button>
         <button
           type="button"
           onClick={onPublish}
-          className="flex items-center justify-center px-1 rounded-md bg-white shadow-sm text-[var(--lighttext)] text-sm leading-7 whitespace-nowrap hover:bg-[var(--onmouseorange)] hover:text-[var(--ogangetext)] transition-colors"
+          disabled={isLoading}
+          className={buttonClass}
         >
-          公開
+          {isLoading ? "処理中..." : "公開"}
         </button>
       </div>
     </div>

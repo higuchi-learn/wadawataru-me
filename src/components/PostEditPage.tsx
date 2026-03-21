@@ -5,11 +5,12 @@ import { formatSavedAt } from "@/lib/formatDate";
 import type { Genre } from "@/components/GenreAbout";
 import { notFound } from "next/navigation";
 
-export default async function PostEditPage({ slug, genre }: { slug: string; genre: Genre }) {
-  const post = await getPostByIdForAdmin(slug);
+export default async function PostEditPage({ id, genre }: { id: string; genre: Genre }) {
+  const post = await getPostByIdForAdmin(id);
   if (!post) notFound();
   const tags = await getTagsByPostId(post.id);
   const initialData: ArticleInitialData = {
+    id: post.id,
     slug: post.slug,
     title: post.title,
     description: post.description,

@@ -46,7 +46,7 @@ export default async function AdminPostListPage({ genre, searchParams }: Props) 
     publishedAt: formatDate(post.publishedAt),
     updatedAt: formatDate(post.updatedAt),
     thumbnailUrl: post.thumbnail ?? undefined,
-    href: `/admin/${genre}/${post.slug}`,
+    href: `/admin/${genre}/${post.id}`,
   }));
 
   return (

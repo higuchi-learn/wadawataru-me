@@ -7,6 +7,7 @@ import TagLabel from "@/components/TagLabel";
 import Card from "@/components/Card";
 import ArticlePreview from "@/components/ArticlePreview";
 import type { Genre } from "@/components/GenreAbout";
+import { saveAsDraftAction, publishAction, archiveAction } from "@/app/admin/actions";
 import "easymde/dist/easymde.min.css";
 
 const SimpleMdeReact = dynamic(() => import("react-simplemde-editor"), { ssr: false });
@@ -142,6 +143,7 @@ function TagsField({ tags, onChange }: TagsFieldProps) {
 type PublishStatus = "draft" | "published" | "archived";
 
 export type ArticleInitialData = {
+  id?: string;
   title: string;
   description: string;
   tags: string[];
@@ -167,10 +169,54 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
   const [content, setContent] = useState(initialData?.content ?? "");
   const [publishStatus] = useState<PublishStatus>(initialData?.publishStatus ?? "draft");
   const [savedAt] = useState(initialData?.savedAt ?? "");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleContentChange = useCallback((value: string) => {
     setContent(value);
   }, []);
+
+  const payload = () => ({
+    id: initialData?.id,
+    genre,
+    slug,
+    title,
+    description,
+    content,
+    thumbnail,
+    tags,
+  });
+
+  const handleSaveDraft = async () => {
+    setError(null);
+    setIsLoading(true);
+    const result = await saveAsDraftAction(payload());
+    if (result?.error) {
+      setError(result.error);
+      setIsLoading(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    setError(null);
+    setIsLoading(true);
+    const result = await publishAction({ ...payload(), wasAlreadyPublished: publishStatus === "published" });
+    if (result?.error) {
+      setError(result.error);
+      setIsLoading(false);
+    }
+  };
+
+  const handleArchive = async () => {
+    if (!initialData?.id) return;
+    setError(null);
+    setIsLoading(true);
+    const result = await archiveAction({ id: initialData.id, genre, title, description, content, thumbnail });
+    if (result?.error) {
+      setError(result.error);
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col flex-1 min-h-0 px-1">
@@ -179,10 +225,17 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
         status={mode}
         publishStatus={publishStatus}
         savedAt={savedAt || undefined}
-        onArchive={mode === "edit" ? () => { /* TODO */ } : undefined}
-        onSaveDraft={() => { /* TODO */ }}
-        onPublish={() => { /* TODO */ }}
+        isLoading={isLoading}
+        onArchive={mode === "edit" ? handleArchive : undefined}
+        onSaveDraft={handleSaveDraft}
+        onPublish={handlePublish}
       />
+
+      {error && (
+        <div className="px-2 py-1 text-sm text-[var(--error)] bg-[var(--error-bg)] rounded-sm shrink-0">
+          {error}
+        </div>
+      )}
 
       <div className="flex gap-1 items-start w-full shrink-0 bg-white pb-1">
         <div className="flex flex-col flex-1 min-w-0 py-1">
