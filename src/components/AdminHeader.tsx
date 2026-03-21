@@ -10,8 +10,8 @@ type PublishStatus = "draft" | "published" | "archived";
 
 const PUBLISH_STATUS_INFO: Record<PublishStatus, { label: string; bgClass: string }> = {
   draft: { label: "未公開", bgClass: "bg-[var(--draft,#00a6f4)]" },
-  published: { label: "公開中", bgClass: "bg-green-500" },
-  archived: { label: "アーカイブ済", bgClass: "bg-gray-400" },
+  published: { label: "公開中", bgClass: "bg-[var(--public,#00c951)]" },
+  archived: { label: "アーカイブ済", bgClass: "bg-[var(--archive,#fb2c36)]" },
 };
 
 export type AdminHeaderTagProps = {
@@ -68,14 +68,18 @@ export default function AdminHeader({
     <div className={`flex h-10 items-center justify-between w-full bg-white shrink-0 ${className ?? ""}`}>
       <AdminHeaderTag genre={genre} status={status} publishStatus={publishStatus} />
       <div className="flex items-center gap-1.5 p-1">
-        {status === "edit" && savedAt && (
-          <div className="flex items-center gap-0.5 text-sm leading-5 text-[var(--successtext,#497d00)] whitespace-nowrap">
-            <span>最終保存日時 : {savedAt}</span>
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-            </svg>
-          </div>
-        )}
+        <div className="flex items-center gap-0.5 text-sm leading-5 whitespace-nowrap">
+          {savedAt ? (
+            <>
+              <span className="text-[var(--successtext,#497d00)]">最終保存日時 : {savedAt}</span>
+              <svg className="w-4 h-4 text-[var(--successtext,#497d00)]" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+              </svg>
+            </>
+          ) : (
+            <span className="text-[var(--lighttext,#6a7282)]">最終保存日時 : ----/--/-- | -- : -- : --</span>
+          )}
+        </div>
         {status === "edit" && (
           <button
             type="button"

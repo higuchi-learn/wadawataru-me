@@ -9,7 +9,7 @@ const MOCK_CARDS: CardData[] = Array.from({ length: 20 }, (_, i) => ({
   tags: ["Next.js", "TypeScript", "Tailwind"],
   publishedAt: "2026年03月06日",
   updatedAt: "2026年03月06日",
-  href: "#",
+  href: `/admin/products/${i + 1}`,
 }));
 
 export default function AdminProductsPage() {

@@ -8,7 +8,7 @@ const MOCK_CARDS: CardData[] = Array.from({ length: 20 }, (_, i) => ({
   tags: ["日記", "大学"],
   publishedAt: "2026年03月06日",
   updatedAt: "2026年03月06日",
-  href: "#",
+  href: `/blog/${i + 1}`,
 }));
 
 export default function BlogPage() {

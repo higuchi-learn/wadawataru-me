@@ -9,7 +9,7 @@ const MOCK_CARDS: CardData[] = Array.from({ length: 20 }, (_, i) => ({
   tags: ["技術書", "TypeScript"],
   publishedAt: "2026年03月06日",
   updatedAt: "2026年03月06日",
-  href: "#",
+  href: `/admin/books/${i + 1}`,
 }));
 
 export default function AdminBooksPage() {
