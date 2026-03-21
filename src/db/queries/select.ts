@@ -2,6 +2,39 @@ import { db } from "../db";
 import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { postsTable, tagsTable, postTagsTable,  SelectPost, SelectTag } from "../schema";
 
+export async function getPostById(slug: SelectPost["slug"]) {
+  const rows = await db
+    .select({
+      id: postsTable.id,
+      title: postsTable.title,
+      description: postsTable.description,
+      content: postsTable.content,
+      publishedAt: postsTable.publishedAt,
+      updatedAt: postsTable.updatedAt,
+    })
+    .from(postsTable)
+    .where(eq(postsTable.slug, slug));
+  return rows[0] ?? null;
+}
+
+export async function getPostByIdForAdmin(slug: SelectPost["slug"]) {
+  const rows = await db
+    .select({
+      id: postsTable.id,
+      slug: postsTable.slug,
+      title: postsTable.title,
+      description: postsTable.description,
+      content: postsTable.content,
+      thumbnail: postsTable.thumbnail,
+      status: postsTable.status,
+      publishedAt: postsTable.publishedAt,
+      updatedAt: postsTable.updatedAt,
+    })
+    .from(postsTable)
+    .where(eq(postsTable.slug, slug));
+  return rows[0] ?? null;
+}
+
 export async function getTagsList() {
   return await db
     .select({
