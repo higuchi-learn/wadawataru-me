@@ -66,7 +66,7 @@ function SocialIcons() {
   return (
     <>
       <a
-        href="https://github.com/wadawataru"
+        href="https://github.com/higuchi-learn"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="GitHub"
@@ -81,7 +81,7 @@ function SocialIcons() {
         </svg>
       </a>
       <a
-        href="https://x.com/wadawataru"
+        href="https://x.com/hig270"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="X (Twitter)"

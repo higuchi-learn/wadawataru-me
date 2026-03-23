@@ -19,6 +19,13 @@
 		"binding": "ASSETS",
 		"directory": ".open-next/assets"
 	},
+	"preview_urls": false,
+	"routes": [
+		{
+			"pattern": "wadawataru.me",
+			"custom_domain": true
+		}
+	],
 	"images": {
 		// Enable image optimization
 		// see https://opennext.js.org/cloudflare/howtos/image
