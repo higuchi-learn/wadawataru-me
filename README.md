@@ -6,6 +6,8 @@
 ここをかなり作り込んだので, FigmaMCPを用いた結果ほぼスタイルに関してコーディングを行うことは無かった
 ## 未実装機能
 [wadawataru-me/documents/todo.md at master · higuchi-learn/wadawataru-me · GitHub](https://github.com/higuchi-learn/wadawataru-me/blob/master/documents/todo.md)
+## 開発記録
+[wadawataru-me/documents/v2-road.md at master · higuchi-learn/wadawataru-me · GitHub](https://github.com/higuchi-learn/wadawataru-me/blob/master/documents/v2-road.md)
 ## 制作背景
 ### 課題
 - ラフな技術発信はQiita, テクノロジーに尖った･本気の技術発信はZenn, 技術に関係ない思想ははてなブログやしずかなインターネット, 個人的なブログは〇〇をブログ...みたいな使い分けをするのは面倒.
@@ -53,6 +55,6 @@ QiitaやZenn等, 技術ブログでこの構成でプロダクト開発を行っ
 #### 実装手順について
 v1では使ったことの無いフレームワーク等を複数使ったことにより, 作りたい機能をどう実装したらいいのか全く分からなくなってしまった. そのため, まずは使ってみたい技術で, 基本的な処理が書けるようになることと, そもそもそれがOpenNext･Workers上で動作可能であることを確かめてからポートフォリオの制作に移った.
 なお, QiitaやZenn等, 技術ブログでこの構成でプロダクト開発を行ったという記事が存在せず, 私が最初の一人だろうと思い, 実装可能であることを示す記事を公開した. また, Neon+Workersで注意すべき点を喚起する記事も公開した.
-[Next.js + Neon + Drizzle + R2 を使ったプロダクトをCloudflare Workersで公開する. #cloudflare - Qiita](https://qiita.com/wada_wataru/items/014b7db9635988ba1281)
-[【Hyperdrive】Next.js+NeonをWorkersにデプロイするときの注意点 #CloudflareWorkers - Qiita](https://qiita.com/wada_wataru/items/0f2fa279a8b86a629a37)
+- [Next.js + Neon + Drizzle + R2 を使ったプロダクトをCloudflare Workersで公開する. #cloudflare - Qiita](https://qiita.com/wada_wataru/items/014b7db9635988ba1281)
+- [【Hyperdrive】Next.js+NeonをWorkersにデプロイするときの注意点 #CloudflareWorkers - Qiita](https://qiita.com/wada_wataru/items/0f2fa279a8b86a629a37)
 結果として, ぶっつけ本番で実装をするよりも開発速度は上昇したと思う.
