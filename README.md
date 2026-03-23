@@ -1,47 +1,58 @@
-# OpenNext Starter
+# わだわたるポートフォリオサイト
+## 公開URL
+[わだわたる](https://wadawataru.me/)
+## Figmaページ
+[Figma](https://www.figma.com/design/js6RZs7E0hbl6yQcoEN4em/%E3%83%9D%E3%83%BC%E3%83%88%E3%83%95%E3%82%A9%E3%83%AA%E3%82%AA%E3%82%B5%E3%82%A4%E3%83%88?node-id=8-257&t=GawAvr6926AMOBsB-1)
+ここをかなり作り込んだので, FigmaMCPを用いた結果ほぼスタイルに関してコーディングを行うことは無かった
+## 未実装機能
+[wadawataru-me/documents/todo.md at master · higuchi-learn/wadawataru-me · GitHub](https://github.com/higuchi-learn/wadawataru-me/blob/master/documents/todo.md)
+## 制作背景
+### 課題
+- ラフな技術発信はQiita, テクノロジーに尖った･本気の技術発信はZenn, 技術に関係ない思想ははてなブログやしずかなインターネット, 個人的なブログは〇〇をブログ...みたいな使い分けをするのは面倒.
+- ブログサイトではタグ付けができるが, 自分専用のタグで記事の絞り込みができるようにしたかった
+- 就活や人との交流において, 自分について知ってもらうときに自分の持つサイト1つで私に関する色んな情報を共有することができる.そんなページが欲しかった.
+### 目的
+- 自身に関する情報の共有をするための, ブログ投稿サイト兼ポートフォリオ
+- CMSを自作し, ポートフォリオを通して技術力を示すこともできるようにする.
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-Read the documentation at https://opennext.js.org/cloudflare.
-
-## Develop
-
-Run the Next.js development server:
-
-```bash
-npm run dev
-# or similar package manager command
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-## Preview
-
-Preview the application locally on the Cloudflare runtime:
-
-```bash
-npm run preview
-# or similar package manager command
-```
-
-## Deploy
-
-Deploy the application to Cloudflare:
-
-```bash
-npm run deploy
-# or similar package manager command
-```
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 技術選定およびその意図
+### v1での失敗
+#### v1での技術選定
+Next.js + Cloudflare Workers + Drizzle + D1 + Hono + LiftKit
+##### AstroではなくNext.jsを採用した理由
+- 個人ブログだとAstroが人気であり, 手軽に作ることができるが, 技術力を証明するためにはこの手軽さよりもモダンかつ高度な技術力が必要とされるNext.jsで実装することを優先した.
+##### Next.jsプロジェクトをVercelにデプロイしない理由
+- Next.jsはVercel以外にデプロイするのは難しいと思っていたが, OpenNextを使えばCloudflareにデプロイ出来ると知り, Cloudflare Workers にデプロイすることとした. 
+- VercelとWorkersを比較したとき, Workersが劣る点は難易度が上がること･Next.js用に最適化されていないことぐらいで, レスポンス速度･費用面等, Workersが使い得だと感じた.
+- セルフホスティングをしていない, AWSのサーバーでデプロイを行わない企業なら, Workersを採用する選択肢も大いに考えられると思い, 学習しようと思った.
+##### D1+Drizzle
+- Workersでホスティングするときは, D1とR2と使うと簡単に実装ができる. また, 情報が多く合って困った時に解決しやすい.
+- ORMはPrisma一強だと思っていたが, スキーマ定義がTSで直感的に書ける.
+- SQLは知っている一方, Prismaは使ったことが無かったので, SQLライクかつ軽量なDrizzleを使ってみることにした.
+##### Hono
+- これまでAPIはNext.jsのRoute Handlersを使っていたが, せっかくCloudflareを使うなら高速なHonoでAPIを実装することにした.
+##### LiftKit
+- スタイルはあまり勉強してこず, いつもUIコンポーネントライブラリを使用して開発をしていた.これまでの使用ライブラリ(MUI, shadcn)
+- Twitterで若干話題になっており, 綺麗なコンポーネントを楽に作れそうと思ったので使ってみることにした.
+	- 結果, スタイルの詳細を知るために3ファイルほどは読み解く必要があり, 開発体験が最悪だった.
+	- 公式ドキュメントが作りかけなのか, 雑でドキュメントからレイアウト崩れの原因を特定するのは困難だった
+	- 特にレスポンシブ対応の際, スタイルの修正をしようとしても修正箇所があまりにも多すぎるかつ処理が複雑で非常に難しかった.
+	- このライブラリを使い続けるのは苦しすぎるというのが決定打となり, 作り直しを決心した.
+### V2での改善
+#### 技術選定
+Next.js + Cloudflare Workers + Drizzle + Neon + Hono + Tailwind
+##### Neonに変更した理由
+- D1を使っていたが, SQLiteは型が甘すぎると感じた.
+- Supabaseは, 簡単にDBや認証を実装するための機能が多くある一方, 学びの機会が減ると感じた.
+- まずはデータベース設計や認証設計を自分で実装する経験を重視したいと考え, PostgreSQLをネイティブに扱えるNeonを選択した.
+##### UIコンポーネントライブラリを使わない理由
+- 正直, これまではスタイルをできる限り書きたくないという逃げの考えから使っていた.
+- 長期休みで学習の時間を確保でき, よくわからないライブラリで痛い目にも遭ったので, Tailwindのみで作りたいスタイルを実装する能力を付けようと思った.
+##### この組み合わせ自体が挑戦
+QiitaやZenn等, 技術ブログでこの構成でプロダクト開発を行ったという記事が存在せず, 私が最初の一人になれるかも知れないと思った.
+#### 実装手順について
+v1では使ったことの無いフレームワーク等を複数使ったことにより, 作りたい機能をどう実装したらいいのか全く分からなくなってしまった. そのため, まずは使ってみたい技術で, 基本的な処理が書けるようになることと, そもそもそれがOpenNext･Workers上で動作可能であることを確かめてからポートフォリオの制作に移った.
+なお, QiitaやZenn等, 技術ブログでこの構成でプロダクト開発を行ったという記事が存在せず, 私が最初の一人だろうと思い, 実装可能であることを示す記事を公開した. また, Neon+Workersで注意すべき点を喚起する記事も公開した.
+[Next.js + Neon + Drizzle + R2 を使ったプロダクトをCloudflare Workersで公開する. #cloudflare - Qiita](https://qiita.com/wada_wataru/items/014b7db9635988ba1281)
+[【Hyperdrive】Next.js+NeonをWorkersにデプロイするときの注意点 #CloudflareWorkers - Qiita](https://qiita.com/wada_wataru/items/0f2fa279a8b86a629a37)
+結果として, ぶっつけ本番で実装をするよりも開発速度は上昇したと思う.
