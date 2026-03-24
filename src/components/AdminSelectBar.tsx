@@ -1,7 +1,7 @@
-import Link from "next/link";
-import StatusBar from "@/components/StatusBar";
-import SearchBar from "@/components/SearchBar";
-import type { Genre } from "@/components/GenreAbout";
+import Link from 'next/link';
+import StatusBar from '@/components/StatusBar';
+import SearchBar from '@/components/SearchBar';
+import type { Genre } from '@/components/GenreAbout';
 
 type AdminSelectBarProps = {
   genre: Genre;
@@ -11,7 +11,7 @@ type AdminSelectBarProps = {
 
 export default function AdminSelectBar({ genre, availableTags, className }: AdminSelectBarProps) {
   return (
-    <div className={`flex flex-wrap items-center justify-center gap-1 px-1 py-2 ${className ?? ""}`}>
+    <div className={`flex flex-wrap items-center justify-center gap-1 px-1 py-2 ${className ?? ''}`}>
       <StatusBar />
       <SearchBar availableTags={availableTags} className="w-[365px]" />
       <Link

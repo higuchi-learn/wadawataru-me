@@ -1,4 +1,4 @@
-import type { Heading } from "@/lib/parseHeadings";
+import type { Heading } from '@/lib/parseHeadings';
 
 type Props = {
   headings: Heading[];
@@ -14,10 +14,7 @@ export default function TableOfContents({ headings }: Props) {
       <p className="text-sm font-bold text-black mb-2">あらすじ</p>
       <ul className="space-y-1">
         {headings.map((h, i) => (
-          <li
-            key={i}
-            style={{ paddingLeft: `${(h.level - minLevel) * 0.75}rem` }}
-          >
+          <li key={i} style={{ paddingLeft: `${(h.level - minLevel) * 0.75}rem` }}>
             <a
               href={`#${h.id}`}
               className="text-xs leading-5 text-[var(--lighttext)] hover:text-[var(--ogangetext)] transition-colors"

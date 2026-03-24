@@ -1,43 +1,36 @@
-import type { Genre } from "@/components/GenreAbout";
+import type { Genre } from '@/components/GenreAbout';
 
 const GENRE_NAMES: Record<Genre, string> = {
-  products: "制作物",
-  blog: "ブログ",
-  books: "読書記録",
+  products: '制作物',
+  blog: 'ブログ',
+  books: '読書記録',
 };
 
-type PublishStatus = "draft" | "published" | "archived";
+type PublishStatus = 'draft' | 'published' | 'archived';
 
 const PUBLISH_STATUS_INFO: Record<PublishStatus, { label: string; bgClass: string }> = {
-  draft: { label: "未公開", bgClass: "bg-[var(--draft,#00a6f4)]" },
-  published: { label: "公開中", bgClass: "bg-[var(--public,#00c951)]" },
-  archived: { label: "アーカイブ済", bgClass: "bg-[var(--archive,#fb2c36)]" },
+  draft: { label: '未公開', bgClass: 'bg-[var(--draft,#00a6f4)]' },
+  published: { label: '公開中', bgClass: 'bg-[var(--public,#00c951)]' },
+  archived: { label: 'アーカイブ済', bgClass: 'bg-[var(--archive,#fb2c36)]' },
 };
 
 export type AdminHeaderTagProps = {
   genre: Genre;
-  status?: "create" | "edit";
+  status?: 'create' | 'edit';
   publishStatus?: PublishStatus;
   className?: string;
 };
 
-export function AdminHeaderTag({
-  genre,
-  status = "create",
-  publishStatus = "draft",
-  className,
-}: AdminHeaderTagProps) {
+export function AdminHeaderTag({ genre, status = 'create', publishStatus = 'draft', className }: AdminHeaderTagProps) {
   const ps = PUBLISH_STATUS_INFO[publishStatus];
   return (
-    <div className={`flex items-center gap-1 px-1 ${className ?? ""}`}>
+    <div className={`flex items-center gap-1 px-1 ${className ?? ''}`}>
       <div className="flex gap-2.5 items-center justify-center text-2xl font-bold leading-8 text-black whitespace-nowrap">
-        <span>{status === "create" ? "新規作成" : "編集"}</span>
+        <span>{status === 'create' ? '新規作成' : '編集'}</span>
         <span>（{GENRE_NAMES[genre]}）</span>
       </div>
-      {status === "edit" && (
-        <span className={`${ps.bgClass} text-white text-lg leading-7 px-1 rounded-md shadow-sm`}>
-          {ps.label}
-        </span>
+      {status === 'edit' && (
+        <span className={`${ps.bgClass} text-white text-lg leading-7 px-1 rounded-md shadow-sm`}>{ps.label}</span>
       )}
     </div>
   );
@@ -45,7 +38,7 @@ export function AdminHeaderTag({
 
 export type AdminHeaderProps = {
   genre: Genre;
-  status?: "create" | "edit";
+  status?: 'create' | 'edit';
   publishStatus?: PublishStatus;
   savedAt?: string;
   isLoading?: boolean;
@@ -57,8 +50,8 @@ export type AdminHeaderProps = {
 
 export default function AdminHeader({
   genre,
-  status = "create",
-  publishStatus = "draft",
+  status = 'create',
+  publishStatus = 'draft',
   savedAt,
   isLoading = false,
   onArchive,
@@ -66,10 +59,11 @@ export default function AdminHeader({
   onPublish,
   className,
 }: AdminHeaderProps) {
-  const buttonClass = "flex items-center justify-center px-1 rounded-md bg-white shadow-sm text-[var(--lighttext)] text-sm leading-7 whitespace-nowrap hover:bg-[var(--onmouseorange)] hover:text-[var(--ogangetext)] transition-colors disabled:opacity-40 disabled:pointer-events-none";
+  const buttonClass =
+    'flex items-center justify-center px-1 rounded-md bg-white shadow-sm text-[var(--lighttext)] text-sm leading-7 whitespace-nowrap hover:bg-[var(--onmouseorange)] hover:text-[var(--ogangetext)] transition-colors disabled:opacity-40 disabled:pointer-events-none';
 
   return (
-    <div className={`flex h-10 items-center justify-between w-full bg-white shrink-0 ${className ?? ""}`}>
+    <div className={`flex h-10 items-center justify-between w-full bg-white shrink-0 ${className ?? ''}`}>
       <AdminHeaderTag genre={genre} status={status} publishStatus={publishStatus} />
       <div className="flex items-center gap-1.5 p-1">
         <div className="flex items-center gap-0.5 text-sm leading-5 whitespace-nowrap">
@@ -84,31 +78,16 @@ export default function AdminHeader({
             <span className="text-[var(--lighttext,#6a7282)]">最終保存日時 : ----/--/-- | -- : -- : --</span>
           )}
         </div>
-        {status === "edit" && (
-          <button
-            type="button"
-            onClick={onArchive}
-            disabled={isLoading}
-            className={buttonClass}
-          >
+        {status === 'edit' && (
+          <button type="button" onClick={onArchive} disabled={isLoading} className={buttonClass}>
             アーカイブ
           </button>
         )}
-        <button
-          type="button"
-          onClick={onSaveDraft}
-          disabled={isLoading}
-          className={buttonClass}
-        >
-          {isLoading ? "処理中..." : "下書き保存"}
+        <button type="button" onClick={onSaveDraft} disabled={isLoading} className={buttonClass}>
+          {isLoading ? '処理中...' : '下書き保存'}
         </button>
-        <button
-          type="button"
-          onClick={onPublish}
-          disabled={isLoading}
-          className={buttonClass}
-        >
-          {isLoading ? "処理中..." : "公開"}
+        <button type="button" onClick={onPublish} disabled={isLoading} className={buttonClass}>
+          {isLoading ? '処理中...' : '公開'}
         </button>
       </div>
     </div>

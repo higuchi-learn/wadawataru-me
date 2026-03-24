@@ -1,4 +1,4 @@
-type CardTitleSize = "Default" | "Short";
+type CardTitleSize = 'Default' | 'Short';
 
 type CardTitleProps = {
   title: string;
@@ -6,14 +6,14 @@ type CardTitleProps = {
   className?: string;
 };
 
-export default function CardTitle({ title, size = "Default", className }: CardTitleProps) {
-  const isDefault = size === "Default";
+export default function CardTitle({ title, size = 'Default', className }: CardTitleProps) {
+  const isDefault = size === 'Default';
 
   return (
-    <div className={className ?? "flex flex-col items-start"}>
+    <div className={className ?? 'flex flex-col items-start'}>
       <p
         className={`font-semibold text-black tracking-normal whitespace-nowrap overflow-hidden text-ellipsis ${
-          isDefault ? "text-lg leading-7" : "text-sm leading-5"
+          isDefault ? 'text-lg leading-7' : 'text-sm leading-5'
         }`}
       >
         {title}

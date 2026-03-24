@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useRouter, useSearchParams } from "next/navigation";
-import PageSelectButton from "@/components/PageSelectButton";
+import { useRouter, useSearchParams } from 'next/navigation';
+import PageSelectButton from '@/components/PageSelectButton';
 
 type SelectPageBarProps = {
   totalPages: number;
@@ -11,11 +11,11 @@ type SelectPageBarProps = {
 export default function SelectPageBar({ totalPages, className }: SelectPageBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentPage = Math.max(1, Number(searchParams.get("page") ?? "1"));
+  const currentPage = Math.max(1, Number(searchParams.get('page') ?? '1'));
 
   const setPage = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set("page", String(page));
+    params.set('page', String(page));
     router.push(`?${params.toString()}`);
   };
 
@@ -34,7 +34,7 @@ export default function SelectPageBar({ totalPages, className }: SelectPageBarPr
   };
 
   return (
-    <div className={className ?? "flex items-center gap-0.5"}>
+    <div className={className ?? 'flex items-center gap-0.5'}>
       <PageSelectButton category="First" isDisabled={isFirst} onClick={() => setPage(1)} />
       <PageSelectButton category="Before" isDisabled={isFirst} onClick={() => setPage(currentPage - 1)} />
       {getPageNumbers().map((page) => (

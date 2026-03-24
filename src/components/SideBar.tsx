@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { usePathname } from "next/navigation";
-import RoundButton from "@/components/RoundButton";
-import { NAV_ITEMS, type NavItem } from "@/components/SelectBar";
+import { usePathname } from 'next/navigation';
+import RoundButton from '@/components/RoundButton';
+import { NAV_ITEMS, type NavItem } from '@/components/SelectBar';
 
 type SideBarProps = {
   isOpen: boolean;
@@ -16,18 +16,12 @@ export default function SideBar({ isOpen, onClose, items = NAV_ITEMS }: SideBarP
   return (
     <>
       {/* オーバーレイ */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/20"
-          onClick={onClose}
-          aria-hidden="true"
-        />
-      )}
+      {isOpen && <div className="fixed inset-0 z-40 bg-black/20" onClick={onClose} aria-hidden="true" />}
 
       {/* サイドバー本体 */}
       <div
         className={`fixed top-0 right-0 z-50 flex flex-col w-[200px] h-full bg-white shadow-[0_0_4px_rgba(0,0,0,0.25)] transition-transform duration-300 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
+          isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         aria-label="ナビゲーションメニュー"
       >
@@ -48,12 +42,7 @@ export default function SideBar({ isOpen, onClose, items = NAV_ITEMS }: SideBarP
         {/* ナビゲーション */}
         <nav className="flex flex-col items-center gap-1 py-1">
           {items.map(({ label, href }) => (
-            <RoundButton
-              key={label}
-              href={href}
-              state={pathname === href ? "Enabled" : "Disabled"}
-              onClick={onClose}
-            >
+            <RoundButton key={label} href={href} state={pathname === href ? 'Enabled' : 'Disabled'} onClick={onClose}>
               {label}
             </RoundButton>
           ))}

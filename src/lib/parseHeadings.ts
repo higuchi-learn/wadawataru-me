@@ -8,10 +8,10 @@ export function generateHeadingId(text: string): string {
   return text
     .replace(/`[^`]*`/g, (m) => m.slice(1, -1)) // インラインコードのバッククォートを除去
     .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff-]/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 export function parseHeadings(markdown: string): Heading[] {

@@ -1,4 +1,4 @@
-import Card from "@/components/Card";
+import Card from '@/components/Card';
 
 export type CardData = {
   id: string | number;
@@ -32,7 +32,7 @@ export default function CardList({ cards, className }: CardListProps) {
     <div
       className={
         className ??
-        "w-full flex flex-col items-center gap-0 sm:gap-1.5 sm:p-1 lg:flex-row lg:flex-wrap lg:justify-center lg:gap-1.5 lg:py-1"
+        'w-full flex flex-col items-center gap-0 sm:gap-1.5 sm:p-1 lg:flex-row lg:flex-wrap lg:justify-center lg:gap-1.5 lg:py-1'
       }
     >
       {cards.map((card) => (

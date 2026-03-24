@@ -1,5 +1,5 @@
-import { db } from "../db";
-import { InsertPost, InsertTag, InsertPostTag, postsTable, tagsTable, postTagsTable } from "../schema";
+import { db } from '../db';
+import { InsertPost, InsertTag, InsertPostTag, postsTable, tagsTable, postTagsTable } from '../schema';
 
 export async function createPost(data: InsertPost): Promise<string> {
   // returningで挿入したレコードのidを取得する

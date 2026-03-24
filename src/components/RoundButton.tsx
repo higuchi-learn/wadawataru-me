@@ -1,6 +1,6 @@
-type RoundButtonState = "Enabled" | "Disabled" | "mouseOver" | "clicking";
+type RoundButtonState = 'Enabled' | 'Disabled' | 'mouseOver' | 'clicking';
 
-import Link from "next/link";
+import Link from 'next/link';
 
 type RoundButtonProps = {
   children: React.ReactNode;
@@ -10,29 +10,20 @@ type RoundButtonProps = {
   className?: string;
 };
 
-export default function RoundButton({
-  children,
-  state = "Disabled",
-  onClick,
-  href,
-  className,
-}: RoundButtonProps) {
-  const isEnabled = state === "Enabled";
-  const isMouseOver = state === "mouseOver";
-  const isClicking = state === "clicking";
+export default function RoundButton({ children, state = 'Disabled', onClick, href, className }: RoundButtonProps) {
+  const isEnabled = state === 'Enabled';
+  const isMouseOver = state === 'mouseOver';
+  const isClicking = state === 'clicking';
 
   const bgClass = isEnabled
-    ? "bg-[var(--enableorange)]"
+    ? 'bg-[var(--enableorange)]'
     : isMouseOver
-      ? "bg-[var(--onmouseorange)]"
+      ? 'bg-[var(--onmouseorange)]'
       : isClicking
-        ? "bg-[var(--clickingorange)]"
-        : "bg-white";
+        ? 'bg-[var(--clickingorange)]'
+        : 'bg-white';
 
-  const textClass =
-    isEnabled || isClicking
-      ? "text-[var(--ogangetext)]"
-      : "text-[var(--lighttext)]";
+  const textClass = isEnabled || isClicking ? 'text-[var(--ogangetext)]' : 'text-[var(--lighttext)]';
 
   const computedClass =
     className ??

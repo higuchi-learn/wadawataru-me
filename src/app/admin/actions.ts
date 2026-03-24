@@ -1,14 +1,14 @@
-"use server";
+'use server';
 
-import { redirect } from "next/navigation";
-import { createPost } from "@/db/queries/insert";
-import { updatePostById, syncPostTags } from "@/db/queries/update";
-import type { Genre } from "@/components/GenreAbout";
+import { redirect } from 'next/navigation';
+import { createPost } from '@/db/queries/insert';
+import { updatePostById, syncPostTags } from '@/db/queries/update';
+import type { Genre } from '@/components/GenreAbout';
 
-const GENRE_DB_MAP: Record<Genre, "blogs" | "products" | "books"> = {
-  blog: "blogs",
-  products: "products",
-  books: "books",
+const GENRE_DB_MAP: Record<Genre, 'blogs' | 'products' | 'books'> = {
+  blog: 'blogs',
+  products: 'products',
+  books: 'books',
 };
 
 type SavePayload = {
@@ -37,17 +37,17 @@ export async function saveAsDraftAction(payload: SavePayload): Promise<ActionRes
         description,
         content,
         thumbnail: thumbnail || null,
-        status: "draft",
+        status: 'draft',
         createdAt: new Date(),
         updatedAt: new Date(),
       });
       await syncPostTags(postId, tags);
     } else {
-      await updatePostById(id, title, description, thumbnail || null, dbGenre, "draft", content);
+      await updatePostById(id, title, description, thumbnail || null, dbGenre, 'draft', content);
       await syncPostTags(id, tags);
     }
   } catch {
-    return { error: "保存に失敗しました。もう一度お試しください。" };
+    return { error: '保存に失敗しました。もう一度お試しください。' };
   }
 
   redirect(`/admin/${genre}`);
@@ -66,7 +66,7 @@ export async function publishAction(payload: SavePayload & { wasAlreadyPublished
         description,
         content,
         thumbnail: thumbnail || null,
-        status: "published",
+        status: 'published',
         createdAt: new Date(),
         updatedAt: new Date(),
         publishedAt: new Date(),
@@ -74,26 +74,39 @@ export async function publishAction(payload: SavePayload & { wasAlreadyPublished
       await syncPostTags(postId, tags);
     } else {
       await updatePostById(
-        id, title, description, thumbnail || null, dbGenre, "published", content,
+        id,
+        title,
+        description,
+        thumbnail || null,
+        dbGenre,
+        'published',
+        content,
         wasAlreadyPublished ? undefined : new Date(),
       );
       await syncPostTags(id, tags);
     }
   } catch {
-    return { error: "公開に失敗しました。もう一度お試しください。" };
+    return { error: '公開に失敗しました。もう一度お試しください。' };
   }
 
   redirect(`/${genre}/${slug}`);
 }
 
-export async function archiveAction(payload: { id: string; genre: Genre; title: string; description: string; content: string; thumbnail: string }): Promise<ActionResult> {
+export async function archiveAction(payload: {
+  id: string;
+  genre: Genre;
+  title: string;
+  description: string;
+  content: string;
+  thumbnail: string;
+}): Promise<ActionResult> {
   const { id, genre, title, description, content, thumbnail } = payload;
   const dbGenre = GENRE_DB_MAP[genre];
 
   try {
-    await updatePostById(id, title, description, thumbnail || null, dbGenre, "archived", content);
+    await updatePostById(id, title, description, thumbnail || null, dbGenre, 'archived', content);
   } catch {
-    return { error: "アーカイブに失敗しました。もう一度お試しください。" };
+    return { error: 'アーカイブに失敗しました。もう一度お試しください。' };
   }
 
   redirect(`/admin/${genre}`);

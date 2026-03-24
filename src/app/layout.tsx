@@ -1,41 +1,39 @@
-import type { Metadata } from "next";
-import { Inter, Noto_Sans_JP, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Inter, Noto_Sans_JP, Geist_Mono } from 'next/font/google';
+import './globals.css';
 
 const inter = Inter({
-	variable: "--font-inter",
-	subsets: ["latin"],
+  variable: '--font-inter',
+  subsets: ['latin'],
 });
 
 const notoSansJP = Noto_Sans_JP({
-	variable: "--font-noto-sans-jp",
-	subsets: ["latin"],
-	weight: ["400", "600"],
+  variable: '--font-noto-sans-jp',
+  subsets: ['latin'],
+  weight: ['400', '600'],
 });
 
 const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
-	subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-	title: "わだわたる",
-	description: "わだわたるのポートフォリオサイト",
+  title: 'わだわたる',
+  description: 'わだわたるのポートフォリオサイト',
 };
 
 export default function RootLayout({
-	children,
+  children,
 }: Readonly<{
-	children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-	return (
-		<html lang="ja">
-			<head>
-				<link rel="icon" href="/favicon.png" type="image/png" />
-			</head>
-			<body className={`${inter.variable} ${notoSansJP.variable} ${geistMono.variable} antialiased`}>
-				{children}
-			</body>
-		</html>
-	);
+  return (
+    <html lang="ja">
+      <head>
+        <link rel="icon" href="/favicon.png" type="image/png" />
+      </head>
+      <body className={`${inter.variable} ${notoSansJP.variable} ${geistMono.variable} antialiased`}>{children}</body>
+    </html>
+  );
 }

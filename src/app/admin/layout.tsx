@@ -1,7 +1,3 @@
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="h-screen overflow-hidden bg-white flex flex-col">
-      {children}
-    </div>
-  );
+  return <div className="h-screen overflow-hidden bg-white flex flex-col">{children}</div>;
 }

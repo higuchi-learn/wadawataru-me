@@ -1,7 +1,7 @@
-import ArticlePage from "@/components/ArticlePage";
-import { getPostById, getTagsByPostId } from "@/db/queries/select";
-import { formatDate } from "@/lib/formatDate";
-import { notFound } from "next/navigation";
+import ArticlePage from '@/components/ArticlePage';
+import { getPostById, getTagsByPostId } from '@/db/queries/select';
+import { formatDate } from '@/lib/formatDate';
+import { notFound } from 'next/navigation';
 
 export default async function PostDetailPage({ slug }: { slug: string }) {
   const post = await getPostById(slug);

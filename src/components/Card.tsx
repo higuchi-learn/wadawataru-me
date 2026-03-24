@@ -1,6 +1,6 @@
-import Link from "next/link";
-import CardTitle from "@/components/CardTitle";
-import TagsList from "@/components/TagsList";
+import Link from 'next/link';
+import CardTitle from '@/components/CardTitle';
+import TagsList from '@/components/TagsList';
 
 type CardProps = {
   title: string;
@@ -32,15 +32,7 @@ type CardProps = {
  *   [テキスト列(shrink-0, w-424px): タイトル + 説明 + タグ + 日付]
  *   [サムネイル(flex-1, aspect-video, rounded-lg)]
  */
-export default function Card({
-  title,
-  description,
-  tags,
-  publishedAt,
-  updatedAt,
-  href = "#",
-  className,
-}: CardProps) {
+export default function Card({ title, description, tags, publishedAt, updatedAt, href = '#', className }: CardProps) {
   return (
     <Link
       href={href}
@@ -48,7 +40,7 @@ export default function Card({
         sm:px-2 sm:py-1 sm:rounded-xl sm:overflow-hidden
         sm:shadow-[0_0_5px_rgba(0,0,0,0.25)] sm:hover:shadow-[0_0_8px_rgba(0,0,0,0.2)] sm:transition-shadow
         2xl:flex-row 2xl:gap-2 2xl:items-center
-        ${className ?? ""}`}
+        ${className ?? ''}`}
     >
       {/* mobile: 上部サムネイル (全幅, 角なし) */}
       <div className="aspect-video w-full bg-neutral-100 sm:hidden" />

@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
-import SelectBar, { ADMIN_NAV_ITEMS } from "@/components/SelectBar";
-import SideBar from "@/components/SideBar";
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
+import SelectBar, { ADMIN_NAV_ITEMS } from '@/components/SelectBar';
+import SideBar from '@/components/SideBar';
 
 type HeaderProps = {
-  variant?: "public" | "admin";
+  variant?: 'public' | 'admin';
 };
 
-export default function Header({ variant = "public" }: HeaderProps) {
+export default function Header({ variant = 'public' }: HeaderProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const navItems = variant === "admin" ? ADMIN_NAV_ITEMS : undefined;
+  const navItems = variant === 'admin' ? ADMIN_NAV_ITEMS : undefined;
 
   return (
     <>
@@ -20,13 +20,7 @@ export default function Header({ variant = "public" }: HeaderProps) {
         <div className="flex items-center gap-6">
           {/* ロゴ */}
           <Link href="/" className="shrink-0">
-            <Image
-              src="/logo-long.webp"
-              alt="わだわたる"
-              width={200}
-              height={50}
-              priority
-            />
+            <Image src="/logo-long.webp" alt="わだわたる" width={200} height={50} priority />
           </Link>
 
           {/* デスクトップ: ナビゲーション */}

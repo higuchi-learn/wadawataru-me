@@ -1,4 +1,4 @@
-export type PageButtonCategory = "Number" | "First" | "Before" | "Next" | "Last";
+export type PageButtonCategory = 'Number' | 'First' | 'Before' | 'Next' | 'Last';
 
 type PageSelectButtonProps = {
   category?: PageButtonCategory;
@@ -31,22 +31,16 @@ const ChevronLastIcon = () => (
 );
 
 export default function PageSelectButton({
-  category = "Number",
+  category = 'Number',
   page = 1,
   isActive = false,
   isDisabled = false,
   onClick,
   className,
 }: PageSelectButtonProps) {
-  const bgClass = isDisabled
-    ? "bg-[var(--unclickable)]"
-    : isActive
-      ? "bg-[var(--enableorange)]"
-      : "bg-white";
+  const bgClass = isDisabled ? 'bg-[var(--unclickable)]' : isActive ? 'bg-[var(--enableorange)]' : 'bg-white';
 
-  const textClass = isActive
-    ? "text-[var(--ogangetext)]"
-    : "text-[var(--lighttext)]";
+  const textClass = isActive ? 'text-[var(--ogangetext)]' : 'text-[var(--lighttext)]';
 
   return (
     <button
@@ -57,18 +51,16 @@ export default function PageSelectButton({
         className ??
         `size-5 shrink-0 flex items-center justify-center overflow-hidden border-[0.2px] border-[var(--border)] rounded-md p-1.5 transition-colors ${bgClass} ${textClass} ${
           isDisabled
-            ? "cursor-default"
-            : "cursor-pointer hover:bg-[var(--onmouseorange)] active:bg-[var(--clickingorange)] active:text-[var(--ogangetext)]"
+            ? 'cursor-default'
+            : 'cursor-pointer hover:bg-[var(--onmouseorange)] active:bg-[var(--clickingorange)] active:text-[var(--ogangetext)]'
         }`
       }
     >
-      {category === "Number" && (
-        <span className="text-sm leading-5 font-normal">{page}</span>
-      )}
-      {category === "First" && <ChevronFirstIcon />}
-      {category === "Before" && <ChevronBeforeIcon />}
-      {category === "Next" && <ChevronNextIcon />}
-      {category === "Last" && <ChevronLastIcon />}
+      {category === 'Number' && <span className="text-sm leading-5 font-normal">{page}</span>}
+      {category === 'First' && <ChevronFirstIcon />}
+      {category === 'Before' && <ChevronBeforeIcon />}
+      {category === 'Next' && <ChevronNextIcon />}
+      {category === 'Last' && <ChevronLastIcon />}
     </button>
   );
 }

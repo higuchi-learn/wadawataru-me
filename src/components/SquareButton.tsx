@@ -1,4 +1,4 @@
-type SquareButtonState = "Enabled" | "Disabled" | "mouseOver" | "clicking";
+type SquareButtonState = 'Enabled' | 'Disabled' | 'mouseOver' | 'clicking';
 
 type SquareButtonProps = {
   children: React.ReactNode;
@@ -7,28 +7,20 @@ type SquareButtonProps = {
   className?: string;
 };
 
-export default function SquareButton({
-  children,
-  state = "Disabled",
-  onClick,
-  className,
-}: SquareButtonProps) {
-  const isEnabled = state === "Enabled";
-  const isMouseOver = state === "mouseOver";
-  const isClicking = state === "clicking";
+export default function SquareButton({ children, state = 'Disabled', onClick, className }: SquareButtonProps) {
+  const isEnabled = state === 'Enabled';
+  const isMouseOver = state === 'mouseOver';
+  const isClicking = state === 'clicking';
 
   const bgClass = isEnabled
-    ? "bg-[var(--enableorange)]"
+    ? 'bg-[var(--enableorange)]'
     : isMouseOver
-      ? "bg-[var(--onmouseorange)]"
+      ? 'bg-[var(--onmouseorange)]'
       : isClicking
-        ? "bg-[var(--clickingorange)]"
-        : "bg-white";
+        ? 'bg-[var(--clickingorange)]'
+        : 'bg-white';
 
-  const textClass =
-    isEnabled || isClicking
-      ? "text-[var(--ogangetext)]"
-      : "text-[var(--lighttext)]";
+  const textClass = isEnabled || isClicking ? 'text-[var(--ogangetext)]' : 'text-[var(--lighttext)]';
 
   return (
     <button

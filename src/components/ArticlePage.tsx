@@ -1,9 +1,9 @@
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import React from "react";
-import TagsList from "@/components/TagsList";
-import TableOfContents from "@/components/TableOfContents";
-import { parseHeadings, generateHeadingId } from "@/lib/parseHeadings";
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import React from 'react';
+import TagsList from '@/components/TagsList';
+import TableOfContents from '@/components/TableOfContents';
+import { parseHeadings, generateHeadingId } from '@/lib/parseHeadings';
 
 export type ArticlePageData = {
   title: string;
@@ -15,19 +15,16 @@ export type ArticlePageData = {
 };
 
 function extractText(node: React.ReactNode): string {
-  if (typeof node === "string") return node;
-  if (Array.isArray(node)) return node.map(extractText).join("");
+  if (typeof node === 'string') return node;
+  if (Array.isArray(node)) return node.map(extractText).join('');
   if (React.isValidElement(node)) {
     return extractText((node.props as { children?: React.ReactNode }).children);
   }
-  return "";
+  return '';
 }
 
-function makeHeading(Tag: "h1" | "h2" | "h3" | "h4" | "h5" | "h6") {
-  return function HeadingWithId({
-    children,
-    ...props
-  }: React.HTMLAttributes<HTMLHeadingElement>) {
+function makeHeading(Tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6') {
+  return function HeadingWithId({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
     const id = generateHeadingId(extractText(children));
     return (
       <Tag id={id} {...props}>
@@ -38,12 +35,12 @@ function makeHeading(Tag: "h1" | "h2" | "h3" | "h4" | "h5" | "h6") {
 }
 
 const headingComponents = {
-  h1: makeHeading("h1"),
-  h2: makeHeading("h2"),
-  h3: makeHeading("h3"),
-  h4: makeHeading("h4"),
-  h5: makeHeading("h5"),
-  h6: makeHeading("h6"),
+  h1: makeHeading('h1'),
+  h2: makeHeading('h2'),
+  h3: makeHeading('h3'),
+  h4: makeHeading('h4'),
+  h5: makeHeading('h5'),
+  h6: makeHeading('h6'),
 };
 
 export default function ArticlePage({ title, description, tags, publishedAt, updatedAt, content }: ArticlePageData) {
@@ -53,12 +50,8 @@ export default function ArticlePage({ title, description, tags, publishedAt, upd
     <div className="flex justify-center px-4 py-8">
       <div className="flex gap-8 w-full max-w-5xl">
         <article className="flex-1 min-w-0 max-w-3xl">
-          <h1 className="text-3xl font-bold leading-tight text-black mb-2">
-            {title}
-          </h1>
-          <p className="text-sm leading-6 text-[var(--lighttext)] mb-2">
-            {description}
-          </p>
+          <h1 className="text-3xl font-bold leading-tight text-black mb-2">{title}</h1>
+          <p className="text-sm leading-6 text-[var(--lighttext)] mb-2">{description}</p>
           <TagsList tags={tags} className="mb-2" />
           <div className="flex gap-4 text-xs text-[var(--lighttext)] mb-8">
             <span>公開日：{publishedAt}</span>

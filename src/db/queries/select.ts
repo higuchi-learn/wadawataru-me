@@ -1,10 +1,10 @@
-import { db } from "../db";
-import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
-import { postsTable, tagsTable, postTagsTable, SelectPost, SelectTag } from "../schema";
+import { db } from '../db';
+import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm';
+import { postsTable, tagsTable, postTagsTable, SelectPost, SelectTag } from '../schema';
 
 export const PAGE_SIZE = 20;
 
-export async function getPostById(slug: SelectPost["slug"]) {
+export async function getPostById(slug: SelectPost['slug']) {
   const rows = await db
     .select({
       id: postsTable.id,
@@ -15,11 +15,11 @@ export async function getPostById(slug: SelectPost["slug"]) {
       updatedAt: postsTable.updatedAt,
     })
     .from(postsTable)
-    .where(and(eq(postsTable.slug, slug), eq(postsTable.status, "published")));
+    .where(and(eq(postsTable.slug, slug), eq(postsTable.status, 'published')));
   return rows[0] ?? null;
 }
 
-export async function getPostByIdForAdmin(id: SelectPost["id"]) {
+export async function getPostByIdForAdmin(id: SelectPost['id']) {
   const rows = await db
     .select({
       id: postsTable.id,
@@ -37,7 +37,7 @@ export async function getPostByIdForAdmin(id: SelectPost["id"]) {
   return rows[0] ?? null;
 }
 
-export async function getTagsByPostId(postId: SelectPost["id"]) {
+export async function getTagsByPostId(postId: SelectPost['id']) {
   return await db
     .select({ name: tagsTable.name })
     .from(postTagsTable)
@@ -57,9 +57,9 @@ export async function getTagsList() {
 }
 
 export async function getPostsList(
-  selectedGenre: SelectPost["genre"],
-  selectedStatus: SelectPost["status"],
-  selectedTagIds: SelectTag["id"][],
+  selectedGenre: SelectPost['genre'],
+  selectedStatus: SelectPost['status'],
+  selectedTagIds: SelectTag['id'][],
   page: number = 1,
   pageSize: number = PAGE_SIZE,
 ) {
@@ -87,12 +87,7 @@ export async function getPostsList(
       // タグを持たない記事はpost_tags_tableにレコードがないため, 内部結合で結合してしまうとタグを持たない記事が検索結果から漏れてしまう. そのため, タグ検索を行う場合も, タグを持たない記事も検索結果に含めるために, 左外部結合で結合する.
       .leftJoin(postTagsTable, eq(postsTable.id, postTagsTable.postId))
       .leftJoin(tagsTable, eq(postTagsTable.tagId, tagsTable.id))
-      .where(
-        and(
-          eq(postsTable.genre, selectedGenre),
-          eq(postsTable.status, selectedStatus),
-        )
-      )
+      .where(and(eq(postsTable.genre, selectedGenre), eq(postsTable.status, selectedStatus)))
       // タグの数だけ, 同じ記事が複数行返ってくるため, タグ以外のカラムはグループ化して1行にまとめる
       .groupBy(
         postsTable.id,
@@ -131,7 +126,7 @@ export async function getPostsList(
         eq(postsTable.genre, selectedGenre),
         eq(postsTable.status, selectedStatus),
         inArray(postTagsTable.tagId, selectedTagIds),
-      )
+      ),
     )
     .groupBy(
       postsTable.id,
@@ -143,29 +138,22 @@ export async function getPostsList(
       postsTable.updatedAt,
     )
     // 検索で選択されたタグの数==記事の持つタグの数で絞る.
-    .having(
-      sql`count(distinct ${postTagsTable.tagId}) = ${selectedTagIds.length}`
-    )
+    .having(sql`count(distinct ${postTagsTable.tagId}) = ${selectedTagIds.length}`)
     .orderBy(desc(postsTable.publishedAt))
     .limit(pageSize)
     .offset(offset);
 }
 
 export async function getPostsCount(
-  selectedGenre: SelectPost["genre"],
-  selectedStatus: SelectPost["status"],
-  selectedTagIds: SelectTag["id"][],
+  selectedGenre: SelectPost['genre'],
+  selectedStatus: SelectPost['status'],
+  selectedTagIds: SelectTag['id'][],
 ): Promise<number> {
   if (selectedTagIds.length === 0) {
     const result = await db
       .select({ count: sql<number>`cast(count(*) as int)` })
       .from(postsTable)
-      .where(
-        and(
-          eq(postsTable.genre, selectedGenre),
-          eq(postsTable.status, selectedStatus),
-        )
-      );
+      .where(and(eq(postsTable.genre, selectedGenre), eq(postsTable.status, selectedStatus)));
     return result[0].count;
   }
 
@@ -180,14 +168,12 @@ export async function getPostsCount(
         eq(postsTable.genre, selectedGenre),
         eq(postsTable.status, selectedStatus),
         inArray(postTagsTable.tagId, selectedTagIds),
-      )
+      ),
     )
     .groupBy(postsTable.id)
     .having(sql`count(distinct ${postTagsTable.tagId}) = ${selectedTagIds.length}`)
-    .as("sub");
+    .as('sub');
 
-  const result = await db
-    .select({ count: sql<number>`cast(count(*) as int)` })
-    .from(sub);
+  const result = await db.select({ count: sql<number>`cast(count(*) as int)` }).from(sub);
   return result[0].count;
 }
