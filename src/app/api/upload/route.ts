@@ -22,10 +22,7 @@ app.post('/upload', async (c) => {
   await env.R2.put(key, await file.arrayBuffer(), {
     httpMetadata: { contentType: file.type },
   });
-  // アップロードしたファイルのURLを生成する
-  const imagePath = `/api/images/${key}`;
-  // ベースURL+画像パスを組み合わせて画像取得用URLを生成する
-  const url = `${c.req.url.split('/api')[0]}${imagePath}`;
+  const url = `/api/images/${key}`;
 
   return c.json({ url }, 201);
 });

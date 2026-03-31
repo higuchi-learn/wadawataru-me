@@ -191,38 +191,30 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
     const cm = mde.codemirror;
 
     // Codemirrorのpasteイベントを監視して、画像が貼り付けられたときにuploadImage関数を呼び出す
+    const insertImage = (file: File) => {
+      uploadImage(file)
+        .then((url) => {
+          if (!url) {
+            setError('画像のアップロードに失敗しました');
+            return;
+          }
+          cm.replaceSelection(`![](${url})`);
+        })
+        .catch(() => setError('画像のアップロードに失敗しました'));
+    };
+
     cm.on('paste', (_: unknown, e: ClipboardEvent) => {
-      // クリップボードからファイルを取得する
       const file = e.clipboardData?.files[0];
-      // ファイルが存在しないか画像ファイルでない場合は何もしない
       if (!file?.type.startsWith('image/')) return;
-      // 画像ファイルが貼り付けられた場合は、デフォルトの貼り付け処理をキャンセル
       e.preventDefault();
-      // uploadImage関数を呼び出して画像をアップロードし、URLを取得する
-      uploadImage(file).then((url) => {
-        if (!url) return;
-        // 画像のURLが取得できたら、Markdown形式でエディタに貼り付ける
-        const cursor = cm.getDoc().getCursor();
-        cm.getDoc().replaceRange(`![](${url})`, cursor);
-      });
+      insertImage(file);
     });
 
-    // Codemirrorのdropイベントを監視
     cm.on('drop', (_: unknown, e: DragEvent) => {
-      // ドロップされたファイルを取得する
       const file = e.dataTransfer?.files[0];
-      // ファイルが存在しないか画像ファイルでない場合は何もしない
       if (!file?.type.startsWith('image/')) return;
-      // 画像ファイルがドロップされた場合は、デフォルトのドロップ処理をキャンセル
       e.preventDefault();
-      // uploadImage関数を呼び出して画像をアップロードし、URLを取得する
-      uploadImage(file).then((url) => {
-        // URLが取得できない場合は何もしない
-        if (!url) return;
-        // 画像のURLが取得できたら、Markdown形式でエディタに貼り付ける
-        const cursor = cm.getDoc().getCursor();
-        cm.getDoc().replaceRange(`![](${url})`, cursor);
-      });
+      insertImage(file);
     });
   }, []);
 
