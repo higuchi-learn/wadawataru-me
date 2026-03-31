@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
+import EasyMDE from 'easymde';
 import dynamic from 'next/dynamic';
 import AdminHeader from '@/components/AdminHeader';
 import TagLabel from '@/components/TagLabel';
@@ -37,9 +38,11 @@ type InputFieldProps = {
   onChange: (v: string) => void;
   placeholder?: string;
   multiline?: boolean;
+  // 画像の貼り付けをサポートするため、onPasteイベントハンドラーを受け取る
+  onPaste?: React.ClipboardEventHandler<HTMLInputElement>;
 };
 
-function InputField({ label, required, hint, value, onChange, placeholder, multiline }: InputFieldProps) {
+function InputField({ label, required, hint, value, onChange, placeholder, multiline, onPaste }: InputFieldProps) {
   const inputClass =
     'bg-[var(--inputcontainer)] border border-[var(--inputborder,#9f9fa9)] rounded-sm shadow-sm px-2 text-sm leading-5 w-full focus:outline-none focus:ring-1 focus:ring-[var(--ogangetext)]';
   return (
@@ -58,6 +61,8 @@ function InputField({ label, required, hint, value, onChange, placeholder, multi
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          // 画像の貼り付けをサポートするため、onPasteイベントハンドラーをinput要素に渡す
+          onPaste={onPaste}
           placeholder={placeholder}
           className={`${inputClass} h-7`}
         />
@@ -144,6 +149,21 @@ type Props = {
   initialData?: ArticleInitialData;
 };
 
+// 画像をアップロードしてURLを取得する関数
+async function uploadImage(file: File): Promise<string | null> {
+  // FormDataを作成してファイルを追加する
+  const form = new FormData();
+  // 画像ファイルをFormDataに追加する
+  form.append('file', file);
+  // /api/uploadエンドポイントにPOSTリクエストを送信して画像をアップロードする
+  const res = await fetch('/api/upload', { method: 'POST', body: form });
+  // レスポンスが正常でない場合はnullを返す
+  if (!res.ok) return null;4
+  // レスポンスから画像のURLを取得して返す
+  const { url } = (await res.json()) as { url: string };
+  return url;
+}
+
 export default function BlogEditor({ genre, mode, initialData }: Props) {
   const [title, setTitle] = useState(initialData?.title ?? '');
   const [description, setDescription] = useState(initialData?.description ?? '');
@@ -155,9 +175,55 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
   const [savedAt] = useState(initialData?.savedAt ?? '');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const mdeRef = useRef<EasyMDE | null>(null);
 
   const handleContentChange = useCallback((value: string) => {
     setContent(value);
+  }, []);
+
+  // EasyMDEのインスタンスを取得するためのコールバック関数
+  const handleGetMdeInstance = useCallback((mde: EasyMDE) => {
+    // すでにインスタンスがセットされている場合は何もしない
+    if (mdeRef.current) return;
+    // インスタンスをrefに保存する
+    mdeRef.current = mde;
+    // Codemirrorのインスタンスを取得する
+    const cm = mde.codemirror;
+
+    // Codemirrorのpasteイベントを監視して、画像が貼り付けられたときにuploadImage関数を呼び出す
+    cm.on('paste', (_: unknown, e: ClipboardEvent) => {
+      // クリップボードからファイルを取得する
+      const file = e.clipboardData?.files[0];
+      // ファイルが存在しないか画像ファイルでない場合は何もしない
+      if (!file?.type.startsWith('image/')) return;
+      // 画像ファイルが貼り付けられた場合は、デフォルトの貼り付け処理をキャンセル
+      e.preventDefault();
+      // uploadImage関数を呼び出して画像をアップロードし、URLを取得する
+      uploadImage(file).then((url) => {
+        if (!url) return;
+        // 画像のURLが取得できたら、Markdown形式でエディタに貼り付ける
+        const cursor = cm.getDoc().getCursor();
+        cm.getDoc().replaceRange(`![](${url})`, cursor);
+      });
+    });
+
+    // Codemirrorのdropイベントを監視
+    cm.on('drop', (_: unknown, e: DragEvent) => {
+      // ドロップされたファイルを取得する
+      const file = e.dataTransfer?.files[0];
+      // ファイルが存在しないか画像ファイルでない場合は何もしない
+      if (!file?.type.startsWith('image/')) return;
+      // 画像ファイルがドロップされた場合は、デフォルトのドロップ処理をキャンセル
+      e.preventDefault();
+      // uploadImage関数を呼び出して画像をアップロードし、URLを取得する
+      uploadImage(file).then((url) => {
+        // URLが取得できない場合は何もしない
+        if (!url) return;
+        // 画像のURLが取得できたら、Markdown形式でエディタに貼り付ける
+        const cursor = cm.getDoc().getCursor();
+        cm.getDoc().replaceRange(`![](${url})`, cursor);
+      });
+    });
   }, []);
 
   const payload = () => ({
@@ -236,6 +302,14 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
             value={thumbnail}
             onChange={setThumbnail}
             placeholder="サムネイル画像をペースト"
+            // InputフィールドにonPasteイベントハンドラーを渡して、画像の貼り付けをサポートする
+            onPaste={async (e) => {
+              const file = e.clipboardData.files[0];
+              if (!file?.type.startsWith('image/')) return;
+              e.preventDefault();
+              const url = await uploadImage(file);
+              if (url) setThumbnail(url);
+            }}
           />
         </div>
 
@@ -263,6 +337,7 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
           <SimpleMdeReact
             value={content}
             onChange={handleContentChange}
+            getMdeInstance={handleGetMdeInstance}
             options={{ spellChecker: false }}
             className="h-full flex flex-col"
           />
