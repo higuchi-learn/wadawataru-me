@@ -32,7 +32,14 @@ type CardProps = {
  *   [テキスト列(shrink-0, w-424px): タイトル + 説明 + タグ + 日付]
  *   [サムネイル(flex-1, aspect-video, rounded-lg)]
  */
-export default function Card({ title, description, tags, publishedAt, updatedAt, href = '#', className }: CardProps) {
+function Thumbnail({ url, title, className }: { url?: string; title: string; className: string }) {
+  if (url) {
+    return <img src={url} alt={title} className={`${className} object-cover`} />;
+  }
+  return <div className={`${className} bg-neutral-100`} />;
+}
+
+export default function Card({ title, description, tags, publishedAt, updatedAt, thumbnailUrl, href = '#', className }: CardProps) {
   return (
     <Link
       href={href}
@@ -43,7 +50,7 @@ export default function Card({ title, description, tags, publishedAt, updatedAt,
         ${className ?? ''}`}
     >
       {/* mobile: 上部サムネイル (全幅, 角なし) */}
-      <div className="aspect-video w-full bg-neutral-100 sm:hidden" />
+      <Thumbnail url={thumbnailUrl} title={title} className="aspect-video w-full sm:hidden" />
 
       {/* sm-xl: 上部タイトル */}
       <CardTitle title={title} size="Default" className="hidden sm:flex 2xl:hidden flex-col items-start" />
@@ -70,11 +77,11 @@ export default function Card({ title, description, tags, publishedAt, updatedAt,
         </div>
 
         {/* sm-xl: 右サムネイル */}
-        <div className="hidden sm:block 2xl:hidden aspect-video flex-1 min-w-px min-h-px bg-neutral-100 rounded-lg shrink-0" />
+        <Thumbnail url={thumbnailUrl} title={title} className="hidden sm:block 2xl:hidden aspect-video flex-1 min-w-px min-h-px rounded-lg shrink-0" />
       </div>
 
       {/* 2xl: 右サムネイル (card の直接 flex 子) */}
-      <div className="hidden 2xl:block aspect-video flex-1 min-w-px min-h-px bg-neutral-100 rounded-lg shrink-0" />
+      <Thumbnail url={thumbnailUrl} title={title} className="hidden 2xl:block aspect-video flex-1 min-w-px min-h-px rounded-lg shrink-0" />
     </Link>
   );
 }

@@ -322,6 +322,7 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
                 title={title || 'タイトル'}
                 description={description || '説明'}
                 tags={tags}
+                thumbnailUrl={thumbnail || undefined}
                 publishedAt="----年--月--日"
                 updatedAt="----年--月--日"
                 href="#"
