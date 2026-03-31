@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import EasyMDE from 'easymde';
 import dynamic from 'next/dynamic';
 import AdminHeader from '@/components/AdminHeader';
@@ -176,6 +176,7 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const mdeRef = useRef<EasyMDE | null>(null);
+  const mdeOptions = useMemo(() => ({ spellChecker: false }), []);
 
   const handleContentChange = useCallback((value: string) => {
     setContent(value);
@@ -331,7 +332,7 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
             value={content}
             onChange={handleContentChange}
             getMdeInstance={handleGetMdeInstance}
-            options={{ spellChecker: false }}
+            options={mdeOptions}
             className="h-full flex flex-col"
           />
         </div>
