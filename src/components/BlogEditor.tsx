@@ -9,6 +9,7 @@ import Card from '@/components/Card';
 import ArticlePreview from '@/components/ArticlePreview';
 import type { Genre } from '@/components/GenreAbout';
 import { saveAsDraftAction, publishAction, archiveAction } from '@/app/admin/actions';
+import { articleSchema } from '@/lib/schemas';
 import 'easymde/dist/easymde.min.css';
 
 const SimpleMdeReact = dynamic(() => import('react-simplemde-editor'), { ssr: false });
@@ -19,13 +20,18 @@ type FormLabelProps = {
   name: string;
   required?: boolean;
   hint?: string;
+  error?: string;
 };
 
-function FormLabel({ name, required, hint }: FormLabelProps) {
+function FormLabel({ name, required, hint, error }: FormLabelProps) {
   return (
     <div className="flex items-center gap-1 text-xs leading-4">
       <span className="text-black">{name}</span>
-      {required && hint && <span className="text-[var(--error)]">({hint})</span>}
+      {error ? (
+        <span className="text-[var(--error)]">{error}</span>
+      ) : (
+        required && hint && <span className="text-[var(--error)]">({hint})</span>
+      )}
     </div>
   );
 }
@@ -40,14 +46,15 @@ type InputFieldProps = {
   multiline?: boolean;
   // 画像の貼り付けをサポートするため、onPasteイベントハンドラーを受け取る
   onPaste?: React.ClipboardEventHandler<HTMLInputElement>;
+  error?: string;
 };
 
-function InputField({ label, required, hint, value, onChange, placeholder, multiline, onPaste }: InputFieldProps) {
-  const inputClass =
-    'bg-[var(--inputcontainer)] border border-[var(--inputborder,#9f9fa9)] rounded-sm shadow-sm px-2 text-sm leading-5 w-full focus:outline-none focus:ring-1 focus:ring-[var(--ogangetext)]';
+function InputField({ label, required, hint, value, onChange, placeholder, multiline, onPaste, error }: InputFieldProps) {
+  const borderClass = error ? 'border-[var(--error)]' : 'border-[var(--inputborder,#9f9fa9)]';
+  const inputClass = `bg-[var(--inputcontainer)] border ${borderClass} rounded-sm shadow-sm px-2 text-sm leading-5 w-full focus:outline-none focus:ring-1 focus:ring-[var(--ogangetext)]`;
   return (
     <div className="flex flex-col gap-0 p-1 w-full shrink-0">
-      <FormLabel name={label} required={required} hint={hint} />
+      <FormLabel name={label} required={required} hint={hint} error={error} />
       {multiline ? (
         <textarea
           value={value}
@@ -149,6 +156,8 @@ type Props = {
   initialData?: ArticleInitialData;
 };
 
+type FieldErrors = Partial<Record<'title' | 'description' | 'slug' | 'content', string>>;
+
 // 画像をアップロードしてURLを取得する関数
 async function uploadImage(file: File): Promise<string | null> {
   // FormDataを作成してファイルを追加する
@@ -173,7 +182,8 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
   const [content, setContent] = useState(initialData?.content ?? '');
   const [publishStatus] = useState<PublishStatus>(initialData?.publishStatus ?? 'draft');
   const [savedAt] = useState(initialData?.savedAt ?? '');
-  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [serverError, setServerError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const mdeRef = useRef<EasyMDE | null>(null);
   const mdeOptions = useMemo(() => ({ spellChecker: false }), []);
@@ -196,13 +206,13 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
       uploadImage(file)
         .then((url) => {
           if (!url) {
-            setError('画像のアップロードに失敗しました');
+            setServerError('画像のアップロードに失敗しました');
             return;
           }
           cm.replaceSelection(`![](${url})`);
           setContent(cm.getValue());
         })
-        .catch(() => setError('画像のアップロードに失敗しました'));
+        .catch(() => setServerError('画像のアップロードに失敗しました'));
     };
 
     cm.on('paste', (_: unknown, e: ClipboardEvent) => {
@@ -231,33 +241,74 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
     tags,
   });
 
+  const validate = (): FieldErrors | null => {
+    const parsed = articleSchema.safeParse({ title, description, slug, content });
+    if (!parsed.success) {
+      const messagesMap: Partial<Record<keyof FieldErrors, string[]>> = {};
+      for (const issue of parsed.error.issues) {
+        const field = issue.path[0] as keyof FieldErrors;
+        if (!messagesMap[field]) messagesMap[field] = [];
+        messagesMap[field]!.push(issue.message);
+      }
+      const errors: FieldErrors = {};
+      for (const [field, messages] of Object.entries(messagesMap) as [keyof FieldErrors, string[]][]) {
+        // 必須エラーがある場合はそれだけ表示、それ以外は「・」で結合
+        errors[field] = messages.includes('この要素は必須です。')
+          ? 'この要素は必須です。'
+          : messages.join('・ ');
+      }
+      return errors;
+    }
+    return null;
+  };
+
   const handleSaveDraft = async () => {
-    setError(null);
+    const errors = validate();
+    if (errors) {
+      setFieldErrors(errors);
+      return;
+    }
+    setFieldErrors({});
+    setServerError(null);
     setIsLoading(true);
     const result = await saveAsDraftAction(payload());
     if (result?.error) {
-      setError(result.error);
+      if (result.error.includes('URLパス')) {
+        setFieldErrors({ slug: result.error });
+      } else {
+        setServerError(result.error);
+      }
       setIsLoading(false);
     }
   };
 
   const handlePublish = async () => {
-    setError(null);
+    const errors = validate();
+    if (errors) {
+      setFieldErrors(errors);
+      return;
+    }
+    setFieldErrors({});
+    setServerError(null);
     setIsLoading(true);
     const result = await publishAction({ ...payload(), wasAlreadyPublished: publishStatus === 'published' });
     if (result?.error) {
-      setError(result.error);
+      if (result.error.includes('URLパス')) {
+        setFieldErrors({ slug: result.error });
+      } else {
+        setServerError(result.error);
+      }
       setIsLoading(false);
     }
   };
 
   const handleArchive = async () => {
     if (!initialData?.id) return;
-    setError(null);
+    setServerError(null);
     setIsLoading(true);
     const result = await archiveAction({ id: initialData.id, genre, title, description, content, thumbnail });
     if (result?.error) {
-      setError(result.error);
+      setServerError(result.error);
       setIsLoading(false);
     }
   };
@@ -275,13 +326,13 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
         onPublish={handlePublish}
       />
 
-      {error && (
-        <div className="px-2 py-1 text-sm text-[var(--error)] bg-[var(--error-bg)] rounded-sm shrink-0">{error}</div>
+      {serverError && (
+        <div className="px-2 py-1 text-sm text-[var(--error)] bg-[var(--error-bg)] rounded-sm shrink-0">{serverError}</div>
       )}
 
       <div className="flex gap-1 items-start w-full shrink-0 bg-white pb-1">
         <div className="flex flex-col flex-1 min-w-0 py-1">
-          <InputField label="タイトル" required hint="必須・最大27字" value={title} onChange={setTitle} />
+          <InputField label="タイトル" required hint="必須・最大27字" value={title} onChange={setTitle} error={fieldErrors.title} />
           <InputField
             label="説明"
             required
@@ -289,6 +340,7 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
             value={description}
             onChange={setDescription}
             multiline
+            error={fieldErrors.description}
           />
           <TagsField tags={tags} onChange={setTags} />
           <InputField
@@ -308,7 +360,7 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
         </div>
 
         <div className="flex flex-col flex-1 min-w-0 py-1">
-          <InputField label="URLパス" required hint="必須・最大20字" value={slug} onChange={setSlug} />
+          <InputField label="URLパス" required hint="必須・最大20字" value={slug} onChange={setSlug} error={fieldErrors.slug} />
           <div className="p-1">
             <p className="text-xs leading-4 text-black mb-0.5">カードプレビュー</p>
             <div className="pointer-events-none">
@@ -329,13 +381,16 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
 
       <div className="flex flex-1 min-h-0 gap-3 pb-1 bg-white">
         <div className="w-1/2 pl-1 flex flex-col h-full overflow-hidden">
-          <SimpleMdeReact
-            value={content}
-            onChange={handleContentChange}
-            getMdeInstance={handleGetMdeInstance}
-            options={mdeOptions}
-            className="h-full flex flex-col"
-          />
+          <FormLabel name="本文" required hint="必須" error={fieldErrors.content} />
+          <div className={`flex-1 min-h-0 overflow-hidden border rounded-sm ${fieldErrors.content ? 'border-[var(--error)]' : 'border-transparent'}`}>
+            <SimpleMdeReact
+              value={content}
+              onChange={handleContentChange}
+              getMdeInstance={handleGetMdeInstance}
+              options={mdeOptions}
+              className="h-full flex flex-col"
+            />
+          </div>
         </div>
 
         <div className="w-1/2 pr-1 overflow-auto border border-[var(--inputborder,#9f9fa9)] rounded-sm">

@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { and, asc, desc, eq, inArray, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, ne, sql } from 'drizzle-orm';
 import { postsTable, tagsTable, postTagsTable, SelectPost, SelectTag } from '../schema';
 
 export const PAGE_SIZE = 20;
@@ -54,6 +54,14 @@ export async function getTagsList() {
     })
     .from(tagsTable)
     .orderBy(asc(tagsTable.sortOrder));
+}
+
+export async function isSlugTaken(slug: string, excludeId?: string): Promise<boolean> {
+  const rows = await db
+    .select({ id: postsTable.id })
+    .from(postsTable)
+    .where(excludeId ? and(eq(postsTable.slug, slug), ne(postsTable.id, excludeId)) : eq(postsTable.slug, slug));
+  return rows.length > 0;
 }
 
 export async function getPostsList(

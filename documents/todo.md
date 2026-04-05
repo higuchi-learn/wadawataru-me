@@ -2,10 +2,33 @@
 
 ## 高優先度
 
+### BlogEditor バグ修正
+
+#### 説明欄の折り返し
+- 説明欄（textarea）で半角文字を入力した場合に折り返しが発生しない
+- 全角文字では折り返される
+- 対応内容: `InputField` の textarea に `break-all` または `overflow-wrap: break-word` を追加する
+
+### 画像アップロード（セキュリティ）
+
+#### ファイルサイズ制限なし
+- `/api/upload` で受け付けるファイルサイズに上限がない
+- 対応内容: サーバー側でサイズチェックを追加し、上限超過時は 400 を返す
+
+#### サーバー側 MIME タイプ検証なし
+- クライアント側で `file.type.startsWith('image/')` を確認しているが、サーバー側では未検証
+- Content-Type は偽装可能なため、サーバー側でも検証が必要
+- 対応内容: `/api/upload` でファイルの Content-Type を確認し、画像以外は 400 を返す
+
 ### 認証・認可
 - ブランチ: fix-drop-images（実装済み）
 - 管理画面（`/admin/*`）と `/api/upload` に GitHub OAuth 認証を実装済み
 - `higuchi-learn` アカウントのみアクセスを許可
+
+#### isLoading が成功時にリセットされない
+- `handleSaveDraft` / `handlePublish` / `handleArchive` でエラー時のみ `setIsLoading(false)` を呼んでいる
+- Server Action が成功後にリダイレクトしない場合、ボタンがローディング状態のままになる
+- 対応内容: 各ハンドラの成功時にも `setIsLoading(false)` を呼ぶ
 
 #### 未対応: 不正アカウントでのログイン試行
 - 現状: Auth.js デフォルトのエラーページ（`/api/auth/error?error=AccessDenied`）にリダイレクトされる（スタイルなし）

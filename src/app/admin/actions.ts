@@ -3,6 +3,8 @@
 import { redirect } from 'next/navigation';
 import { createPost } from '@/db/queries/insert';
 import { updatePostById, syncPostTags } from '@/db/queries/update';
+import { isSlugTaken } from '@/db/queries/select';
+import { articleSchema } from '@/lib/schemas';
 import type { Genre } from '@/components/GenreAbout';
 
 const GENRE_DB_MAP: Record<Genre, 'blogs' | 'products' | 'books'> = {
@@ -27,6 +29,15 @@ type ActionResult = { error: string } | undefined;
 export async function saveAsDraftAction(payload: SavePayload): Promise<ActionResult> {
   const { id, genre, slug, title, description, content, thumbnail, tags } = payload;
   const dbGenre = GENRE_DB_MAP[genre];
+
+  const parsed = articleSchema.safeParse({ title, description, slug, content });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message };
+  }
+
+  if (await isSlugTaken(slug, id)) {
+    return { error: 'このURLパスはすでに使われています' };
+  }
 
   try {
     if (!id) {
@@ -56,6 +67,15 @@ export async function saveAsDraftAction(payload: SavePayload): Promise<ActionRes
 export async function publishAction(payload: SavePayload & { wasAlreadyPublished: boolean }): Promise<ActionResult> {
   const { id, genre, slug, title, description, content, thumbnail, tags, wasAlreadyPublished } = payload;
   const dbGenre = GENRE_DB_MAP[genre];
+
+  const parsed = articleSchema.safeParse({ title, description, slug, content });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message };
+  }
+
+  if (await isSlugTaken(slug, id)) {
+    return { error: 'このURLパスはすでに使われています' };
+  }
 
   try {
     if (!id) {
