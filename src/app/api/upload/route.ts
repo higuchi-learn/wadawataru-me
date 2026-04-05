@@ -15,8 +15,9 @@ app.post('/upload', async (c) => {
   if (!file) {
     return c.json({ error: 'file is required' }, 400);
   }
-  // ファイル名をユニークにするために、現在のタイムスタンプとファイル名を組み合わせる
-  const key = `${Date.now()}-${file.name}`;
+  // 拡張子のみ保持し、UUIDでユニークなキーを生成する（日本語等の非ASCII文字を避ける）
+  const ext = file.name.split('.').pop() ?? 'bin';
+  const key = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
   // R2にファイルをアップロードする
   await env.R2.put(key, await file.arrayBuffer(), {

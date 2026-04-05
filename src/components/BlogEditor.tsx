@@ -158,7 +158,7 @@ async function uploadImage(file: File): Promise<string | null> {
   // /api/uploadエンドポイントにPOSTリクエストを送信して画像をアップロードする
   const res = await fetch('/api/upload', { method: 'POST', body: form });
   // レスポンスが正常でない場合はnullを返す
-  if (!res.ok) return null;4
+  if (!res.ok) return null;
   // レスポンスから画像のURLを取得して返す
   const { url } = (await res.json()) as { url: string };
   return url;
@@ -200,6 +200,7 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
             return;
           }
           cm.replaceSelection(`![](${url})`);
+          setContent(cm.getValue());
         })
         .catch(() => setError('画像のアップロードに失敗しました'));
     };
