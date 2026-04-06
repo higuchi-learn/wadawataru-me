@@ -14,11 +14,14 @@ const STATUS_ITEMS: { value: Status; label: string }[] = [
 export default function StatusBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  // ?status= がない場合はデフォルトで 'draft'（未公開）を表示する
   const selected = (searchParams.get('status') ?? 'draft') as Status;
 
   const setStatus = (status: Status) => {
+    // SearchBar と同様に既存のパラメータを保持しつつ status だけ更新する
     const params = new URLSearchParams(searchParams.toString());
     params.set('status', status);
+    // ステータスを切り替えたらページを1に戻す
     params.set('page', '1');
     router.push(`?${params.toString()}`);
   };

@@ -5,5 +5,5 @@ export default async function AdminBlogPage({
 }: {
   searchParams: Promise<{ page?: string; tags?: string; status?: string }>;
 }) {
-  return <AdminPostListPage genre="blog" searchParams={await searchParams} />;
+  return <AdminPostListPage genre="blogs" searchParams={await searchParams} />;
 }

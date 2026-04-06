@@ -4,11 +4,6 @@ import type { Genre } from '@/components';
 import type { CardData } from '@/components';
 import { getPostsList, getPostsCount, getTagsList, PAGE_SIZE } from '@/db/queries/select';
 import { formatDate } from '@/lib/formatDate';
-import type { SelectPost } from '@/db/schema';
-
-function toDbGenre(genre: Genre): SelectPost['genre'] {
-  return genre === 'blog' ? 'blogs' : genre;
-}
 
 type Props = {
   genre: Genre;
@@ -22,11 +17,15 @@ export default async function PostListPage({ genre, searchParams }: Props) {
   const allTags = await getTagsList();
   const tagIds = allTags.filter((t) => tagNames.includes(t.name)).map((t) => t.id);
 
+  // 記事一覧と総件数を並列取得する
   const [posts, totalCount] = await Promise.all([
-    getPostsList(toDbGenre(genre), 'published', tagIds, page),
-    getPostsCount(toDbGenre(genre), 'published', tagIds),
+    // 公開側は常に 'published' 固定（下書き・アーカイブは表示しない）
+    getPostsList(genre, 'published', tagIds, page),
+    getPostsCount(genre, 'published', tagIds),
   ]);
 
+  // Math.ceil で端数を切り上げ（21件・20件/ページなら2ページ必要）
+  // Math.max(1, ...) で0件でも最低1ページになるようにする
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   const cards: CardData[] = posts.map((post) => ({

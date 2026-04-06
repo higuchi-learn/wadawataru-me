@@ -7,13 +7,12 @@ import { getPostsList, getPostsCount, getTagsList, PAGE_SIZE } from '@/db/querie
 import { formatDate } from '@/lib/formatDate';
 import type { SelectPost } from '@/db/schema';
 
-function toDbGenre(genre: Genre): SelectPost['genre'] {
-  return genre === 'blog' ? 'blogs' : genre;
-}
-
+// as const を付けることで配列の要素がリテラル型として扱われる（string[] ではなく readonly ['draft', ...]）
+// これにより VALID_STATUSES[number] で 'draft' | 'published' | 'archived' という Union 型が得られる
 const VALID_STATUSES = ['draft', 'published', 'archived'] as const;
 type Status = (typeof VALID_STATUSES)[number];
 
+// URL の ?status= パラメータは文字列なので、想定外の値が来ても安全にデフォルト値に落とす
 function toStatus(value: string | undefined): SelectPost['status'] {
   return VALID_STATUSES.includes(value as Status) ? (value as Status) : 'draft';
 }
@@ -24,16 +23,22 @@ type Props = {
 };
 
 export default async function AdminPostListPage({ genre, searchParams }: Props) {
+  // URL の ?page= は文字列なので Number() で数値に変換し、1 未満にならないよう Math.max で保護する
   const page = Math.max(1, Number(searchParams.page ?? '1'));
+  // ?tags=React,TypeScript のようにカンマ区切りで複数タグを受け取る
+  // filter(Boolean) で空文字を除去する（?tags= のように値が空の場合の対策）
   const tagNames = searchParams.tags?.split(',').filter(Boolean) ?? [];
   const status = toStatus(searchParams.status);
 
   const allTags = await getTagsList();
+  // タグ名からタグ ID に変換する（DB クエリは ID ベースで絞り込む）
   const tagIds = allTags.filter((t) => tagNames.includes(t.name)).map((t) => t.id);
 
+  // 記事一覧と総件数を並列取得する
+  // Promise.all で2つのクエリを同時に発行することで、直列で待つよりも速くなる
   const [posts, totalCount] = await Promise.all([
-    getPostsList(toDbGenre(genre), status, tagIds, page),
-    getPostsCount(toDbGenre(genre), status, tagIds),
+    getPostsList(genre, status, tagIds, page),
+    getPostsCount(genre, status, tagIds),
   ]);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));

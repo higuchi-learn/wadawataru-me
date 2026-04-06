@@ -12,6 +12,10 @@ import { saveAsDraftAction, publishAction, archiveAction } from '@/app/admin/act
 import { articleSchema } from '@/lib/schemas';
 import 'easymde/dist/easymde.min.css';
 
+// dynamic import + { ssr: false } でクライアントサイドのみで読み込む
+// EasyMDE は DOM（document / window）に依存しているため SSR 時に実行すると
+// "document is not defined" エラーになる。ssr: false を指定することで
+// サーバーでのレンダリングをスキップし、ブラウザでのみ動作させる
 const SimpleMdeReact = dynamic(() => import('react-simplemde-editor'), { ssr: false });
 
 // ---- sub-components ----
@@ -143,7 +147,7 @@ export type ArticleInitialData = {
   title: string;
   description: string;
   tags: string[];
-  thumbnail: string;
+  thumbnail: string | null;
   slug: string;
   content: string;
   publishStatus: PublishStatus;
@@ -185,23 +189,37 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  // useRef で EasyMDE のインスタンスを保持する
+  // useState と違い ref への代入は再レンダリングを引き起こさない
+  // また ref の値はレンダリングをまたいでも保持され続けるため、インスタンスの保持に適している
   const mdeRef = useRef<EasyMDE | null>(null);
+
+  // useMemo で options オブジェクトを記憶する
+  // {} はレンダリングのたびに新しい参照になるため、SimpleMdeReact に渡すと
+  // options が変わったと判断されて EasyMDE が再初期化されてしまう
+  // useMemo + [] で初回だけ生成することで同じ参照を使い回せる
   const mdeOptions = useMemo(() => ({ spellChecker: false }), []);
 
+  // useCallback で関数の参照を固定する
+  // [] 依存配列にすることで初回だけ関数を生成し、以降は同じ参照を返す
+  // SimpleMdeReact の onChange に渡す関数が変わると不要な再レンダリングが起きるため
   const handleContentChange = useCallback((value: string) => {
     setContent(value);
   }, []);
 
-  // EasyMDEのインスタンスを取得するためのコールバック関数
+  // getMdeInstance は SimpleMdeReact が EasyMDE の初期化を完了したタイミングで
+  // インスタンスを渡してくれるコールバック。ここで CodeMirror のイベントを登録する
+  // useCallback + [] で関数参照を固定し、不要な再登録を防ぐ
   const handleGetMdeInstance = useCallback((mde: EasyMDE) => {
     // すでにインスタンスがセットされている場合は何もしない
     if (mdeRef.current) return;
     // インスタンスをrefに保存する
     mdeRef.current = mde;
-    // Codemirrorのインスタンスを取得する
+
+    // EasyMDE の内部は CodeMirror エディタで動いている
+    // mde.codemirror でその CodeMirror インスタンスを取得できる
     const cm = mde.codemirror;
 
-    // Codemirrorのpasteイベントを監視して、画像が貼り付けられたときにuploadImage関数を呼び出す
     const insertImage = (file: File) => {
       uploadImage(file)
         .then((url) => {
@@ -209,15 +227,24 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
             setServerError('画像のアップロードに失敗しました');
             return;
           }
+          // cm.replaceSelection() でカーソル位置にテキストを挿入する
+          // Markdown の画像記法 ![alt](url) を埋め込む
           cm.replaceSelection(`![](${url})`);
+          // CodeMirror の値は React の state と連動していないため
+          // cm.getValue() で最新テキストを取り出して state に同期する
           setContent(cm.getValue());
         })
         .catch(() => setServerError('画像のアップロードに失敗しました'));
     };
 
+    // cm.on() で CodeMirror のネイティブイベントを購読する
+    // 第1引数はイベント名、第2引数はコールバック（第1引数はエディタ本体、第2引数はネイティブイベント）
     cm.on('paste', (_: unknown, e: ClipboardEvent) => {
       const file = e.clipboardData?.files[0];
+      // 画像以外（テキストなど）はデフォルトの貼り付け動作に任せる
       if (!file?.type.startsWith('image/')) return;
+      // e.preventDefault() でブラウザのデフォルト貼り付け処理を止める
+      // これをしないと画像バイナリがそのままエディタに入力されてしまう
       e.preventDefault();
       insertImage(file);
     });
@@ -242,8 +269,12 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
   });
 
   const validate = (): FieldErrors | null => {
+    // safeParse はエラーを例外でなく戻り値として返すため、try/catch 不要
     const parsed = articleSchema.safeParse({ title, description, slug, content });
     if (!parsed.success) {
+      // parsed.error.issues は「1フィールドに複数エラーが起きうる」配列形式で返ってくる
+      // 例: slug に「必須エラー」と「文字数エラー」が同時に起きることがある
+      // まず issue.path[0]（フィールド名）をキーに、エラーメッセージを配列で集約する
       const messagesMap: Partial<Record<keyof FieldErrors, string[]>> = {};
       for (const issue of parsed.error.issues) {
         const field = issue.path[0] as keyof FieldErrors;
@@ -253,6 +284,7 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
       const errors: FieldErrors = {};
       for (const [field, messages] of Object.entries(messagesMap) as [keyof FieldErrors, string[]][]) {
         // 必須エラーがある場合はそれだけ表示、それ以外は「・」で結合
+        // 空欄のときに「文字数超過」も一緒に出ると混乱するため優先度で絞る
         errors[field] = messages.includes('この要素は必須です。')
           ? 'この要素は必須です。'
           : messages.join('・ ');
@@ -263,6 +295,8 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
   };
 
   const handleSaveDraft = async () => {
+    // クライアント側バリデーションを先に走らせることで
+    // 明らかなエラーをサーバーへのリクエストなしに即座に表示できる
     const errors = validate();
     if (errors) {
       setFieldErrors(errors);
@@ -278,6 +312,9 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
       } else {
         setServerError(result.error);
       }
+      // エラー時のみ setIsLoading(false) を呼ぶ
+      // 成功時は Server Action 内の redirect() がページ遷移するため
+      // このコンポーネント自体がアンマウントされ、state のリセットは不要
       setIsLoading(false);
     }
   };

@@ -5,6 +5,9 @@ import { postsTable, tagsTable, postTagsTable, SelectPost, SelectTag } from '../
 export const PAGE_SIZE = 20;
 
 export async function getPostById(slug: SelectPost['slug']) {
+  // .select({ ... }) で取得したいカラムだけを指定する（不要なカラムを取得しない）
+  // select() を引数なしで呼ぶと全カラムが返ってくるが、必要なものだけに絞ることで
+  // ネットワーク転送量とレスポンスオブジェクトのサイズを小さくできる
   const rows = await db
     .select({
       id: postsTable.id,
@@ -15,11 +18,18 @@ export async function getPostById(slug: SelectPost['slug']) {
       updatedAt: postsTable.updatedAt,
     })
     .from(postsTable)
+    // and() で複数の WHERE 条件を AND 結合する
+    // slug が一致 かつ status が published の記事だけを取得する
+    // 未公開・アーカイブ済みの記事は公開 URL からアクセスできないようにする
     .where(and(eq(postsTable.slug, slug), eq(postsTable.status, 'published')));
+  // .select() は常に配列を返す（0件の場合は空配列）
+  // rows[0] ?? null で「見つかった最初の1件」か「null」を返す
   return rows[0] ?? null;
 }
 
 export async function getPostByIdForAdmin(id: SelectPost['id']) {
+  // 管理画面用は status に関係なく取得する（下書き・アーカイブも編集できる必要があるため）
+  // また slug / thumbnail / status など編集フォームに必要なカラムも含める
   const rows = await db
     .select({
       id: postsTable.id,
@@ -38,15 +48,21 @@ export async function getPostByIdForAdmin(id: SelectPost['id']) {
 }
 
 export async function getTagsByPostId(postId: SelectPost['id']) {
+  // post_tags_table（中間テーブル）を起点に tags_table を JOIN して
+  // postId に紐づくタグ名を取得する
+  // innerJoin なので post_tags_table にレコードがない（タグなし）記事は0件が返る
   return await db
     .select({ name: tagsTable.name })
     .from(postTagsTable)
     .innerJoin(tagsTable, eq(postTagsTable.tagId, tagsTable.id))
     .where(eq(postTagsTable.postId, postId))
+    // タグの表示順は sortOrder カラムに従う（管理画面でドラッグ&ドロップで変更可能）
     .orderBy(asc(tagsTable.sortOrder));
 }
 
 export async function getTagsList() {
+  // 検索バーのタグ選択 UI に使う全タグ一覧を取得する
+  // sortOrder の昇順で返すことで、管理画面で設定した並び順が検索バーに反映される
   return await db
     .select({
       id: tagsTable.id,
@@ -57,6 +73,9 @@ export async function getTagsList() {
 }
 
 export async function isSlugTaken(slug: string, excludeId?: string): Promise<boolean> {
+  // slug の重複チェック。編集時は自分自身の ID を除外する必要がある
+  // excludeId がある場合は「同じ slug を持つ、自分以外のレコード」を探す
+  // excludeId がない場合（新規作成時）は同じ slug を持つレコードが1件でもあれば重複とみなす
   const rows = await db
     .select({ id: postsTable.id })
     .from(postsTable)
@@ -158,6 +177,9 @@ export async function getPostsCount(
   selectedTagIds: SelectTag['id'][],
 ): Promise<number> {
   if (selectedTagIds.length === 0) {
+    // count(*) は PostgreSQL の集計関数。マッチした全行数を返す
+    // PostgreSQL の count は bigint で返ってくるため、cast で int に変換する
+    // sql<number>`...` の型引数は TypeScript 上の型ヒントで、実際のキャストは SQL 側が行う
     const result = await db
       .select({ count: sql<number>`cast(count(*) as int)` })
       .from(postsTable)
@@ -165,7 +187,10 @@ export async function getPostsCount(
     return result[0].count;
   }
 
-  // タグフィルタあり: 条件に一致する記事IDのサブクエリで件数を取得
+  // タグフィルタあり: getPostsList と同じ条件で絞った結果の件数を取得する
+  // サブクエリ（.as('sub')）を使うことで「条件に一致する記事の ID 一覧」を先に作り
+  // その件数を count する二段構えのクエリになっている
+  // これにより getPostsList と件数が一致することを保証できる
   const sub = db
     .select({ id: postsTable.id })
     .from(postsTable)
@@ -180,6 +205,7 @@ export async function getPostsCount(
     )
     .groupBy(postsTable.id)
     .having(sql`count(distinct ${postTagsTable.tagId}) = ${selectedTagIds.length}`)
+    // .as('sub') でサブクエリに名前を付ける（FROM 句で参照するために必要）
     .as('sub');
 
   const result = await db.select({ count: sql<number>`cast(count(*) as int)` }).from(sub);

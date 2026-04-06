@@ -11,22 +11,38 @@ type SearchBarProps = {
 
 export default function SearchBar({ availableTags = [], className }: SearchBarProps) {
   const router = useRouter();
+  // useSearchParams() で現在の URL の ? 以降（例: ?tags=React&page=2）を読み取る
+  // SSRのときは URL が確定していないため値が取れない
+  // そのため PostListPage.tsx で <Suspense> で囲んでいる（囲まないとビルドエラーになる）
   const searchParams = useSearchParams();
+
+  // ページロード時に URL の ?tags= から初期選択タグを復元する
+  // これにより URL を直接開いたときも選択状態が維持される
   const initialTags = searchParams.get('tags')?.split(',').filter(Boolean) ?? [];
   const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
 
   const toggleTag = (tag: string) => {
+    // タグが選択済みなら除去、未選択なら追加する
     setSelectedTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
   };
 
   const handleSearch = () => {
+    // URLSearchParams は URL の ? 以降を操作するためのオブジェクト
+    // searchParams.toString() で現在の URL の ? 以降を文字列として取り出し、それをベースに新しく作る
+    // こうすると status など他のパラメータはそのままで、tags だけ書き換えられる
+    // 例: 現在が ?status=draft&page=2 なら、tags を追加しても ?status=draft&page=1&tags=React になる
     const params = new URLSearchParams(searchParams.toString());
     if (selectedTags.length > 0) {
       params.set('tags', selectedTags.join(','));
     } else {
+      // タグが0件のときはパラメータ自体を消す（?tags= という空パラメータを残さない）
       params.delete('tags');
     }
+    // タグを変えたらページを1に戻す（2ページ目で絞り込むと0件になる可能性があるため）
     params.set('page', '1');
+    // router.push() でブラウザの URL を更新する
+    // ?${params.toString()} は「? + クエリ文字列」なので例えば ?tags=React&page=1 という URL になる
+    // URL が変わると Next.js がサーバーに新しいリクエストを送り、一覧が再取得される
     router.push(`?${params.toString()}`);
   };
 

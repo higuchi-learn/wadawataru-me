@@ -1,13 +1,17 @@
 import type { Genre } from '@/components/GenreAbout';
 
+// Record<K, V> は K をキー、V を値とするオブジェクト型
+// Genre の全値を網羅したマッピングを型安全に定義できる（キーの漏れがあるとエラーになる）
 const GENRE_NAMES: Record<Genre, string> = {
   products: '制作物',
-  blog: 'ブログ',
+  blogs: 'ブログ',
   books: '読書記録',
 };
 
 type PublishStatus = 'draft' | 'published' | 'archived';
 
+// ステータスごとのラベルと背景色を一元管理する
+// コンポーネント内に条件分岐を書かずにここを参照するだけで済むようにする
 const PUBLISH_STATUS_INFO: Record<PublishStatus, { label: string; bgClass: string }> = {
   draft: { label: '未公開', bgClass: 'bg-[var(--draft,#00a6f4)]' },
   published: { label: '公開中', bgClass: 'bg-[var(--public,#00c951)]' },
@@ -67,6 +71,7 @@ export default function AdminHeader({
       <AdminHeaderTag genre={genre} status={status} publishStatus={publishStatus} />
       <div className="flex items-center gap-1.5 p-1">
         <div className="flex items-center gap-0.5 text-sm leading-5 whitespace-nowrap">
+          {/* savedAt が truthy（保存済み）ならチェックアイコン付きで日時を表示する */}
           {savedAt ? (
             <>
               <span className="text-[var(--successtext,#497d00)]">最終保存日時 : {savedAt}</span>
@@ -78,11 +83,16 @@ export default function AdminHeader({
             <span className="text-[var(--lighttext,#6a7282)]">最終保存日時 : ----/--/-- | -- : -- : --</span>
           )}
         </div>
+        {/* アーカイブボタンは編集画面でのみ表示する（新規作成では不要） */}
         {status === 'edit' && (
           <button type="button" onClick={onArchive} disabled={isLoading} className={buttonClass}>
             アーカイブ
           </button>
         )}
+        {/*
+          isLoading 中は disabled にして連打を防ぐ
+          disabled:pointer-events-none でクリックイベント自体も無効にする
+        */}
         <button type="button" onClick={onSaveDraft} disabled={isLoading} className={buttonClass}>
           {isLoading ? '処理中...' : '下書き保存'}
         </button>
