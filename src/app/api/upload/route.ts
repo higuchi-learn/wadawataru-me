@@ -27,6 +27,18 @@ app.post('/upload', async (c) => {
     return c.json({ error: 'file is required' }, 400);
   }
 
+  // サーバー側で MIME タイプを検証する
+  // クライアント側の file.type.startsWith('image/') は偽装可能なため、サーバー側でも必ず確認する
+  if (!file.type.startsWith('image/')) {
+    return c.json({ error: 'only image files are allowed' }, 400);
+  }
+
+  // ファイルサイズを 5MB に制限する
+  const MAX_SIZE = 5 * 1024 * 1024;
+  if (file.size > MAX_SIZE) {
+    return c.json({ error: 'file size must be 5MB or less' }, 400);
+  }
+
   // 拡張子のみ保持し、UUIDでユニークなキーを生成する（日本語等の非ASCII文字を避ける）
   // Date.now() でミリ秒タイムスタンプ、Math.random().toString(36) で英数字ランダム文字列を生成する
   // .slice(2, 8) で先頭の '0.' を除いた6文字を取り出す

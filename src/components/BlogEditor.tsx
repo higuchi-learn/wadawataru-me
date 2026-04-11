@@ -395,8 +395,14 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
               const file = e.clipboardData.files[0];
               if (!file?.type.startsWith('image/')) return;
               e.preventDefault();
-              const url = await uploadImage(file);
-              if (url) setThumbnail(url);
+              try {
+                const url = await uploadImage(file);
+                if (url) setThumbnail(url);
+              } catch {
+                // fetch や res.json() が例外をスローした場合（ネットワークエラー・不正レスポンスなど）
+                // try/catch がないと unhandled rejection になるためここで捕捉してエラー表示する
+                setServerError('画像のアップロードに失敗しました');
+              }
             }}
           />
         </div>
