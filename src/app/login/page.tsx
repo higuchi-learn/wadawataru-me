@@ -1,8 +1,22 @@
 import { signIn } from '@/auth';
 
-export default function LoginPage() {
+type Props = {
+  searchParams: Promise<{ error?: string }>;
+};
+
+export default async function LoginPage({ searchParams }: Props) {
+  // searchParams は非同期オブジェクトのため await で展開する（Next.js 15 以降の仕様）
+  const { error } = await searchParams;
+
+  // Auth.js は不正アカウントでのログイン試行時に ?error=AccessDenied を付けてこのページに戻す
+  // error が 'AccessDenied' のときだけエラーメッセージを表示する
+  const isAccessDenied = error === 'AccessDenied';
+
   return (
-    <div className="flex items-center justify-center h-screen bg-white">
+    <div className="flex flex-col items-center justify-center gap-3 h-screen bg-white">
+      {isAccessDenied && (
+        <p className="text-sm text-[var(--error)]">このアカウントはアクセスできません。</p>
+      )}
       {/*
         form の action に async 関数を渡すと Server Action になる
         ボタンを押したとき（form の submit）にサーバー側で signIn() が実行される
@@ -14,7 +28,7 @@ export default function LoginPage() {
           // signIn('github', ...) で GitHub OAuth フローを開始する
           // Auth.js が /api/auth/signin/github にリダイレクトし、GitHub の認可画面へ飛ぶ
           // 認証完了後は redirectTo で指定したパスに戻ってくる
-          await signIn('github', { redirectTo: '/admin/blog' });
+          await signIn('github', { redirectTo: '/admin/blogs' });
         }}
       >
         <button

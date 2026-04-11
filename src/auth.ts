@@ -26,5 +26,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     // デフォルトの Auth.js サインインページ (/api/auth/signin) を使わず
     // 独自の /login ページにリダイレクトさせる
     signIn: '/login',
+    // 不正アカウントでのログイン試行時にデフォルトのスタイルなしエラーページ
+    // (/api/auth/error) に飛ばさず、/login にリダイレクトさせる
+    // /login 側で ?error=AccessDenied クエリを読み取ってエラーメッセージを表示する
+    error: '/login',
   },
 });

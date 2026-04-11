@@ -65,7 +65,7 @@ function InputField({ label, required, hint, value, onChange, placeholder, multi
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           rows={2}
-          className={`${inputClass} py-1 resize-none`}
+          className={`${inputClass} py-1 resize-none break-all`}
         />
       ) : (
         <input
@@ -312,11 +312,10 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
       } else {
         setServerError(result.error);
       }
-      // エラー時のみ setIsLoading(false) を呼ぶ
-      // 成功時は Server Action 内の redirect() がページ遷移するため
-      // このコンポーネント自体がアンマウントされ、state のリセットは不要
-      setIsLoading(false);
     }
+    // 成功時は redirect() でアンマウントされるため基本的に到達しないが
+    // リダイレクトが発生しなかった場合にローディング状態が残らないようにリセットする
+    setIsLoading(false);
   };
 
   const handlePublish = async () => {
@@ -335,8 +334,11 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
       } else {
         setServerError(result.error);
       }
-      setIsLoading(false);
     }
+    // if の外に出すことでエラー・成功どちらでもリセットされる
+    // 成功時は通常 redirect() でアンマウントされるが、リダイレクトが発生しなかった場合に
+    // ボタンがローディング状態のまま固まるのを防ぐための保険
+    setIsLoading(false);
   };
 
   const handleArchive = async () => {
@@ -346,8 +348,11 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
     const result = await archiveAction({ id: initialData.id, genre, title, description, content, thumbnail });
     if (result?.error) {
       setServerError(result.error);
-      setIsLoading(false);
     }
+    // if の外に出すことでエラー・成功どちらでもリセットされる
+    // 成功時は通常 redirect() でアンマウントされるが、リダイレクトが発生しなかった場合に
+    // ボタンがローディング状態のまま固まるのを防ぐための保険
+    setIsLoading(false);
   };
 
   return (
