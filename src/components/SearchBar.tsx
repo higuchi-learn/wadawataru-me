@@ -3,77 +3,92 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import TagLabel from '@/components/TagLabel';
+import TagSelectOverlay, { type TagItem } from '@/components/TagSelectOverlay';
 
 type SearchBarProps = {
-  availableTags?: string[];
+  availableTags?: TagItem[];
   className?: string;
 };
 
 export default function SearchBar({ availableTags = [], className }: SearchBarProps) {
   const router = useRouter();
-  // useSearchParams() で現在の URL の ? 以降（例: ?tags=React&page=2）を読み取る
-  // SSRのときは URL が確定していないため値が取れない
-  // そのため PostListPage.tsx で <Suspense> で囲んでいる（囲まないとビルドエラーになる）
   const searchParams = useSearchParams();
+  const [isOverlayOpen, setIsOverlayOpen] = useState(false);
 
-  // ページロード時に URL の ?tags= から初期選択タグを復元する
-  // これにより URL を直接開いたときも選択状態が維持される
-  const initialTags = searchParams.get('tags')?.split(',').filter(Boolean) ?? [];
-  const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
+  // URL の ?tags= から初期選択タグ名を復元する
+  const initialNames = searchParams.get('tags')?.split(',').filter(Boolean) ?? [];
+  const [selectedNames, setSelectedNames] = useState<string[]>(initialNames);
 
-  const toggleTag = (tag: string) => {
-    // タグが選択済みなら除去、未選択なら追加する
-    setSelectedTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
-  };
-
-  const handleSearch = () => {
-    // URLSearchParams は URL の ? 以降を操作するためのオブジェクト
-    // searchParams.toString() で現在の URL の ? 以降を文字列として取り出し、それをベースに新しく作る
-    // こうすると status など他のパラメータはそのままで、tags だけ書き換えられる
-    // 例: 現在が ?status=draft&page=2 なら、tags を追加しても ?status=draft&page=1&tags=React になる
+  const applySelection = (names: string[]) => {
+    setSelectedNames(names);
+    setIsOverlayOpen(false);
+    // URL を更新することで Next.js がサーバー側でタグ絞り込みを再実行する
     const params = new URLSearchParams(searchParams.toString());
-    if (selectedTags.length > 0) {
-      params.set('tags', selectedTags.join(','));
+    if (names.length > 0) {
+      params.set('tags', names.join(','));
     } else {
-      // タグが0件のときはパラメータ自体を消す（?tags= という空パラメータを残さない）
       params.delete('tags');
     }
-    // タグを変えたらページを1に戻す（2ページ目で絞り込むと0件になる可能性があるため）
     params.set('page', '1');
-    // router.push() でブラウザの URL を更新する
-    // ?${params.toString()} は「? + クエリ文字列」なので例えば ?tags=React&page=1 という URL になる
-    // URL が変わると Next.js がサーバーに新しいリクエストを送り、一覧が再取得される
     router.push(`?${params.toString()}`);
   };
 
+  const removeTag = (name: string) => applySelection(selectedNames.filter((n) => n !== name));
+
+  // 選択中タグの name → TagItem を引く（画像表示のため）
+  const selectedItems = selectedNames
+    .map((name) => availableTags.find((t) => t.name === name))
+    .filter((t): t is TagItem => t !== undefined);
+
   return (
-    <div
-      className={`bg-[var(--inputcontainer)] h-8 flex items-center justify-between px-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.25)] ${className ?? ''}`}
-    >
-      <div className="flex items-center gap-0.5 overflow-hidden flex-1 pr-1">
-        {availableTags.map((tag) => (
-          <button key={tag} type="button" onClick={() => toggleTag(tag)} className="shrink-0">
-            <TagLabel label={tag} isSelected={selectedTags.includes(tag)} />
-          </button>
-        ))}
-      </div>
-      <button
-        type="button"
-        onClick={handleSearch}
-        className="bg-white rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.25)] p-0.5 flex items-center justify-center shrink-0 cursor-pointer"
-        aria-label="検索"
+    <>
+      <div
+        className={`bg-[var(--inputcontainer)] h-8 flex items-center justify-between px-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.25)] ${className ?? ''}`}
       >
-        <svg
-          viewBox="0 0 24 24"
-          className="size-5 fill-none stroke-current text-[var(--lighttext)]"
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeLinejoin="round"
+        {/* 選択中タグ一覧（または未選択時のプレースホルダ） */}
+        <div className="flex items-center gap-0.5 overflow-hidden flex-1 pr-1">
+          {selectedItems.length > 0 ? (
+            selectedItems.map((tag) => (
+              <TagLabel
+                key={tag.id}
+                label={tag.name}
+                imageUrl={tag.imageUrl}
+                onRemove={() => removeTag(tag.name)}
+              />
+            ))
+          ) : (
+            <span className="text-xs text-[var(--lighttext)] pl-1">タグで絞り込む</span>
+          )}
+        </div>
+
+        {/* 虫眼鏡ボタン → オーバーレイを開く */}
+        <button
+          type="button"
+          onClick={() => setIsOverlayOpen(true)}
+          className="bg-white rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.25)] p-0.5 flex items-center justify-center shrink-0 cursor-pointer"
+          aria-label="タグを選択"
         >
-          <circle cx="11" cy="11" r="7" />
-          <path d="m16.5 16.5 5 5" />
-        </svg>
-      </button>
-    </div>
+          <svg
+            viewBox="0 0 24 24"
+            className="size-5 fill-none stroke-current text-[var(--lighttext)]"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="m16.5 16.5 5 5" />
+          </svg>
+        </button>
+      </div>
+
+      {isOverlayOpen && (
+        <TagSelectOverlay
+          tags={availableTags}
+          selectedNames={selectedNames}
+          onConfirm={applySelection}
+          onClose={() => setIsOverlayOpen(false)}
+        />
+      )}
+    </>
   );
 }

@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import EasyMDE from 'easymde';
 import dynamic from 'next/dynamic';
 import AdminHeader from '@/components/AdminHeader';
 import TagLabel from '@/components/TagLabel';
+import TagSelectOverlay, { type TagItem } from '@/components/TagSelectOverlay';
+import { FormLabel, InputField } from '@/components/InputField';
 import Card from '@/components/Card';
 import ArticlePreview from '@/components/ArticlePreview';
 import type { Genre } from '@/components/GenreAbout';
@@ -17,126 +19,6 @@ import 'easymde/dist/easymde.min.css';
 // "document is not defined" エラーになる。ssr: false を指定することで
 // サーバーでのレンダリングをスキップし、ブラウザでのみ動作させる
 const SimpleMdeReact = dynamic(() => import('react-simplemde-editor'), { ssr: false });
-
-// ---- sub-components ----
-
-type FormLabelProps = {
-  name: string;
-  required?: boolean;
-  hint?: string;
-  error?: string;
-};
-
-function FormLabel({ name, required, hint, error }: FormLabelProps) {
-  return (
-    <div className="flex items-center gap-1 text-xs leading-4">
-      <span className="text-black">{name}</span>
-      {error ? (
-        <span className="text-[var(--error)]">{error}</span>
-      ) : (
-        required && hint && <span className="text-[var(--error)]">({hint})</span>
-      )}
-    </div>
-  );
-}
-
-type InputFieldProps = {
-  label: string;
-  required?: boolean;
-  hint?: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-  multiline?: boolean;
-  // 画像の貼り付けをサポートするため、onPasteイベントハンドラーを受け取る
-  onPaste?: React.ClipboardEventHandler<HTMLInputElement>;
-  error?: string;
-};
-
-function InputField({ label, required, hint, value, onChange, placeholder, multiline, onPaste, error }: InputFieldProps) {
-  const borderClass = error ? 'border-[var(--error)]' : 'border-[var(--inputborder,#9f9fa9)]';
-  const inputClass = `bg-[var(--inputcontainer)] border ${borderClass} rounded-sm shadow-sm px-2 text-sm leading-5 w-full focus:outline-none focus:ring-1 focus:ring-[var(--ogangetext)]`;
-  return (
-    <div className="flex flex-col gap-0 p-1 w-full shrink-0">
-      <FormLabel name={label} required={required} hint={hint} error={error} />
-      {multiline ? (
-        <textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          rows={2}
-          className={`${inputClass} py-1 resize-none break-all`}
-        />
-      ) : (
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          // 画像の貼り付けをサポートするため、onPasteイベントハンドラーをinput要素に渡す
-          onPaste={onPaste}
-          placeholder={placeholder}
-          className={`${inputClass} h-7`}
-        />
-      )}
-    </div>
-  );
-}
-
-const MAX_TAGS = 5;
-
-type TagsFieldProps = {
-  tags: string[];
-  onChange: (tags: string[]) => void;
-};
-
-function TagsField({ tags, onChange }: TagsFieldProps) {
-  const [input, setInput] = useState('');
-
-  const addTag = () => {
-    const trimmed = input.trim();
-    if (!trimmed || tags.length >= MAX_TAGS || tags.includes(trimmed)) return;
-    onChange([...tags, trimmed]);
-    setInput('');
-  };
-
-  const removeTag = (tag: string) => onChange(tags.filter((t) => t !== tag));
-
-  return (
-    <div className="flex flex-col gap-0 p-1 w-full shrink-0">
-      <FormLabel name="タグ" hint="最大5項目" />
-      <div className="flex items-center gap-1 bg-[var(--inputcontainer)] border border-[var(--inputborder,#9f9fa9)] rounded-sm shadow-sm px-1 min-h-8 w-full">
-        <div className="flex gap-0.5 items-center flex-wrap flex-1 min-w-0 py-0.5">
-          {tags.map((tag) => (
-            <button key={tag} type="button" onClick={() => removeTag(tag)} title="クリックで削除" className="shrink-0">
-              <TagLabel label={tag} />
-            </button>
-          ))}
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                addTag();
-              }
-            }}
-            placeholder={tags.length === 0 ? 'タグを入力してEnter' : ''}
-            className="flex-1 min-w-[80px] bg-transparent text-sm leading-5 focus:outline-none"
-          />
-        </div>
-        <button
-          type="button"
-          onClick={addTag}
-          disabled={tags.length >= MAX_TAGS}
-          className="shrink-0 w-6 h-6 flex items-center justify-center bg-white rounded-sm shadow-sm text-lg leading-none hover:bg-gray-100 disabled:opacity-40 transition-colors"
-        >
-          +
-        </button>
-      </div>
-    </div>
-  );
-}
 
 // ---- BlogEditor ----
 
@@ -158,6 +40,10 @@ type Props = {
   genre: Genre;
   mode: 'create' | 'edit';
   initialData?: ArticleInitialData;
+  // このジャンルに登録済みのタグ一覧
+  availableTags?: TagItem[];
+  // 他ジャンルにあってこのジャンル未登録のタグ一覧（オーバーレイから追加できる）
+  otherGenreTags?: TagItem[];
 };
 
 type FieldErrors = Partial<Record<'title' | 'description' | 'slug' | 'content', string>>;
@@ -177,7 +63,7 @@ async function uploadImage(file: File): Promise<string | null> {
   return url;
 }
 
-export default function BlogEditor({ genre, mode, initialData }: Props) {
+export default function BlogEditor({ genre, mode, initialData, availableTags = [], otherGenreTags = [] }: Props) {
   const [title, setTitle] = useState(initialData?.title ?? '');
   const [description, setDescription] = useState(initialData?.description ?? '');
   const [tags, setTags] = useState<string[]>(initialData?.tags ?? []);
@@ -189,6 +75,7 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isTagOverlayOpen, setIsTagOverlayOpen] = useState(false);
   // useRef で EasyMDE のインスタンスを保持する
   // useState と違い ref への代入は再レンダリングを引き起こさない
   // また ref の値はレンダリングをまたいでも保持され続けるため、インスタンスの保持に適している
@@ -384,7 +271,46 @@ export default function BlogEditor({ genre, mode, initialData }: Props) {
             multiline
             error={fieldErrors.description}
           />
-          <TagsField tags={tags} onChange={setTags} />
+          {/* タグ選択欄：タグはオーバーレイから選択する（テキスト直打ちは廃止） */}
+          <div className="flex flex-col gap-0 p-1 w-full shrink-0">
+            <FormLabel name="タグ" hint="最大5項目" />
+            <div className="flex items-center gap-1 bg-[var(--inputcontainer)] border border-[var(--inputborder,#9f9fa9)] rounded-sm shadow-sm px-1 min-h-8 w-full">
+              <div className="flex gap-0.5 items-center flex-wrap flex-1 min-w-0 py-0.5">
+                {tags.map((name) => {
+                  const tagData = availableTags.find((t) => t.name === name);
+                  return (
+                    <TagLabel
+                      key={name}
+                      label={name}
+                      imageUrl={tagData?.imageUrl}
+                      onRemove={() => setTags(tags.filter((t) => t !== name))}
+                    />
+                  );
+                })}
+              </div>
+              {/* ＋ボタンでオーバーレイを開く */}
+              <button
+                type="button"
+                onClick={() => setIsTagOverlayOpen(true)}
+                className="shrink-0 w-6 h-6 flex items-center justify-center bg-white rounded-sm shadow-sm text-lg leading-none hover:bg-gray-100 transition-colors"
+              >
+                +
+              </button>
+            </div>
+          </div>
+          {isTagOverlayOpen && (
+            <TagSelectOverlay
+              tags={availableTags}
+              selectedNames={tags}
+              genre={genre}
+              otherGenreTags={otherGenreTags}
+              onConfirm={(names) => {
+                setTags(names);
+                setIsTagOverlayOpen(false);
+              }}
+              onClose={() => setIsTagOverlayOpen(false)}
+            />
+          )}
           <InputField
             label="サムネイル画像"
             value={thumbnail}

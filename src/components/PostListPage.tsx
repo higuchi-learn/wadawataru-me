@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { GenreAbout, SearchBar, SelectPageBar, CardList } from '@/components';
 import type { Genre } from '@/components';
 import type { CardData } from '@/components';
-import { getPostsList, getPostsCount, getTagsList, PAGE_SIZE } from '@/db/queries/select';
+import { getPostsList, getPostsCount, getTagsForGenre, PAGE_SIZE } from '@/db/queries/select';
 import { formatDate } from '@/lib/formatDate';
 
 type Props = {
@@ -14,7 +14,7 @@ export default async function PostListPage({ genre, searchParams }: Props) {
   const page = Math.max(1, Number(searchParams.page ?? '1'));
   const tagNames = searchParams.tags?.split(',').filter(Boolean) ?? [];
 
-  const allTags = await getTagsList();
+  const allTags = await getTagsForGenre(genre);
   const tagIds = allTags.filter((t) => tagNames.includes(t.name)).map((t) => t.id);
 
   // 記事一覧と総件数を並列取得する
@@ -44,7 +44,8 @@ export default async function PostListPage({ genre, searchParams }: Props) {
       <div className="flex flex-col items-center py-1 w-full shrink-0">
         <GenreAbout genre={genre} className="w-full" />
         <Suspense>
-          <SearchBar availableTags={allTags.map((t) => t.name)} className="w-[365px]" />
+          {/* getTagsList が返す全カラムをそのまま渡す（id・name・imageUrl・sortOrder） */}
+          <SearchBar availableTags={allTags} className="w-[365px]" />
         </Suspense>
       </div>
       <main className="flex-1 flex flex-col items-center gap-2.5">

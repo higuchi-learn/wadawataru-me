@@ -1,5 +1,5 @@
-import BlogEditor from '@/components/BlogEditor';
+import PostCreatePage from '@/components/PostCreatePage';
 
 export default function BlogCreatePage() {
-  return <BlogEditor genre="blogs" mode="create" />;
+  return <PostCreatePage genre="blogs" />;
 }

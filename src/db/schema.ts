@@ -1,5 +1,5 @@
 // src/db/schema.ts
-import { pgTable, uuid, varchar, text, timestamp, pgEnum, primaryKey, integer, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp, pgEnum, primaryKey, integer } from 'drizzle-orm/pg-core';
 
 // pgEnum で PostgreSQL の ENUM 型を定義する
 // DB レベルで値を制限できるため、想定外の文字列が入るのを防げる
@@ -31,16 +31,36 @@ export const postsTable = pgTable('posts_table', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 });
 
-export const tagsTable = pgTable(
-  'tags_table',
+// タグの実体（名前・画像）を管理するテーブル
+// 「TypeScript というタグが存在する」という事実だけをここに持つ
+// どのジャンルに属するか・何番目に表示するかは genre_tag_orders テーブルが担当する
+export const tagsTable = pgTable('tags_table', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 20 }).notNull().unique(),
+  // タグに紐づく画像の R2 URL。未設定の場合は null
+  imageUrl: text('image_url'),
+});
+
+// ジャンルごとのタグ所属と表示順を管理するテーブル
+//
+// 設計のポイント：タグの「実体」と「ジャンルでの位置」を分離している
+//   tags_table: TypeScript というタグが "存在する"
+//   genre_tag_orders: TypeScript を products の 3番目、books の 5番目に置く
+//
+// PRIMARY KEY を (genre, tag_id) の複合キーにすることで
+// 同じタグを同じジャンルに2重登録できないようにDB レベルで保証する
+// （例: products + TypeScript の組み合わせは1行しか持てない）
+//
+// tag_id は tags_table.id への外部キーなので、タグを削除する前に
+// このテーブルの関連行を先に削除しないと外部キー違反になる
+export const genreTagOrdersTable = pgTable(
+  'genre_tag_orders',
   {
-    id: uuid('id').defaultRandom().primaryKey(),
-    name: varchar('name', { length: 20 }).notNull().unique(),
+    genre: articlesGenreEnum('genre').notNull(),
+    tagId: uuid('tag_id').notNull().references(() => tagsTable.id),
     sortOrder: integer('sort_order').notNull().default(0),
   },
-  // テーブル定義の第3引数にインデックスなど追加の制約を配列で渡す
-  // sortOrder でのソートが多いため、インデックスを張って検索を高速化する
-  (table) => [index('tags_sort_order_idx').on(table.sortOrder)],
+  (table) => [primaryKey({ columns: [table.genre, table.tagId] })],
 );
 
 export const postTagsTable = pgTable(
@@ -64,6 +84,8 @@ export const postTagsTable = pgTable(
 export type InsertPost = typeof postsTable.$inferInsert;
 export type InsertTag = typeof tagsTable.$inferInsert;
 export type InsertPostTag = typeof postTagsTable.$inferInsert;
+export type InsertGenreTagOrder = typeof genreTagOrdersTable.$inferInsert;
 export type SelectPost = typeof postsTable.$inferSelect;
 export type SelectTag = typeof tagsTable.$inferSelect;
 export type SelectPostTag = typeof postTagsTable.$inferSelect;
+export type SelectGenreTagOrder = typeof genreTagOrdersTable.$inferSelect;

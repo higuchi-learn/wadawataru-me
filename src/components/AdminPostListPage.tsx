@@ -3,7 +3,7 @@ import { GenreAbout, SelectPageBar, CardList } from '@/components';
 import AdminSelectBar from '@/components/AdminSelectBar';
 import type { Genre } from '@/components';
 import type { CardData } from '@/components';
-import { getPostsList, getPostsCount, getTagsList, PAGE_SIZE } from '@/db/queries/select';
+import { getPostsList, getPostsCount, getTagsForGenre, PAGE_SIZE } from '@/db/queries/select';
 import { formatDate } from '@/lib/formatDate';
 import type { SelectPost } from '@/db/schema';
 
@@ -30,7 +30,7 @@ export default async function AdminPostListPage({ genre, searchParams }: Props) 
   const tagNames = searchParams.tags?.split(',').filter(Boolean) ?? [];
   const status = toStatus(searchParams.status);
 
-  const allTags = await getTagsList();
+  const allTags = await getTagsForGenre(genre);
   // タグ名からタグ ID に変換する（DB クエリは ID ベースで絞り込む）
   const tagIds = allTags.filter((t) => tagNames.includes(t.name)).map((t) => t.id);
 
@@ -58,7 +58,8 @@ export default async function AdminPostListPage({ genre, searchParams }: Props) 
     <>
       <div className="flex flex-col items-center py-1 w-full shrink-0">
         <GenreAbout genre={genre} className="w-full" />
-        <AdminSelectBar genre={genre} availableTags={allTags.map((t) => t.name)} className="w-full" />
+        {/* getTagsList が返す全カラムをそのまま渡す（id・name・imageUrl・sortOrder） */}
+        <AdminSelectBar genre={genre} availableTags={allTags} className="w-full" />
       </div>
       <main className="flex-1 flex flex-col items-center gap-2.5">
         <div className="flex flex-col gap-1.5 items-center py-1 w-full">

@@ -2,10 +2,11 @@ import Link from 'next/link';
 import StatusBar from '@/components/StatusBar';
 import SearchBar from '@/components/SearchBar';
 import type { Genre } from '@/components/GenreAbout';
+import type { TagItem } from '@/components/TagSelectOverlay';
 
 type AdminSelectBarProps = {
   genre: Genre;
-  availableTags?: string[];
+  availableTags?: TagItem[];
   className?: string;
 };
 

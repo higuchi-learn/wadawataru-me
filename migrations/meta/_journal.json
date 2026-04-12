@@ -22,6 +22,27 @@
       "when": 1774115143384,
       "tag": "0002_dear_millenium_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1775929042442,
+      "tag": "0003_past_wolfsbane",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1744430400000,
+      "tag": "0004_genre_tag_orders",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1775975855083,
+      "tag": "0005_typical_lionheart",
+      "breakpoints": true
     }
   ]
 }

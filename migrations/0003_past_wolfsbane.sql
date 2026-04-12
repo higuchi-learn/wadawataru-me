@@ -1,0 +1,1 @@
+ALTER TABLE "tags_table" ADD COLUMN "image_url" text;

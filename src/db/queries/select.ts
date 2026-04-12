@@ -1,6 +1,6 @@
 import { db } from '../db';
-import { and, asc, desc, eq, inArray, ne, sql } from 'drizzle-orm';
-import { postsTable, tagsTable, postTagsTable, SelectPost, SelectTag } from '../schema';
+import { and, asc, desc, eq, inArray, max, ne, sql } from 'drizzle-orm';
+import { postsTable, tagsTable, postTagsTable, genreTagOrdersTable, SelectPost, SelectTag } from '../schema';
 
 export const PAGE_SIZE = 20;
 
@@ -50,26 +50,44 @@ export async function getPostByIdForAdmin(id: SelectPost['id']) {
 export async function getTagsByPostId(postId: SelectPost['id']) {
   // post_tags_table（中間テーブル）を起点に tags_table を JOIN して
   // postId に紐づくタグ名を取得する
-  // innerJoin なので post_tags_table にレコードがない（タグなし）記事は0件が返る
   return await db
     .select({ name: tagsTable.name })
     .from(postTagsTable)
     .innerJoin(tagsTable, eq(postTagsTable.tagId, tagsTable.id))
-    .where(eq(postTagsTable.postId, postId))
-    // タグの表示順は sortOrder カラムに従う（管理画面でドラッグ&ドロップで変更可能）
-    .orderBy(asc(tagsTable.sortOrder));
+    .where(eq(postTagsTable.postId, postId));
 }
 
-export async function getTagsList() {
-  // 検索バーのタグ選択 UI に使う全タグ一覧を取得する
-  // sortOrder の昇順で返すことで、管理画面で設定した並び順が検索バーに反映される
+// 指定ジャンルに登録されたタグを sortOrder 昇順で取得する
+// FROM を genreTagOrdersTable にして tags_table を JOIN する理由：
+//   並び順と所属は genre_tag_orders が持っているので、そこを起点にすることで
+//   「このジャンルに登録されているタグだけ」を自動的に絞り込める
+//   FROM tags_table にすると全タグが対象になり、WHERE で絞る必要が生じる
+// innerJoin を使う理由：
+//   genre_tag_orders に存在しないタグ（どのジャンルにも属していない）は
+//   結果に含める必要がないため INNER JOIN で OK
+export async function getTagsForGenre(genre: SelectPost['genre']) {
   return await db
     .select({
       id: tagsTable.id,
       name: tagsTable.name,
+      imageUrl: tagsTable.imageUrl,
     })
-    .from(tagsTable)
-    .orderBy(asc(tagsTable.sortOrder));
+    .from(genreTagOrdersTable)
+    .innerJoin(tagsTable, eq(genreTagOrdersTable.tagId, tagsTable.id))
+    .where(eq(genreTagOrdersTable.genre, genre))
+    .orderBy(asc(genreTagOrdersTable.sortOrder));
+}
+
+// 指定ジャンルの sortOrder 最大値を取得する
+// 新しいタグを追加するとき、既存タグの末尾に挿入するために maxOrder + 1 を sortOrder として使う
+// タグが1件もない場合 MAX() は NULL を返すため ?? -1 で保護している
+// （-1 + 1 = 0 になり、最初のタグが sortOrder = 0 で追加される）
+export async function getMaxGenreTagSortOrder(genre: SelectPost['genre']): Promise<number> {
+  const result = await db
+    .select({ maxOrder: max(genreTagOrdersTable.sortOrder) })
+    .from(genreTagOrdersTable)
+    .where(eq(genreTagOrdersTable.genre, genre));
+  return result[0].maxOrder ?? -1;
 }
 
 export async function isSlugTaken(slug: string, excludeId?: string): Promise<boolean> {
