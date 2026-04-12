@@ -57,6 +57,17 @@
   /* Fonts */
   --font-sans: var(--font-inter), var(--font-noto-sans-jp), sans-serif;
   --font-mono: var(--font-geist-mono);
+
+  /* Font sizes (1段階アップ: xs→sm, sm→base, base→lg, ...) */
+  --text-xs: 0.875rem;   /* 14px (元: 12px) */
+  --text-sm: 1rem;       /* 16px (元: 14px) */
+  --text-base: 1.125rem; /* 18px (元: 16px) */
+  --text-lg: 1.25rem;    /* 20px (元: 18px) */
+  --text-xl: 1.5rem;     /* 24px (元: 20px) */
+  --text-2xl: 1.875rem;  /* 30px (元: 24px) */
+  --text-3xl: 2.25rem;   /* 36px (元: 30px) */
+  --text-4xl: 3rem;      /* 48px (元: 36px) */
+  --text-5xl: 3.75rem;   /* 60px (元: 48px) */
 }
 
 body {
