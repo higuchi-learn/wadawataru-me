@@ -124,28 +124,32 @@ export default function TagSelectOverlay({
           )}
 
           {/* 他ジャンルのタグ（genre が渡された場合のみ表示） */}
-          {genre && otherGenreTags.length > 0 && (
+          {genre && (
             <div className="border-t border-neutral-200 p-3 flex flex-col gap-2">
               <p className="text-xs text-[var(--lighttext)]">他ジャンルのタグ（クリックでこのジャンルに追加）</p>
               {otherGenreError && <p className="text-xs text-[var(--error)]">{otherGenreError}</p>}
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] gap-2">
-                {otherGenreTags.map((tag) => (
-                  <button
-                    key={tag.id}
-                    type="button"
-                    disabled={addingId === tag.id}
-                    onClick={() => handleAddFromOtherGenre(tag)}
-                    className="flex flex-col items-center gap-1 p-1 rounded-xl w-full bg-white border border-dashed border-neutral-300 hover:bg-[var(--onmouseorange)] transition-colors disabled:opacity-50"
-                  >
-                    <div className="w-full aspect-square rounded-lg overflow-hidden bg-neutral-200 shrink-0">
-                      {tag.imageUrl && (
-                        <img src={tag.imageUrl} alt={tag.name} className="w-full h-full object-cover" />
-                      )}
-                    </div>
-                    <span className="text-xs leading-4 text-black text-center w-full truncate">{tag.name}</span>
-                  </button>
-                ))}
-              </div>
+              {otherGenreTags.length === 0 ? (
+                <p className="text-xs text-[var(--lighttext)]">追加できるタグがありません</p>
+              ) : (
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] gap-2">
+                  {otherGenreTags.map((tag) => (
+                    <button
+                      key={tag.id}
+                      type="button"
+                      disabled={addingId === tag.id}
+                      onClick={() => handleAddFromOtherGenre(tag)}
+                      className="flex flex-col items-center gap-1 p-1 rounded-xl w-full bg-white border border-dashed border-neutral-300 hover:bg-[var(--onmouseorange)] transition-colors disabled:opacity-50"
+                    >
+                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-neutral-200 shrink-0">
+                        {tag.imageUrl && (
+                          <img src={tag.imageUrl} alt={tag.name} className="w-full h-full object-cover" />
+                        )}
+                      </div>
+                      <span className="text-xs leading-4 text-black text-center w-full truncate">{tag.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
