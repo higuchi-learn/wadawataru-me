@@ -325,8 +325,8 @@ export default function TagManagementPage({ initialTagsByGenre }: Props) {
   const currentTags = tagsByGenre[selectedGenre];
 
   // 他ジャンルに存在しつつ現在のジャンルに未登録のタグを導出する（クライアント側で計算）
-  // tagsByGenre はページ初期表示時に全ジャンル分ロード済みなので、追加の fetch は不要
-  // ① 現在のジャンル以外の全ジャンルのタグを1次元配列に展開する
+  // tagsByGenre はページ初期表示時に全ジャンル分ロード済みなので、追加の DB fetch は不要
+  // ① 現在のジャンル以外のタグを1次元配列に展開する
   // ② 同じタグが複数ジャンルにあると重複して現れるため、id で一意に絞る
   // ③ 現在のジャンルにすでに登録されているタグは除外する（追加済みを再提示しない）
   const otherGenreTags = (Object.keys(tagsByGenre) as GenreTab[])
@@ -445,14 +445,12 @@ export default function TagManagementPage({ initialTagsByGenre }: Props) {
         <span className="text-sm text-[var(--successtext,#497d00)]">{statusMessage}</span>
       )}
 
-      {/* 他ジャンルのタグを追加するボタン（他ジャンルに未登録タグがある場合のみ表示） */}
-      {otherGenreTags.length > 0 && (
-        <div>
-          <SquareButton state="Enabled" onClick={() => setIsPickerOpen(true)}>
-            他ジャンルのタグを追加
-          </SquareButton>
-        </div>
-      )}
+      {/* 他ジャンルのタグを追加するボタン */}
+      <div>
+        <SquareButton state="Enabled" onClick={() => setIsPickerOpen(true)}>
+          他ジャンルのタグを追加
+        </SquareButton>
+      </div>
 
       {/* タググリッド：画像ドラッグ→並び替え、タグ名クリック→編集モーダル */}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

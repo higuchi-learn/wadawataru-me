@@ -7,7 +7,7 @@ const ALL_GENRES = ['products', 'blogs', 'books'] as const;
 export default async function PostCreatePage({ genre }: { genre: Genre }) {
   // 全ジャンルのタグを並列取得して、このジャンル用と他ジャンル用に分ける
   // このジャンル分だけ取得すると TagSelectOverlay の「他ジャンルのタグを追加」機能に必要な
-  // 他ジャンルのデータが揃わない。Promise.all で3件同時に fetch しても実質1往復で済む
+  // データが揃わない。Promise.all で3件同時に fetch することで実質1往復で済む
   const [products, blogs, books] = await Promise.all([
     getTagsForGenre('products'),
     getTagsForGenre('blogs'),

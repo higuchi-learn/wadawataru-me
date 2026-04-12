@@ -29,7 +29,7 @@ export default function TagSelectOverlay({
 }: Props) {
   const [selected, setSelected] = useState<string[]>(initialSelected);
   // 作成・他ジャンル追加で増えたタグを即時反映するためローカル state で管理する
-  // props をそのまま参照すると Server Component 側の再レンダリングが起きるまで UI に反映されないため、
+  // props のまま参照すると Server Component 側の再レンダリングが起きるまで UI に反映されないため、
   // Client Component 内で state として持ち、楽観的に更新することで操作後すぐに表示が変わる
   const [availableTags, setAvailableTags] = useState<TagItem[]>(initialTags);
   // 他ジャンルタグも state で持つ理由：追加操作後にそのタグをリストから消す必要があるため

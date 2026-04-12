@@ -12,7 +12,7 @@ export default async function PostEditPage({ id, genre }: { id: string; genre: G
   if (!post) notFound();
 
   // 記事タグ・全ジャンルのタグを並列取得する
-  // 全ジャンルを取得する理由は PostCreatePage と同じ（他ジャンルからのタグ追加に使う）
+  // 全ジャンルを取得する理由は PostCreatePage と同じ（他ジャンルからのタグ追加に必要）
   // 記事タグ取得も同じ Promise.all に含めることで DB 往復を1回にまとめる
   const [tags, products, blogs, books] = await Promise.all([
     getTagsByPostId(post.id),
