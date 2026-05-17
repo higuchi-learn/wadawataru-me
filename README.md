@@ -4,8 +4,6 @@
 ## Figmaページ
 [Figma](https://www.figma.com/design/js6RZs7E0hbl6yQcoEN4em/%E3%83%9D%E3%83%BC%E3%83%88%E3%83%95%E3%82%A9%E3%83%AA%E3%82%AA%E3%82%B5%E3%82%A4%E3%83%88?node-id=8-257&t=GawAvr6926AMOBsB-1)
 ここをかなり作り込んだので, FigmaMCPを用いた結果ほぼスタイルに関してコーディングを行うことは無かった
-## 未実装機能
-[wadawataru-me/documents/todo.md at master · higuchi-learn/wadawataru-me · GitHub](https://github.com/higuchi-learn/wadawataru-me/blob/master/documents/todo.md)
 ## 開発記録
 [wadawataru-me/documents/v2-road.md at master · higuchi-learn/wadawataru-me · GitHub](https://github.com/higuchi-learn/wadawataru-me/blob/master/documents/v2-road.md)
 ## 制作背景
