@@ -52,3 +52,7 @@ next-env.d.ts
 .mcp.json
 
 !.dev.vars.example
+
+# 就活用の個人的なメモ
+/es-challenge.txt
+/portfolio-description.md
