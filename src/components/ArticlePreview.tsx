@@ -1,11 +1,11 @@
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import TagsList from '@/components/TagsList';
+import TagsList, { type TagListItem } from '@/components/TagsList';
 
 type ArticlePreviewProps = {
   title: string;
   description: string;
-  tags: string[];
+  tags: TagListItem[];
   content: string;
 };
 

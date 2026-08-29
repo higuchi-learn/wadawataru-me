@@ -49,9 +49,9 @@ export async function getPostByIdForAdmin(id: SelectPost['id']) {
 
 export async function getTagsByPostId(postId: SelectPost['id']) {
   // post_tags_table（中間テーブル）を起点に tags_table を JOIN して
-  // postId に紐づくタグ名を取得する
+  // postId に紐づくタグ名・画像を取得する
   return await db
-    .select({ name: tagsTable.name })
+    .select({ name: tagsTable.name, imageUrl: tagsTable.imageUrl })
     .from(postTagsTable)
     .innerJoin(tagsTable, eq(postTagsTable.tagId, tagsTable.id))
     .where(eq(postTagsTable.postId, postId));
@@ -121,11 +121,14 @@ export async function getPostsList(
         thumbnail: postsTable.thumbnail,
         publishedAt: postsTable.publishedAt,
         updatedAt: postsTable.updatedAt,
-        // タグを配列として取得するためのSQLクエリ
+        // タグを { name, imageUrl } の配列として取得するためのSQLクエリ
+        // jsonb_build_object で1タグぶんのオブジェクトを作り、jsonb_agg で配列にまとめる
+        // json ではなく jsonb にしているのは、jsonb には等価比較演算子があり distinct が使えるため
+        // （json 型は distinct 判定に使う演算子を持たずエラーになる）
         // タグがない場合は空の配列を返すようにする
-        tags: sql<string[]>`
-          coalesce(array_agg(distinct ${tagsTable.name})
-          filter (where ${tagsTable.name} is not null), '{}')
+        tags: sql<{ name: string; imageUrl: string | null }[]>`
+          coalesce(jsonb_agg(distinct jsonb_build_object('name', ${tagsTable.name}, 'imageUrl', ${tagsTable.imageUrl}))
+          filter (where ${tagsTable.name} is not null), '[]')
         `,
       })
       .from(postsTable)
@@ -158,7 +161,9 @@ export async function getPostsList(
       thumbnail: postsTable.thumbnail,
       publishedAt: postsTable.publishedAt,
       updatedAt: postsTable.updatedAt,
-      tags: sql<string[]>`array_agg(distinct ${tagsTable.name})`,
+      tags: sql<{ name: string; imageUrl: string | null }[]>`
+        jsonb_agg(distinct jsonb_build_object('name', ${tagsTable.name}, 'imageUrl', ${tagsTable.imageUrl}))
+      `,
     })
     .from(postsTable)
     // タグ検索を行う場合, そもそもタグを持たない記事は必要ない

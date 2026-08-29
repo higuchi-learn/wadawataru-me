@@ -1,10 +1,11 @@
 import Card from '@/components/Card';
+import type { TagListItem } from '@/components/TagsList';
 
 export type CardData = {
   id: string | number;
   title: string;
   description: string;
-  tags: string[];
+  tags: TagListItem[];
   publishedAt: string;
   updatedAt: string;
   thumbnailUrl?: string;

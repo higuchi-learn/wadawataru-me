@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import CardTitle from '@/components/CardTitle';
-import TagsList from '@/components/TagsList';
+import TagsList, { type TagListItem } from '@/components/TagsList';
 
 type CardProps = {
   title: string;
   description: string;
-  tags: string[];
+  tags: TagListItem[];
   publishedAt: string;
   updatedAt: string;
   thumbnailUrl?: string;

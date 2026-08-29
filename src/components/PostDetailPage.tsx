@@ -16,7 +16,7 @@ export default async function PostDetailPage({ slug }: { slug: string }) {
     <ArticlePage
       title={post.title}
       description={post.description}
-      tags={tags.map((t) => t.name)}
+      tags={tags}
       // formatDate で Date 型を表示用文字列に変換する（null の場合はプレースホルダーを返す）
       publishedAt={formatDate(post.publishedAt)}
       updatedAt={formatDate(post.updatedAt)}

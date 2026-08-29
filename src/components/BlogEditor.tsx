@@ -155,6 +155,13 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
     tags,
   });
 
+  // Card / ArticlePreview は { name, imageUrl } の形を要求するため
+  // 選択中のタグ名（tags: string[]）を availableTags から画像を引いてオブジェクト化する
+  const tagObjects = tags.map((name) => ({
+    name,
+    imageUrl: availableTags.find((t) => t.name === name)?.imageUrl ?? null,
+  }));
+
   const validate = (): FieldErrors | null => {
     // safeParse はエラーを例外でなく戻り値として返すため、try/catch 不要
     const parsed = articleSchema.safeParse({ title, description, slug, content });
@@ -341,7 +348,7 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
               <Card
                 title={title || 'タイトル'}
                 description={description || '説明'}
-                tags={tags}
+                tags={tagObjects}
                 thumbnailUrl={thumbnail || undefined}
                 publishedAt="----年--月--日"
                 updatedAt="----年--月--日"
@@ -368,7 +375,7 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
         </div>
 
         <div className="w-1/2 pr-1 overflow-auto border border-[var(--inputborder,#9f9fa9)] rounded-sm">
-          <ArticlePreview title={title} description={description} tags={tags} content={content} />
+          <ArticlePreview title={title} description={description} tags={tagObjects} content={content} />
         </div>
       </div>
     </div>

@@ -1,14 +1,14 @@
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import React from 'react';
-import TagsList from '@/components/TagsList';
+import TagsList, { type TagListItem } from '@/components/TagsList';
 import TableOfContents from '@/components/TableOfContents';
 import { parseHeadings, generateHeadingId } from '@/lib/parseHeadings';
 
 export type ArticlePageData = {
   title: string;
   description: string;
-  tags: string[];
+  tags: TagListItem[];
   publishedAt: string;
   updatedAt: string;
   content: string;
