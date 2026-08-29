@@ -18,6 +18,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import SquareButton from '@/components/SquareButton';
 import { InputField } from '@/components/InputField';
+import { padImageToSquare } from '@/lib/padImageToSquare';
 import {
   createTagAction,
   deleteTagAction,
@@ -152,7 +153,9 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
             if (!file?.type.startsWith('image/')) return;
             e.preventDefault();
             try {
-              const url = await uploadImage(file);
+              // タグ画像は正方形の枠で表示されるため、アップロード前に長辺基準の正方形へパディングする
+              const squared = await padImageToSquare(file);
+              const url = await uploadImage(squared);
               if (url) setImageUrl(url);
             } catch {
               setError('画像のアップロードに失敗しました。');
@@ -289,7 +292,9 @@ function TagCreateForm({ genre, onCreated }: TagCreateFormProps) {
           if (!file?.type.startsWith('image/')) return;
           e.preventDefault();
           try {
-            const url = await uploadImage(file);
+            // タグ画像は正方形の枠で表示されるため、アップロード前に長辺基準の正方形へパディングする
+            const squared = await padImageToSquare(file);
+            const url = await uploadImage(squared);
             if (url) setImageUrl(url);
           } catch {
             setError('画像のアップロードに失敗しました。');
