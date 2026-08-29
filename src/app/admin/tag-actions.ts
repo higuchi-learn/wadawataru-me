@@ -5,6 +5,7 @@ import { createTag, addTagToGenre, findTagByName } from '@/db/queries/insert';
 import { deleteTagById, removeTagFromGenre } from '@/db/queries/delete';
 import { updateTagById, updateGenreTagsSortOrder } from '@/db/queries/update';
 import { getMaxGenreTagSortOrder } from '@/db/queries/select';
+import { isAuthenticated } from '@/lib/authGuard';
 
 // GenreTab はフロントとサーバーの両方で使うため、ここで一元定義して export する
 // DB の articlesGenreEnum と同じ値にしておくことで型の整合性を保つ
@@ -23,6 +24,11 @@ type TagActionResult = { error: string } | TagItem;
 // 他ジャンルにすでに存在するタグを指定ジャンルへ追加する
 // タグ本体（名前・画像）は変更せず genre_tag_orders に1行追加するだけ
 export async function addExistingTagToGenreAction(tag: TagItem, genre: GenreTab): Promise<TagActionResult> {
+  // Server Action はミドルウェアの保護対象外のルートからも呼び出せてしまうため、ここで改めて認証を確認する
+  if (!(await isAuthenticated())) {
+    return { error: '認証が必要です。' };
+  }
+
   try {
     const maxOrder = await getMaxGenreTagSortOrder(genre);
     try {
@@ -47,6 +53,10 @@ export async function addExistingTagToGenreAction(tag: TagItem, genre: GenreTab)
 // 同名タグが tags_table にすでに存在する場合は新規作成せずそのタグを再利用する
 // （同名のタグが複数作られてIDが分かれるのを防ぐため）
 export async function createTagAction(name: string, imageUrl: string | null, genre: GenreTab): Promise<TagActionResult> {
+  if (!(await isAuthenticated())) {
+    return { error: '認証が必要です。' };
+  }
+
   const trimmed = name.trim();
   if (!trimmed) return { error: 'タグ名は必須です。' };
   if (trimmed.length > 20) return { error: '最大20字です。' };
@@ -89,6 +99,10 @@ export async function createTagAction(name: string, imageUrl: string | null, gen
 // タグの名前・画像を更新する
 // tags_table を更新するため全ジャンルで共通のタグ情報が変わる（ジャンル固有の情報ではない）
 export async function updateTagAction(id: string, name: string, imageUrl: string | null): Promise<TagActionResult> {
+  if (!(await isAuthenticated())) {
+    return { error: '認証が必要です。' };
+  }
+
   const trimmed = name.trim();
   if (!trimmed) return { error: 'タグ名は必須です。' };
   if (trimmed.length > 20) return { error: '最大20字です。' };
@@ -105,6 +119,10 @@ export async function updateTagAction(id: string, name: string, imageUrl: string
 // タグを指定ジャンルからのみ除外する
 // tags_table 本体は残るため、他ジャンルでの使用や記事との紐付けに影響しない
 export async function removeTagFromGenreAction(id: string, genre: GenreTab): Promise<{ error: string } | undefined> {
+  if (!(await isAuthenticated())) {
+    return { error: '認証が必要です。' };
+  }
+
   try {
     await removeTagFromGenre(id, genre);
     revalidatePath('/admin/tags');
@@ -117,6 +135,10 @@ export async function removeTagFromGenreAction(id: string, genre: GenreTab): Pro
 // post_tags_table（記事との紐付け）→ genre_tag_orders（ジャンルとの紐付け）→ tags_table の順に削除する
 // FK 制約があるため参照元テーブルを先に削除しないと DB エラーになる（deleteTagById 内で処理）
 export async function deleteTagAction(id: string): Promise<{ error: string } | undefined> {
+  if (!(await isAuthenticated())) {
+    return { error: '認証が必要です。' };
+  }
+
   try {
     await deleteTagById(id);
     revalidatePath('/admin/tags');
@@ -128,6 +150,10 @@ export async function deleteTagAction(id: string): Promise<{ error: string } | u
 // 指定ジャンルのタグ並び順を保存する
 // ドラッグ完了後に自動で呼ばれる。tagIds の配列順がそのまま sortOrder になる
 export async function updateTagsSortOrderAction(genre: GenreTab, tagIds: string[]): Promise<{ error: string } | undefined> {
+  if (!(await isAuthenticated())) {
+    return { error: '認証が必要です。' };
+  }
+
   try {
     await updateGenreTagsSortOrder(genre, tagIds);
     revalidatePath('/admin/tags');

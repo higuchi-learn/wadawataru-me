@@ -8,6 +8,7 @@ import { createPost } from '@/db/queries/insert';
 import { updatePostById, syncPostTags } from '@/db/queries/update';
 import { isSlugTaken } from '@/db/queries/select';
 import { articleSchema } from '@/lib/schemas';
+import { isAuthenticated } from '@/lib/authGuard';
 import type { Genre } from '@/components/GenreAbout';
 
 type SavePayload = {
@@ -25,6 +26,11 @@ type ActionResult = { error: string } | undefined;
 
 // 記事を保存する機能（新規作成と更新の両方に対応）
 export async function saveAsDraftAction(payload: SavePayload): Promise<ActionResult> {
+  // Server Action はミドルウェアの保護対象外のルートからも呼び出せてしまうため、ここで改めて認証を確認する
+  if (!(await isAuthenticated())) {
+    return { error: '認証が必要です。' };
+  }
+
   const { id, genre, slug, title, description, content, thumbnail, tags } = payload;
 
   // safeParse はバリデーション失敗時に例外を投げず { success: false, error } を返す
@@ -76,6 +82,10 @@ export async function saveAsDraftAction(payload: SavePayload): Promise<ActionRes
 
 // 記事を公開する機能
 export async function publishAction(payload: SavePayload & { wasAlreadyPublished: boolean }): Promise<ActionResult> {
+  if (!(await isAuthenticated())) {
+    return { error: '認証が必要です。' };
+  }
+
   const { id, genre, slug, title, description, content, thumbnail, tags, wasAlreadyPublished } = payload;
 
   const parsed = articleSchema.safeParse({ title, description, slug, content });
@@ -135,6 +145,10 @@ export async function archiveAction(payload: {
   content: string;
   thumbnail: string;
 }): Promise<ActionResult> {
+  if (!(await isAuthenticated())) {
+    return { error: '認証が必要です。' };
+  }
+
   const { id, genre, title, description, content, thumbnail } = payload;
 
   try {
