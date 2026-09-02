@@ -19,6 +19,11 @@ async function loadNotoSansJP(text: string): Promise<ArrayBuffer> {
 
 const SITE_NAME = 'わだわたる';
 
+// キャッシュは1年間保持される（immutable）ため、レイアウトやブランド表記など
+// 画像の見た目を変えるコード変更をしたら、このバージョンも上げること。
+// 上げないと、既にキャッシュ済みの拠点では古い見た目の画像がしばらく返り続けてしまう。
+const OG_IMAGE_VERSION = 2;
+
 export async function GET(request: Request) {
   // Cache-Control ヘッダーだけでは Cloudflare の CDN キャッシュには乗らない
   // （Workers のレスポンスは Cache API を明示的に使わない限りエッジキャッシュされない）ため、
@@ -27,7 +32,9 @@ export async function GET(request: Request) {
   // lib.dom.d.ts の CacheStorage 型には default が無く、Cloudflareの生成型と競合してしまうため
   // ここだけ型アサーションで回避する（実行時は Workers ランタイムの caches.default が使われる）
   const cache = (caches as unknown as { default: Cache }).default;
-  const cacheKey = new Request(request.url, request);
+  const cacheKeyUrl = new URL(request.url);
+  cacheKeyUrl.searchParams.set('v', String(OG_IMAGE_VERSION));
+  const cacheKey = new Request(cacheKeyUrl, request);
   const cached = await cache.match(cacheKey);
   if (cached) return cached;
 
