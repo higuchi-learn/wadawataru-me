@@ -12,8 +12,16 @@ export async function generatePostMetadata({
   const post = await getPostById(slug);
   if (!post) return {};
 
+  // 手動サムネイルが設定されていなければ、タイトルから自動生成した画像をOGP画像として使う
+  const ogImageUrl = post.thumbnail ?? `/api/og?title=${encodeURIComponent(post.title)}`;
+
   return {
     title: post.title,
     description: post.description,
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      images: [ogImageUrl],
+    },
   };
 }

@@ -17,6 +17,7 @@ export const getPostById = cache(async (slug: SelectPost['slug']) => {
       title: postsTable.title,
       description: postsTable.description,
       content: postsTable.content,
+      thumbnail: postsTable.thumbnail,
       publishedAt: postsTable.publishedAt,
       updatedAt: postsTable.updatedAt,
     })

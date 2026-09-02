@@ -33,10 +33,9 @@ type CardProps = {
  *   [サムネイル(flex-1, aspect-video, rounded-lg)]
  */
 function Thumbnail({ url, title, className }: { url?: string; title: string; className: string }) {
-  if (url) {
-    return <img src={url} alt={title} className={`${className} object-cover`} />;
-  }
-  return <div className={`${className} bg-neutral-100`} />;
+  // サムネイル未設定の記事は、タイトルから自動生成した画像（/api/og）を表示する
+  const src = url ?? `/api/og?title=${encodeURIComponent(title)}`;
+  return <img src={src} alt={title} className={`${className} object-cover`} />;
 }
 
 export default function Card({ title, description, tags, publishedAt, updatedAt, thumbnailUrl, href = '#', className }: CardProps) {
