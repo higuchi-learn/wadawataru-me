@@ -27,11 +27,11 @@ export const metadata: Metadata = {
   // openGraph.images 等に相対パス（例: '/api/og?title=...'）を渡したとき、
   // このURLを基準に絶対URLへ変換してくれる（SNSのクローラーは絶対URLしか読めないため必須）
   metadataBase: new URL('https://wadawataru.me'),
-  // 子ページが title: '記事タイトル' を返すと、'記事タイトル | わだわたるKIN TV' になる
-  // 子ページが title を指定しない場合は default の 'わだわたるKIN TV' が使われる
+  // 子ページが title: '記事タイトル' を返すと、'記事タイトル | わだわたるのログマガ' になる
+  // 子ページが title を指定しない場合は default の 'わだわたるのログマガ' が使われる
   title: {
-    default: 'わだわたるKIN TV',
-    template: '%s | わだわたるKIN TV',
+    default: 'わだわたるのログマガ',
+    template: '%s | わだわたるのログマガ',
   },
   description: 'わだわたるのポートフォリオサイト',
 };

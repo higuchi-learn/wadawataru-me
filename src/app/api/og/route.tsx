@@ -17,7 +17,7 @@ async function loadNotoSansJP(text: string): Promise<ArrayBuffer> {
   return fontRes.arrayBuffer();
 }
 
-const SITE_NAME = 'わだわたるKIN TV';
+const SITE_NAME = 'わだわたる';
 
 export async function GET(request: Request) {
   // Cache-Control ヘッダーだけでは Cloudflare の CDN キャッシュには乗らない
