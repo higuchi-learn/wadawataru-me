@@ -7,7 +7,11 @@ import GitHub from 'next-auth/providers/github';
 //   signIn   : サインイン処理を呼び出す関数（Server Action 内で使う）
 //   signOut  : サインアウト処理を呼び出す関数（Server Action 内で使う）
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  providers: [GitHub],
+  // issuer を明示しないと、GitHub が認可レスポンスに iss パラメータを付与した際に
+  // next-auth が「検証対象の issuer が未設定」として fail closed し、
+  // ログインが CallbackRouteError（error=Configuration）で失敗する。
+  // 参考: https://github.com/nextauthjs/next-auth/issues/13409
+  providers: [GitHub({ issuer: 'https://github.com/login/oauth' })],
 
   // Cloudflare Workers / Vercel 以外の環境では HOST が信頼されないため
   // trustHost: true を指定しないと CSRF トークン検証が失敗してログインできない
