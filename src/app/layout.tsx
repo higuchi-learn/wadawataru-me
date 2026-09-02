@@ -24,7 +24,12 @@ const geistMono = Geist_Mono({
 
 // metadata をエクスポートすると Next.js が自動で <head> の <title> / <meta> タグに変換する
 export const metadata: Metadata = {
-  title: 'わだわたるKIN TV',
+  // 子ページが title: '記事タイトル' を返すと、'記事タイトル | わだわたるKIN TV' になる
+  // 子ページが title を指定しない場合は default の 'わだわたるKIN TV' が使われる
+  title: {
+    default: 'わだわたるKIN TV',
+    template: '%s | わだわたるKIN TV',
+  },
   description: 'わだわたるのポートフォリオサイト',
 };
 

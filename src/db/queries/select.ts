@@ -1,10 +1,13 @@
+import { cache } from 'react';
 import { db } from '../db';
 import { and, asc, desc, eq, inArray, max, ne, sql } from 'drizzle-orm';
 import { postsTable, tagsTable, postTagsTable, genreTagOrdersTable, SelectPost, SelectTag } from '../schema';
 
 export const PAGE_SIZE = 20;
 
-export async function getPostById(slug: SelectPost['slug']) {
+// generateMetadata とページ本体（PostDetailPage）の両方から同じ slug で呼ばれるため
+// cache() でリクエスト単位にメモ化し、1リクエストにつきDB問い合わせが1回で済むようにする
+export const getPostById = cache(async (slug: SelectPost['slug']) => {
   // .select({ ... }) で取得したいカラムだけを指定する（不要なカラムを取得しない）
   // select() を引数なしで呼ぶと全カラムが返ってくるが、必要なものだけに絞ることで
   // ネットワーク転送量とレスポンスオブジェクトのサイズを小さくできる
@@ -25,7 +28,7 @@ export async function getPostById(slug: SelectPost['slug']) {
   // .select() は常に配列を返す（0件の場合は空配列）
   // rows[0] ?? null で「見つかった最初の1件」か「null」を返す
   return rows[0] ?? null;
-}
+});
 
 export async function getPostByIdForAdmin(id: SelectPost['id']) {
   // 管理画面用は status に関係なく取得する（下書き・アーカイブも編集できる必要があるため）
@@ -233,4 +236,16 @@ export async function getPostsCount(
 
   const result = await db.select({ count: sql<number>`cast(count(*) as int)` }).from(sub);
   return result[0].count;
+}
+
+// sitemap.xml 生成用に、公開中の全記事の URL 構築に必要な最小限のカラムだけを取得する
+export async function getPublishedPostsForSitemap() {
+  return await db
+    .select({
+      genre: postsTable.genre,
+      slug: postsTable.slug,
+      updatedAt: postsTable.updatedAt,
+    })
+    .from(postsTable)
+    .where(eq(postsTable.status, 'published'));
 }
