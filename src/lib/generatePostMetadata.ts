@@ -12,8 +12,12 @@ export async function generatePostMetadata({
   const post = await getPostById(slug);
   if (!post) return {};
 
-  // 手動サムネイルが設定されていなければ、タイトルから自動生成した画像をOGP画像として使う
-  const ogImageUrl = post.thumbnail ?? `/api/og?title=${encodeURIComponent(post.title)}`;
+  // 手動サムネイルが設定されていればそれを、無ければタイトルから自動生成した画像をOGP画像として使う
+  // /api/og は常に1200x630のPNGを返す（Card.tsx等でのサムネイル表示にも使うので aspect-video 相当）
+  // 手動サムネイルは実際のサイズが分からないため width/height は付けない
+  const ogImage = post.thumbnail
+    ? { url: post.thumbnail }
+    : { url: `/api/og?title=${encodeURIComponent(post.title)}`, width: 1200, height: 630 };
 
   return {
     title: post.title,
@@ -21,7 +25,7 @@ export async function generatePostMetadata({
     openGraph: {
       title: post.title,
       description: post.description,
-      images: [ogImageUrl],
+      images: [ogImage],
     },
   };
 }

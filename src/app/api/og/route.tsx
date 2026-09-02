@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 // Satori（ImageResponse の内部で使われているレンダラー）はシステムフォントを持たないため、
 // 日本語を描画するには自前でフォントデータ（TTF/OTF）を渡す必要がある。
@@ -19,13 +20,24 @@ async function loadNotoSansJP(text: string): Promise<ArrayBuffer> {
 const SITE_NAME = 'わだわたるKIN TV';
 
 export async function GET(request: Request) {
+  // Cache-Control ヘッダーだけでは Cloudflare の CDN キャッシュには乗らない
+  // （Workers のレスポンスは Cache API を明示的に使わない限りエッジキャッシュされない）ため、
+  // caches.default に自前でヒット確認・保存を行う。同じ title への2回目以降のリクエストは
+  // Google Fontsへの問い合わせ・画像レンダリングを行わずキャッシュから即座に返せる。
+  // lib.dom.d.ts の CacheStorage 型には default が無く、Cloudflareの生成型と競合してしまうため
+  // ここだけ型アサーションで回避する（実行時は Workers ランタイムの caches.default が使われる）
+  const cache = (caches as unknown as { default: Cache }).default;
+  const cacheKey = new Request(request.url, request);
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached;
+
   const { searchParams } = new URL(request.url);
   // title は posts_table.title の DB 制約（最大27字）に合わせて念のため切り詰める
   const title = (searchParams.get('title') ?? SITE_NAME).slice(0, 27);
 
   const fontData = await loadNotoSansJP(title + SITE_NAME);
 
-  return new ImageResponse(
+  const response = new ImageResponse(
     (
       <div
         style={{
@@ -59,10 +71,15 @@ export async function GET(request: Request) {
       height: 630,
       fonts: [{ name: 'Noto Sans JP', data: fontData, weight: 700 }],
       headers: {
-        // タイトル文字列だけで内容が決まる決定的な画像なので、CDNに長期キャッシュさせて
-        // 同じタイトルへの再アクセスではWorkerを再実行しない（毎回生成のデメリットを軽減する）
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
     },
   );
+
+  const { ctx } = getCloudflareContext();
+  // レスポンスをそのまま返しつつ、複製した方をバックグラウンドでキャッシュに保存する
+  // （キャッシュ保存の完了を待ってからレスポンスを返すとその分遅くなってしまうため）
+  ctx.waitUntil(cache.put(cacheKey, response.clone()));
+
+  return response;
 }
