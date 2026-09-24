@@ -20,7 +20,7 @@ export default function SideBar({ isOpen, onClose, items = NAV_ITEMS }: SideBarP
         fixed inset-0 で画面全体を覆い、z-40 でサイドバー（z-50）より下に置く
         isOpen のときだけレンダリングすることで DOM 上に余分な要素を残さない
       */}
-      {isOpen && <div className="fixed inset-0 z-40 bg-black/20" onClick={onClose} aria-hidden="true" />}
+      {isOpen && <div className="fixed inset-0 z-40 bg-black/20 print:hidden" onClick={onClose} aria-hidden="true" />}
 
       {/*
         サイドバー本体: translate-x-full で画面右外に隠し、isOpen で translate-x-0 に切り替える
@@ -28,7 +28,7 @@ export default function SideBar({ isOpen, onClose, items = NAV_ITEMS }: SideBarP
         display: none より transform を使う方がアニメーションがスムーズになる
       */}
       <div
-        className={`fixed top-0 right-0 z-50 flex flex-col w-[200px] h-full bg-white shadow-[0_0_4px_rgba(0,0,0,0.25)] transition-transform duration-300 ${
+        className={`fixed top-0 right-0 z-50 flex flex-col w-[200px] h-full bg-white shadow-[0_0_4px_rgba(0,0,0,0.25)] transition-transform duration-300 print:hidden ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         aria-label="ナビゲーションメニュー"

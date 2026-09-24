@@ -1,5 +1,5 @@
 // src/db/schema.ts
-import { pgTable, uuid, varchar, text, timestamp, pgEnum, primaryKey, integer } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp, pgEnum, primaryKey, integer, date } from 'drizzle-orm/pg-core';
 
 // pgEnum で PostgreSQL の ENUM 型を定義する
 // DB レベルで値を制限できるため、想定外の文字列が入るのを防げる
@@ -57,7 +57,9 @@ export const genreTagOrdersTable = pgTable(
   'genre_tag_orders',
   {
     genre: articlesGenreEnum('genre').notNull(),
-    tagId: uuid('tag_id').notNull().references(() => tagsTable.id),
+    tagId: uuid('tag_id')
+      .notNull()
+      .references(() => tagsTable.id),
     sortOrder: integer('sort_order').notNull().default(0),
   },
   (table) => [primaryKey({ columns: [table.genre, table.tagId] })],
@@ -79,13 +81,27 @@ export const postTagsTable = pgTable(
   (table) => [primaryKey({ columns: [table.postId, table.tagId] })],
 );
 
+// 完全非公開の日記テーブル（公開用ルートは一切用意せず /admin 配下でのみ参照・更新する）
+// date を主キーにすることで「1日1件」を DB レベルで保証する
+// （同じ日付で2回 INSERT しようとすると一意制約違反になるため、upsert で同じ日付なら上書きする運用にする）
+export const diaryEntriesTable = pgTable('diary_entries_table', {
+  // mode: 'string' にすることで JS の Date に変換されず 'yyyy-mm-dd' 文字列のまま扱える
+  // タイムゾーン変換によるズレを避けたいため（この日付は表示用の暦日であり、時刻情報を持たない）
+  date: date('date', { mode: 'string' }).primaryKey(),
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+});
+
 // $inferInsert / $inferSelect でテーブル定義から TypeScript の型を自動生成する
 // カラムを追加・変更したときに型も自動で追従するため、手書きの型定義が不要になる
 export type InsertPost = typeof postsTable.$inferInsert;
 export type InsertTag = typeof tagsTable.$inferInsert;
 export type InsertPostTag = typeof postTagsTable.$inferInsert;
 export type InsertGenreTagOrder = typeof genreTagOrdersTable.$inferInsert;
+export type InsertDiaryEntry = typeof diaryEntriesTable.$inferInsert;
 export type SelectPost = typeof postsTable.$inferSelect;
 export type SelectTag = typeof tagsTable.$inferSelect;
 export type SelectPostTag = typeof postTagsTable.$inferSelect;
 export type SelectGenreTagOrder = typeof genreTagOrdersTable.$inferSelect;
+export type SelectDiaryEntry = typeof diaryEntriesTable.$inferSelect;

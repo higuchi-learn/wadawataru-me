@@ -13,8 +13,7 @@ function getJSTParts(date: Date) {
     hour12: false,
   });
   const parts = fmt.formatToParts(date);
-  const get = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((p) => p.type === type)?.value ?? '00';
+  const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value ?? '00';
   return {
     y: get('year'),
     m: get('month'),
@@ -38,4 +37,23 @@ export function formatDate(date: Date | null): string {
 export function formatSavedAt(date: Date): string {
   const { y, m, d, h, mi, s } = getJSTParts(date);
   return `${y}/${m}/${d} | ${h}:${mi}:${s}`;
+}
+
+// 日記の「今日の日付」を 'yyyy-mm-dd' 形式で返す
+// Cloudflare Workers は UTC で動くため、単純に new Date() から年月日を取り出すと
+// JST では日付が変わっているのに UTC ではまだ前日、というズレが起こりうる
+// getJSTParts で JST に変換してから組み立てることで、実際の日本時間の「今日」と一致させる
+export function getTodayDateString(): string {
+  const { y, m, d } = getJSTParts(new Date());
+  return `${y}-${m}-${d}`;
+}
+
+// 日記の日付（'yyyy-mm-dd'）を「yyyy年mm月dd日（月）」のような表示用文字列に変換する
+// DB の date 型は時刻を持たない暦日そのものなのでタイムゾーン変換は不要。文字列のまま扱う
+export function formatDiaryDate(dateStr: string): string {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const weekday = new Intl.DateTimeFormat('ja-JP', { weekday: 'short', timeZone: 'UTC' }).format(
+    new Date(Date.UTC(y, m - 1, d)),
+  );
+  return `${y}年${String(m).padStart(2, '0')}月${String(d).padStart(2, '0')}日（${weekday}）`;
 }
