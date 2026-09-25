@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache';
 import { upsertDiaryEntry } from '@/db/queries/insert';
 import { diaryEntrySchema } from '@/lib/schemas';
 import { isAuthenticated } from '@/lib/authGuard';
+import { getTodayDateString } from '@/lib/formatDate';
 
 // diary_entries_table.date は PostgreSQL の date 型なので 'yyyy-mm-dd' 形式のみ許可する
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -22,6 +23,13 @@ export async function saveDiaryEntryAction(date: string, content: string): Promi
 
   if (!DATE_PATTERN.test(date)) {
     return { error: '不正な日付です。' };
+  }
+
+  // 過去の日付は書き足せるが、未来の日付の日記は書けないようにする
+  // UI（DiaryDatePicker）でも制限しているが、Server Action は直接呼び出せるのでサーバー側でも必ず確認する
+  // 'yyyy-mm-dd' は固定長のゼロ埋め文字列なので、文字列比較で日付の前後を判定できる
+  if (date > getTodayDateString()) {
+    return { error: '未来の日付の日記は書けません。' };
   }
 
   const parsed = diaryEntrySchema.safeParse({ content });

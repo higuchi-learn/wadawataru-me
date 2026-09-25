@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import DiaryBook from '@/components/DiaryBook';
 import PrintButton from '@/components/PrintButton';
+import DiaryDatePicker from '@/components/DiaryDatePicker';
 import { getDiaryEntriesList } from '@/db/queries/select';
 import { getTodayDateString, formatDiaryDate } from '@/lib/formatDate';
 
@@ -25,7 +26,9 @@ export default async function DiaryListPage() {
             完全非公開。1日1件、横書きで書いて縦書きで振り返るための自分専用メモです。
           </p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center justify-end gap-2 shrink-0">
+          {/* 書き忘れた過去の日の日記を後から追加できるように、任意の日付（今日以前）を選べるようにする */}
+          <DiaryDatePicker today={today} existingDates={entries.map((e) => e.date)} />
           <Link
             href={`/admin/diary/${today}`}
             className="bg-[var(--error-bg)] text-[var(--error)] text-sm leading-5 px-3 py-1.5 rounded-full whitespace-nowrap hover:opacity-80 transition-opacity"
