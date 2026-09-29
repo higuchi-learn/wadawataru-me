@@ -1,7 +1,16 @@
 import { cache } from 'react';
 import { db } from '../db';
 import { and, asc, desc, eq, inArray, max, ne, sql } from 'drizzle-orm';
-import { postsTable, tagsTable, postTagsTable, genreTagOrdersTable, SelectPost, SelectTag } from '../schema';
+import {
+  postsTable,
+  tagsTable,
+  postTagsTable,
+  genreTagOrdersTable,
+  diaryEntriesTable,
+  SelectPost,
+  SelectTag,
+  SelectDiaryEntry,
+} from '../schema';
 
 export const PAGE_SIZE = 20;
 
@@ -237,6 +246,31 @@ export async function getPostsCount(
 
   const result = await db.select({ count: sql<number>`cast(count(*) as int)` }).from(sub);
   return result[0].count;
+}
+
+// 指定した日付の日記を1件取得する。存在しない日はまだ書いていない日なので null を返す
+export async function getDiaryEntryByDate(date: SelectDiaryEntry['date']) {
+  const rows = await db
+    .select({
+      date: diaryEntriesTable.date,
+      content: diaryEntriesTable.content,
+      updatedAt: diaryEntriesTable.updatedAt,
+    })
+    .from(diaryEntriesTable)
+    .where(eq(diaryEntriesTable.date, date));
+  return rows[0] ?? null;
+}
+
+// 日記の一覧を新しい日付順で取得する
+export async function getDiaryEntriesList() {
+  return await db
+    .select({
+      date: diaryEntriesTable.date,
+      content: diaryEntriesTable.content,
+      updatedAt: diaryEntriesTable.updatedAt,
+    })
+    .from(diaryEntriesTable)
+    .orderBy(desc(diaryEntriesTable.date));
 }
 
 // sitemap.xml 生成用に、公開中の全記事の URL 構築に必要な最小限のカラムだけを取得する

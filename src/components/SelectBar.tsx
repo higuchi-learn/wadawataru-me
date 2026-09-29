@@ -24,6 +24,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: 'ブログ', href: '/admin/blogs' },
   { label: '読書記録', href: '/admin/books' },
   { label: 'タグ管理', href: '/admin/tags' },
+  { label: '日記', href: '/admin/diary' },
 ];
 
 type SelectBarProps = {

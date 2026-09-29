@@ -76,6 +76,16 @@ body {
   font-family: var(--font-sans);
 }
 
+/* 日記をA4でそのまま印刷するための設定（DiaryBook）
+   margin: 0 にしないと、ブラウザ側の印刷余白がページ内に自前で用意した余白の上にさらに乗ってしまい
+   1ページぶんの文章がA4に収まらなくなる */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+}
+
 /* =====================
    EasyMDE / SimpleMDE editor fix
    (Tailwind v4 preflight resets button/border styles)

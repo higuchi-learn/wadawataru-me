@@ -16,7 +16,7 @@ export default function Header({ variant = 'public' }: HeaderProps) {
 
   return (
     <>
-      <header className="bg-white flex items-center justify-between px-1 2xl:px-8 w-full shrink-0">
+      <header className="bg-white flex items-center justify-between px-1 2xl:px-8 w-full shrink-0 print:hidden">
         <div className="flex items-center gap-6">
           {/* ロゴ */}
           <Link href="/" className="shrink-0">

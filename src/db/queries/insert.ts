@@ -1,6 +1,14 @@
 import { db } from '../db';
 import { eq } from 'drizzle-orm';
-import { InsertPost, postsTable, tagsTable, genreTagOrdersTable, InsertGenreTagOrder } from '../schema';
+import {
+  InsertPost,
+  postsTable,
+  tagsTable,
+  genreTagOrdersTable,
+  InsertGenreTagOrder,
+  diaryEntriesTable,
+  InsertDiaryEntry,
+} from '../schema';
 
 export async function createPost(data: InsertPost): Promise<string> {
   // returningで挿入したレコードのidを取得する
@@ -31,6 +39,27 @@ export async function findTagByName(name: string): Promise<{ id: string; imageUr
 // タグ本体の作成とは独立しているため、既存タグを別ジャンルに追加する際にも使える
 // (genre, tag_id) が複合 PRIMARY KEY なので同じ組み合わせを INSERT しようとすると
 // DB レベルで一意制約エラーが発生する → 呼び出し元でエラーを catch して重複を検知できる
-export async function addTagToGenre(tagId: string, genre: InsertGenreTagOrder['genre'], sortOrder: number): Promise<void> {
+export async function addTagToGenre(
+  tagId: string,
+  genre: InsertGenreTagOrder['genre'],
+  sortOrder: number,
+): Promise<void> {
   await db.insert(genreTagOrdersTable).values({ tagId, genre, sortOrder });
+}
+
+// 日記を保存する（その日付の行がなければ新規作成、あれば上書き更新する）
+// date が主キーなので INSERT が一意制約違反になったときに UPDATE に切り替える、という制御を書かずに
+// onConflictDoUpdate 一発で「1日1件」を表現できる
+export async function upsertDiaryEntry(
+  date: InsertDiaryEntry['date'],
+  content: InsertDiaryEntry['content'],
+): Promise<void> {
+  const now = new Date();
+  await db
+    .insert(diaryEntriesTable)
+    .values({ date, content, createdAt: now, updatedAt: now })
+    .onConflictDoUpdate({
+      target: diaryEntriesTable.date,
+      set: { content, updatedAt: now },
+    });
 }

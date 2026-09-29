@@ -6,14 +6,8 @@ import { z } from 'zod';
 export const articleSchema = z.object({
   // .min(1, ...) で空文字を弾く（min(0) だと空文字が通ってしまう）
   // .max(N, ...) の第2引数がバリデーション失敗時のエラーメッセージになる
-  title: z
-    .string()
-    .min(1, 'この要素は必須です。')
-    .max(27, '文字数が超過しています。最大文字数は27字です。'),
-  description: z
-    .string()
-    .min(1, 'この要素は必須です。')
-    .max(62, '文字数が超過しています。最大文字数は62字です。'),
+  title: z.string().min(1, 'この要素は必須です。').max(27, '文字数が超過しています。最大文字数は27字です。'),
+  description: z.string().min(1, 'この要素は必須です。').max(62, '文字数が超過しています。最大文字数は62字です。'),
   slug: z
     .string()
     .min(1, 'この要素は必須です。')
@@ -22,5 +16,10 @@ export const articleSchema = z.object({
     // ^ と $ でスラッグ全体がこのパターンに一致することを保証する
     // [a-zA-Z0-9_-] のみ許可（日本語・スペース・記号などはここで弾く）
     .regex(/^[a-zA-Z0-9_-]+$/, '使用できない文字が含まれています。'),
+  content: z.string().min(1, 'この要素は必須です。'),
+});
+
+// 日記は本文だけを持つシンプルな構造（タイトル・スラッグ・タグなどは不要）
+export const diaryEntrySchema = z.object({
   content: z.string().min(1, 'この要素は必須です。'),
 });
