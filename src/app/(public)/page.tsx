@@ -217,7 +217,7 @@ export default function HomePage() {
             GitHub
           </a>
           <a
-            href="https://x.com/wadawataru"
+            href="https://x.com/hig270"
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-black hover:text-[var(--ogangetext)] transition-colors border-b border-[var(--border)] pb-0.5"
