@@ -6,7 +6,9 @@ import { NextResponse } from 'next/server';
 // ここで未認証チェックをすることでサーバーコンポーネントや API の処理に入る前に弾ける
 export default auth((req) => {
   // req.auth はセッションが存在すれば session オブジェクト、未認証なら null になる
-  if (!req.auth) {
+  // ただし AUTH_SECRET 未設定などの設定エラー時は null ではなく { message: '...' } が入るため,
+  // !req.auth だと「ログイン済み」と誤判定して素通りしてしまう。user の有無で判定する
+  if (!req.auth?.user) {
     // new URL('/login', req.url) で現在のオリジンを保ちながら /login へのURLを生成する
     // 文字列 '/login' だけを渡すと相対パスになってしまうため URL オブジェクトを使う
     return NextResponse.redirect(new URL('/login', req.url));

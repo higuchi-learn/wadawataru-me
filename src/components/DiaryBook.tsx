@@ -12,6 +12,8 @@ import {
   A4CoverPage,
   A4TextPage,
   diaryContentToHtml,
+  adjustSplitIndex,
+  toVerticalText,
 } from '@/components/DiaryPageView';
 
 type Entry = { date: string; content: string };
@@ -42,6 +44,7 @@ function nextFrame() {
 // 本文を「1ページ（A4）に収まる長さ」ごとに区切る
 // fits(text) は、その文字列がはみ出さずに1ページに収まるかどうかを返す関数
 // 二分探索で「収まる最大の文字数」を探し、それを1ページぶんとして切り出す処理を繰り返す
+// 英単語や数字の途中で区切らないよう、区切り位置はかたまりの先頭まで戻す
 function splitIntoPages(content: string, fits: (text: string) => boolean): string[] {
   if (!content) return [''];
 
@@ -67,6 +70,7 @@ function splitIntoPages(content: string, fits: (text: string) => boolean): strin
       }
     }
 
+    best = adjustSplitIndex(remaining, best);
     pages.push(remaining.slice(0, best));
     remaining = remaining.slice(best);
   }
@@ -100,7 +104,9 @@ export default function DiaryBook({ entries }: Props) {
 
     const pages: ContentPage[] = [{ isCover: true }];
     for (const entry of ascending) {
-      for (const text of splitIntoPages(entry.content, fits)) {
+      // ページ分割より先に句読点を変換しておく。分割後に変換すると「です」と「.」がページの境目で
+      // 分かれたとき, 次のページ先頭の「.」の直前に日本語が無いため変換されずに残ってしまう
+      for (const text of splitIntoPages(toVerticalText(entry.content), fits)) {
         pages.push({ date: entry.date, text });
       }
     }
