@@ -34,13 +34,80 @@ const traits = [
   },
 ];
 
-const skillGroups = [
-  { category: "フロントエンド", items: ["TypeScript", "React", "Next.js", "Tailwind CSS", "Shadcn", "MUI"] },
-  { category: "バックエンド", items: ["Python", "FastAPI", "C / C++", "Rails", "Laravel", "MVC"] },
-  { category: "データベース", items: ["Firebase / Firestore", "PostgreSQL", "MariaDB", "MySQL", "SQLite", "Drizzle"] },
-  { category: "組み込み / ハードウェア", items: ["Arduino", "Raspberry Pi", "XIAO BLE", "MicroPython", "C++ (マイコン)", "VHDL / FPGA", "回路設計", "JW_CAD", "TINA-TI"] },
-  { category: "AI・機械学習", items: ["YOLO (物体検出)", "CVAT (アノテーション)", "scikit-learn (入門)", "Unity (連携)"] },
-  { category: "インフラ / ツール", items: ["Vercel", "Cloudflare Workers", "Neon", "AWS (学習中)", "Figma", "Typst", "Marp"] },
+// icon は Simple Icons（https://simpleicons.org）のスラッグ。
+// ロゴが存在しない技術（MVC・回路設計など）は icon を省略し、テキストのみ表示する。
+type Skill = { name: string; icon?: string };
+
+const skillGroups: { category: string; items: Skill[] }[] = [
+  {
+    category: "フロントエンド",
+    items: [
+      { name: "TypeScript", icon: "typescript" },
+      { name: "React", icon: "react" },
+      { name: "Next.js", icon: "nextdotjs" },
+      { name: "Tailwind CSS", icon: "tailwindcss" },
+      { name: "Shadcn", icon: "shadcnui" },
+      { name: "MUI", icon: "mui" },
+    ],
+  },
+  {
+    category: "バックエンド",
+    items: [
+      { name: "Python", icon: "python" },
+      { name: "FastAPI", icon: "fastapi" },
+      { name: "C / C++", icon: "cplusplus" },
+      { name: "Rails", icon: "rubyonrails" },
+      { name: "Laravel", icon: "laravel" },
+      { name: "MVC" },
+    ],
+  },
+  {
+    category: "データベース",
+    items: [
+      { name: "Firebase / Firestore", icon: "firebase" },
+      { name: "PostgreSQL", icon: "postgresql" },
+      { name: "MariaDB", icon: "mariadb" },
+      { name: "MySQL", icon: "mysql" },
+      { name: "SQLite", icon: "sqlite" },
+      { name: "Drizzle", icon: "drizzle" },
+    ],
+  },
+  {
+    category: "組み込み / ハードウェア",
+    items: [
+      { name: "Arduino", icon: "arduino" },
+      { name: "Raspberry Pi", icon: "raspberrypi" },
+      { name: "XIAO BLE" },
+      { name: "MicroPython", icon: "micropython" },
+      { name: "C++ (マイコン)", icon: "cplusplus" },
+      { name: "VHDL / FPGA" },
+      { name: "回路設計" },
+      { name: "JW_CAD" },
+      { name: "TINA-TI" },
+    ],
+  },
+  {
+    category: "AI・機械学習",
+    items: [
+      { name: "YOLO (物体検出)", icon: "yolo" },
+      { name: "CVAT (アノテーション)" },
+      { name: "scikit-learn (入門)", icon: "scikitlearn" },
+      { name: "Unity (連携)", icon: "unity" },
+    ],
+  },
+  {
+    category: "インフラ / ツール",
+    items: [
+      { name: "Vercel", icon: "vercel" },
+      { name: "Cloudflare Workers", icon: "cloudflareworkers" },
+      { name: "Neon", icon: "neon" },
+      // AWS は商標の都合で Simple Icons から削除されているためテキストのみ
+      { name: "AWS (学習中)" },
+      { name: "Figma", icon: "figma" },
+      { name: "Typst", icon: "typst" },
+      { name: "Marp" },
+    ],
+  },
 ];
 
 const profileItems = [
@@ -109,12 +176,15 @@ export default function HomePage() {
           </div>
 
           {/* Stats グリッド（xl+） */}
-          <div className="hidden xl:grid xl:grid-cols-2 xl:gap-3 xl:shrink-0 xl:w-72 2xl:w-80">
+          {/* 幅が狭いと "270pt" がはみ出し、ラベルも1〜2文字で折り返すため、カード幅を確保している */}
+          <div className="hidden xl:grid xl:grid-cols-2 xl:auto-rows-fr xl:gap-3 xl:shrink-0 xl:w-96 2xl:w-[26rem]">
             {stats.map((stat, i) => (
-              <div key={i} className="bg-[var(--enableorange)] rounded-xl flex flex-col items-center justify-center p-6 2xl:p-7 text-center">
-                <p className="text-3xl 2xl:text-4xl font-bold text-[var(--ogangetext)]">{stat.value}</p>
-                <p className="text-xs text-black mt-1.5 font-medium leading-4">{stat.label}</p>
-                <p className="text-xs text-[var(--lighttext)] mt-0.5 leading-4">{stat.note}</p>
+              <div key={i} className="bg-[var(--enableorange)] rounded-xl flex flex-col items-center justify-center px-4 py-6 2xl:py-7 text-center">
+                {/* 数値は途中で折り返さないよう nowrap */}
+                <p className="text-3xl 2xl:text-4xl font-bold text-[var(--ogangetext)] whitespace-nowrap leading-none">{stat.value}</p>
+                {/* text-balance で折り返し時に行の長さを揃え、1文字だけ次行に残るのを防ぐ */}
+                <p className="text-xs text-black mt-3 font-medium leading-5 text-balance">{stat.label}</p>
+                <p className="text-xs text-[var(--lighttext)] mt-0.5 leading-5 text-balance">{stat.note}</p>
               </div>
             ))}
           </div>
@@ -125,9 +195,9 @@ export default function HomePage() {
       <section className="xl:hidden bg-[var(--enableorange)] grid grid-cols-2 md:grid-cols-4 border-b border-[var(--border)]">
         {stats.map((stat, i) => (
           <div key={i} className="flex flex-col items-center justify-center py-7 px-4 text-center">
-            <p className="text-3xl font-bold text-[var(--ogangetext)]">{stat.value}</p>
-            <p className="text-xs text-black mt-1 font-medium">{stat.label}</p>
-            <p className="text-xs text-[var(--lighttext)] mt-0.5">{stat.note}</p>
+            <p className="text-3xl font-bold text-[var(--ogangetext)] whitespace-nowrap">{stat.value}</p>
+            <p className="text-xs text-black mt-1 font-medium text-balance">{stat.label}</p>
+            <p className="text-xs text-[var(--lighttext)] mt-0.5 text-balance">{stat.note}</p>
           </div>
         ))}
       </section>
@@ -191,10 +261,24 @@ export default function HomePage() {
               <div className="flex flex-wrap gap-2">
                 {group.items.map((item) => (
                   <span
-                    key={item}
-                    className="text-xs text-[var(--lighttext)] border border-[var(--border)] rounded-full px-2.5 py-0.5"
+                    key={item.name}
+                    className="inline-flex items-center gap-1.5 text-xs text-[var(--lighttext)] border border-[var(--border)] rounded-full px-2.5 py-0.5"
                   >
-                    {item}
+                    {item.icon && (
+                      // next/image は外部画像の最適化設定（remotePatterns 等）が必要で、
+                      // 小さな SVG では恩恵もないため素の <img> を使う。
+                      // CDN はブランドカラーの SVG を返す。alt は隣にテキストがあるので空にして読み上げの重複を防ぐ
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`https://cdn.simpleicons.org/${item.icon}`}
+                        alt=""
+                        width={14}
+                        height={14}
+                        loading="lazy"
+                        className="w-3.5 h-3.5 shrink-0"
+                      />
+                    )}
+                    {item.name}
                   </span>
                 ))}
               </div>
