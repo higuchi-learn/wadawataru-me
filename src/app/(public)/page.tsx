@@ -70,10 +70,10 @@ function Section({
 }) {
   return (
     <section
-      className={`${bg === "gray" ? "bg-[var(--page-bg)]" : "bg-white"} px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-16 sm:py-20 lg:py-24 xl:py-28${last ? "" : " border-b border-[var(--border)]"}`}
+      className={`${bg === "gray" ? "bg-[var(--page-bg)]" : "bg-white"} px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-11 sm:py-13 lg:py-16 xl:py-19${last ? "" : " border-b border-[var(--border)]"}`}
     >
       <div className="lg:grid lg:grid-cols-[160px_1fr] lg:gap-10 xl:grid-cols-[200px_1fr] xl:gap-16 2xl:grid-cols-[240px_1fr] 2xl:gap-20">
-        <div className="mb-8 lg:mb-0 shrink-0">
+        <div className="mb-5 lg:mb-0 shrink-0">
           <div className="hidden lg:block w-8 h-1 bg-[var(--ogangetext)] rounded-full mb-3" />
           <h2 className="text-sm font-bold text-[var(--ogangetext)] tracking-widest uppercase">{heading}</h2>
         </div>
@@ -88,7 +88,7 @@ export default function HomePage() {
     <div className="flex-1 flex flex-col">
 
       {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="bg-white border-b border-[var(--border)] px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-20 sm:py-28 lg:py-32 2xl:py-40">
+      <section className="bg-white border-b border-[var(--border)] px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-13 sm:py-19 lg:py-21 2xl:py-27">
         <div className="xl:flex xl:items-start xl:gap-16 2xl:gap-24">
 
           {/* テキスト */}
@@ -124,7 +124,7 @@ export default function HomePage() {
       {/* ── Stats（モバイル・タブレット）────────────────────────── */}
       <section className="xl:hidden bg-[var(--enableorange)] grid grid-cols-2 md:grid-cols-4 border-b border-[var(--border)]">
         {stats.map((stat, i) => (
-          <div key={i} className="flex flex-col items-center justify-center py-10 px-4 text-center">
+          <div key={i} className="flex flex-col items-center justify-center py-7 px-4 text-center">
             <p className="text-3xl font-bold text-[var(--ogangetext)]">{stat.value}</p>
             <p className="text-xs text-black mt-1 font-medium">{stat.label}</p>
             <p className="text-xs text-[var(--lighttext)] mt-0.5">{stat.note}</p>
@@ -158,7 +158,7 @@ export default function HomePage() {
             職場では、技術のことなら何でも聞いてもらえるような上司になるのが目標です。
           </p>
         </div>
-        <dl className="max-w-2xl mt-8 divide-y divide-[var(--border)] border-t border-[var(--border)]">
+        <dl className="max-w-2xl mt-5 divide-y divide-[var(--border)] border-t border-[var(--border)]">
           {profileItems.map((item) => (
             <div key={item.label} className="flex gap-6 py-3">
               <dt className="text-xs font-bold text-[var(--ogangetext)] w-28 shrink-0 uppercase tracking-wide pt-0.5">{item.label}</dt>

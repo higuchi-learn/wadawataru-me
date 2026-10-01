@@ -184,7 +184,7 @@ function Timeline({ items }: { items: TimelineItem[] }) {
             {i < items.length - 1 && <div className="w-px flex-1 bg-[var(--border)] mt-1" />}
           </div>
           {/* 内容 */}
-          <div className="pb-10 flex-1 min-w-0">
+          <div className="pb-7 flex-1 min-w-0">
             <h3 className="text-sm font-bold text-black leading-5">{item.title}</h3>
             {item.subtitle && (
               <p className="text-xs text-[var(--ogangetext)] mt-1 font-medium">{item.subtitle}</p>
@@ -217,10 +217,10 @@ function Section({
 }) {
   return (
     <section
-      className={`${bg === "gray" ? "bg-[var(--page-bg)]" : "bg-white"} px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-16 sm:py-20 lg:py-24 xl:py-28${last ? "" : " border-b border-[var(--border)]"}`}
+      className={`${bg === "gray" ? "bg-[var(--page-bg)]" : "bg-white"} px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-11 sm:py-13 lg:py-16 xl:py-19${last ? "" : " border-b border-[var(--border)]"}`}
     >
       <div className="lg:grid lg:grid-cols-[160px_1fr] lg:gap-10 xl:grid-cols-[200px_1fr] xl:gap-16 2xl:grid-cols-[240px_1fr] 2xl:gap-20">
-        <div className="mb-8 lg:mb-0 shrink-0">
+        <div className="mb-5 lg:mb-0 shrink-0">
           <div className="hidden lg:block w-8 h-1 bg-[var(--ogangetext)] rounded-full mb-3" />
           <h2 className="text-sm font-bold text-[var(--ogangetext)] tracking-widest uppercase">{heading}</h2>
         </div>
@@ -235,21 +235,21 @@ export default function CareerPage() {
     <div className="flex-1 flex flex-col">
 
       {/* ページタイトル */}
-      <div className="bg-[var(--page-bg)] border-b border-[var(--border)] px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-12 sm:py-16">
+      <div className="bg-[var(--page-bg)] border-b border-[var(--border)] px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-8 sm:py-11">
         <p className="text-xs font-bold text-[var(--ogangetext)] mb-3 tracking-widest uppercase">Background</p>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-black tracking-tight">経歴</h1>
       </div>
 
       {/* Education */}
-      <Section heading="Education" bg="gray">
+      <Section heading="Education">
         <Timeline items={education} />
       </Section>
 
       {/* Activities */}
-      <Section heading="Activities">
+      <Section heading="Activities" bg="gray">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-4">
           {activities.map((act) => (
-            <div key={act.title} className="bg-[var(--page-bg)] rounded-xl p-5 xl:p-6">
+            <div key={act.title} className="bg-white rounded-xl p-5 xl:p-6">
               <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 mb-3">
                 <h3 className="text-sm font-bold text-black">{act.title}</h3>
                 <p className="text-xs text-[var(--lighttext)] shrink-0">{act.period}</p>
@@ -278,7 +278,7 @@ export default function CareerPage() {
       </Section>
 
       {/* Work / Internship */}
-      <Section heading="Work / Internship" bg="gray" last>
+      <Section heading="Work / Internship" last>
         <Timeline items={work} />
       </Section>
 

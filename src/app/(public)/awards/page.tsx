@@ -99,13 +99,13 @@ export default function AwardsPage() {
     <div className="flex-1 flex flex-col">
 
       {/* ページタイトル */}
-      <div className="bg-[var(--page-bg)] border-b border-[var(--border)] px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-12 sm:py-16">
+      <div className="bg-[var(--page-bg)] border-b border-[var(--border)] px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-8 sm:py-11">
         <p className="text-xs font-bold text-[var(--ogangetext)] mb-3 tracking-widest uppercase">Records</p>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-black tracking-tight">受賞歴</h1>
       </div>
 
       {/* 受賞一覧 */}
-      <div className="px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-12 sm:py-16">
+      <div className="px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-8 sm:py-11">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-5">
           {awards.map((award, i) => (
             <div key={`${award.event}-${i}`} className="bg-[var(--page-bg)] rounded-2xl p-6 sm:p-7 flex flex-col gap-4">
