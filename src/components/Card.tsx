@@ -23,12 +23,12 @@ type CardProps = {
  *     タイトル(text-sm/semibold) / 説明(text-xs) / タグ / 日付
  *
  * sm〜xl:
- *   カード: px-2 py-1 rounded-xl shadow
+ *   カード: px-3 py-2 rounded-2xl 薄い枠線 + shadow-sm
  *   [タイトル(text-lg/semibold, 上部全幅, truncate)]
  *   [テキスト列(shrink-0, w-341px@500px / w-410px@600px) | サムネイル(flex-1, aspect-video, rounded-lg)]
  *
  * 2xl:
- *   カード: flex-row gap-2 items-center px-2 py-1 rounded-xl shadow
+ *   カード: flex-row gap-2 items-center px-3 py-2 rounded-2xl 薄い枠線 + shadow-sm
  *   [テキスト列(shrink-0, w-424px): タイトル + 説明 + タグ + 日付]
  *   [サムネイル(flex-1, aspect-video, rounded-lg)]
  */
@@ -43,8 +43,8 @@ export default function Card({ title, description, tags, publishedAt, updatedAt,
     <Link
       href={href}
       className={`bg-white flex flex-col
-        sm:px-2 sm:py-1 sm:rounded-xl sm:overflow-hidden
-        sm:shadow-[0_0_5px_rgba(0,0,0,0.25)] sm:hover:shadow-[0_0_8px_rgba(0,0,0,0.2)] sm:transition-shadow
+        sm:px-3 sm:py-2 sm:rounded-2xl sm:overflow-hidden
+        sm:border sm:border-[var(--softborder)] sm:shadow-sm
         2xl:flex-row 2xl:gap-2 2xl:items-center
         ${className ?? ''}`}
     >

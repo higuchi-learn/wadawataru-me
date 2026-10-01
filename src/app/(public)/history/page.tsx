@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import HistoryEventCard from '@/components/HistoryEventCard';
+import { PageHero } from '@/components/PageSection';
 import { getHistoryEventsList } from '@/db/queries/select';
 import {
   HISTORY_KINDS,
@@ -97,34 +98,32 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
 
   return (
     <div className="flex-1 flex flex-col">
-      {/* ページタイトル */}
-      <div className="bg-[var(--page-bg)] border-b border-[var(--border)] px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-12 sm:py-16">
-        <p className="text-xs font-bold text-[var(--ogangetext)] mb-3 tracking-widest uppercase">History</p>
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-black tracking-tight">年表</h1>
-        <div className="flex flex-wrap gap-5 mt-6">
+      {/* ページタイトル。凡例と並び替えボタンは見出しの下に置く */}
+      <PageHero en="History" ja="年表" lead="これまでの出来事を、時系列で並べています。">
+        <div className="flex flex-wrap gap-2 mt-6">
           {HISTORY_KINDS.map((kind) => (
-            <div key={kind.value} className="flex items-center gap-2">
+            <div key={kind.value} className="flex items-center gap-2 bg-white rounded-full px-3 py-1.5 shadow-sm">
               <span className="size-3 rounded-full" style={{ backgroundColor: kind.color }} />
-              <span className="text-xs text-[var(--lighttext)]">{kind.label}</span>
+              <span className="text-xs text-black">{kind.label}</span>
             </div>
           ))}
           {laneCount > 0 && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-white rounded-full px-3 py-1.5 shadow-sm">
               <span className="w-4 h-[3px] rounded-full bg-[var(--lighttext)]" />
-              <span className="text-xs text-[var(--lighttext)]">右に分かれた線: 続いていた期間</span>
+              <span className="text-xs text-black">右に分かれた線: 続いていた期間</span>
             </div>
           )}
         </div>
-        <div className="flex flex-wrap items-center gap-3 mt-6">
+        <div className="flex flex-wrap items-center gap-3 mt-5">
           <Link
             href={newestFirst ? '/history' : '/history?order=newest'}
-            className="text-sm font-bold text-[var(--ogangetext)] bg-white border border-[var(--ogangetext)] rounded-full px-4 py-1.5 hover:bg-[var(--onmouseorange)] transition-colors"
+            className="text-sm font-bold text-white bg-[var(--ogangetext)] rounded-full px-5 py-2 shadow-sm hover:brightness-110 transition"
           >
             ⇅ 時系列を反転
           </Link>
           <span className="text-xs text-[var(--lighttext)]">{newestFirst ? '新しい順に表示中' : '古い順に表示中'}</span>
         </div>
-      </div>
+      </PageHero>
 
       <div className="bg-white px-4 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-12 sm:py-16">
         {rows.length === 0 ? (

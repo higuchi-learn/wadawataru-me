@@ -1,6 +1,7 @@
 export type Genre = 'products' | 'blogs' | 'books';
 
-const GENRE_INFO: Record<Genre, { title: string; description: string }> = {
+// 公開側の一覧ページ（PostListPage）でも見出しに使うので export している
+export const GENRE_INFO: Record<Genre, { title: string; description: string }> = {
   products: {
     title: '制作物',
     description: '個人開発やハッカソンで制作したプロダクトの紹介です.',

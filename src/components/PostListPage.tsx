@@ -1,9 +1,18 @@
 import { Suspense } from 'react';
-import { GenreAbout, SearchBar, SelectPageBar, CardList } from '@/components';
+import { SearchBar, SelectPageBar, CardList } from '@/components';
+import { GENRE_INFO } from '@/components/GenreAbout';
+import { PageHero } from '@/components/PageSection';
 import type { Genre } from '@/components';
 import type { CardData } from '@/components';
 import { getPostsList, getPostsCount, getTagsForGenre, PAGE_SIZE } from '@/db/queries/select';
 import { formatDate } from '@/lib/formatDate';
+
+// 見出し帯の小さな英字ラベル。日本語の見出しと説明は GENRE_INFO（管理画面と共通）から取る
+const GENRE_LABEL_EN: Record<Genre, string> = {
+  products: 'Products',
+  blogs: 'Blog',
+  books: 'Books',
+};
 
 type Props = {
   genre: Genre;
@@ -41,14 +50,14 @@ export default async function PostListPage({ genre, searchParams }: Props) {
 
   return (
     <>
-      <div className="flex flex-col items-center py-1 w-full shrink-0">
-        <GenreAbout genre={genre} className="w-full" />
+      <PageHero en={GENRE_LABEL_EN[genre]} ja={GENRE_INFO[genre].title} lead={GENRE_INFO[genre].description} />
+      <div className="flex flex-col items-center pt-8 pb-2 px-4 w-full shrink-0">
         <Suspense>
           {/* getTagsList が返す全カラムをそのまま渡す（id・name・imageUrl・sortOrder） */}
           <SearchBar availableTags={allTags} className="w-[365px]" />
         </Suspense>
       </div>
-      <main className="flex-1 flex flex-col items-center gap-2.5">
+      <main className="flex-1 flex flex-col items-center gap-2.5 pb-16">
         <div className="flex flex-col gap-1.5 items-center py-1 w-full">
           <Suspense>
             <SelectPageBar totalPages={totalPages} />

@@ -1,4 +1,8 @@
-import type { ReactNode } from 'react';
+import ImageSlot from '@/components/ImageSlot';
+import { PageHero, Section } from '@/components/PageSection';
+
+// 賞状や表彰式の写真を用意したら public/ 以下のパスを書く
+const awardImage: string | undefined = undefined;
 
 type Cert = {
   name: string;
@@ -42,187 +46,156 @@ const otherCerts: Cert[] = [
   { name: "リスニング英語検定 1級", date: "2021年10月" },
 ];
 
-function CertTable({ certs }: { certs: Cert[] }) {
+// 制度の基準点と自分の得点を同じ物差しの横棒で並べる。表で読むより「どれだけ上か」が一目でわかる
+const MAX_POINTS = 270;
+const pointBars = [
+  { label: "ブロンズ", points: 20, note: "20点以上" },
+  { label: "シルバー", points: 30, note: "30点以上" },
+  { label: "ゴールド", points: 45, note: "45点以上" },
+  { label: "わたしの得点", points: 270, note: "270pt・歴代最高", highlight: true },
+];
+
+// 資格1つ分のタイル
+function CertTile({ cert }: { cert: Cert }) {
+  // note の先頭が「国家資格」ならバッジとして切り出し、残りを補足として表示する
+  const isNational = cert.note?.startsWith("国家資格") ?? false;
+  // ^ は先頭、[。・]? は区切りの記号が1つあってもなくてもよい、という正規表現
+  const rest = cert.note?.replace(/^国家資格[。・]?/, "") ?? "";
   return (
-    <div className="divide-y divide-[var(--border)]">
-      {certs.map((cert) => (
-        <div
-          key={cert.name}
-          className="flex flex-col sm:flex-row sm:items-start sm:justify-between py-4 gap-1 sm:gap-6"
-        >
-          <div className="flex flex-col gap-0.5">
-            <p className="text-sm font-medium text-black">{cert.name}</p>
-            {cert.note && (
-              <p className="text-xs text-[var(--lighttext)] leading-5">{cert.note}</p>
-            )}
-          </div>
-          <p className="text-xs text-[var(--lighttext)] shrink-0 sm:pt-0.5">{cert.date}</p>
-        </div>
-      ))}
+    <div className="bg-white rounded-2xl border border-[var(--softborder)] p-5 flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        {isNational && (
+          <span className="text-[11px] font-bold text-white bg-[var(--ogangetext)] rounded-full px-2.5 py-0.5">国家資格</span>
+        )}
+        <span className="text-xs text-[var(--lighttext)]">{cert.date}</span>
+      </div>
+      <p className="text-base font-bold text-black leading-snug">{cert.name}</p>
+      {rest && <p className="text-xs text-[var(--lighttext)] leading-5">{rest}</p>}
     </div>
   );
 }
 
-function Section({
-  heading,
-  children,
-  bg = "white",
-  last = false,
-}: {
-  heading: string;
-  children: ReactNode;
-  bg?: "white" | "gray";
-  last?: boolean;
-}) {
+function CertGroup({ title, certs }: { title: string; certs: Cert[] }) {
   return (
-    <section
-      className={`${bg === "gray" ? "bg-[var(--page-bg)]" : "bg-white"} px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-11 sm:py-13 lg:py-16 xl:py-19${last ? "" : " border-b border-[var(--border)]"}`}
-    >
-      <div className="lg:grid lg:grid-cols-[160px_1fr] lg:gap-10 xl:grid-cols-[200px_1fr] xl:gap-16 2xl:grid-cols-[240px_1fr] 2xl:gap-20">
-        <div className="mb-5 lg:mb-0 shrink-0">
-          <div className="hidden lg:block w-8 h-1 bg-[var(--ogangetext)] rounded-full mb-3" />
-          <h2 className="text-sm font-bold text-[var(--ogangetext)] tracking-widest uppercase">{heading}</h2>
-        </div>
-        <div>{children}</div>
+    <div>
+      {/* 見出しの左にオレンジの短い縦線を置き、グループの区切りをはっきりさせる */}
+      <h3 className="text-lg font-bold text-black border-l-4 border-[var(--ogangetext)] pl-3 leading-tight mb-5">
+        {title}
+        <span className="text-sm font-normal text-[var(--lighttext)] ml-2">{certs.length}件</span>
+      </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {certs.map((cert) => (
+          <CertTile key={cert.name} cert={cert} />
+        ))}
       </div>
-    </section>
+    </div>
   );
 }
+
+const notes = [
+  {
+    label: "セキュリティ",
+    body: "情報処理安全確保支援士と情報セキュリティマネジメントを取得していて、Webセキュリティやインシデント対応、リスク管理について一通り学んでいます。",
+  },
+  {
+    label: "ハードウェア",
+    body: "電気通信主任技術者・第一級陸上無線技術士・工事担任者・第二種電気工事士などを取得しており、ソフトウェアだけでなく電気・通信の分野も学んできました。",
+  },
+  {
+    label: "取得時期",
+    body: "15の資格は、すべて高校在学中に取得しました。",
+  },
+];
 
 export default function QualificationsPage() {
   return (
     <div className="flex-1 flex flex-col">
-
-      {/* ページタイトル */}
-      <div className="bg-[var(--page-bg)] border-b border-[var(--border)] px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-8 sm:py-11">
-        <p className="text-xs font-bold text-[var(--ogangetext)] mb-3 tracking-widest uppercase">Credentials</p>
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-black tracking-tight">資格</h1>
-      </div>
+      <PageHero
+        en="Certifications"
+        ja="資格"
+        lead="IT・セキュリティから電気・通信まで、15の資格をすべて高校在学中に取得しました。"
+      />
 
       {/* ジュニアマイスター顕彰ハイライト */}
-      <Section heading="Special Award">
-        <div className="bg-[var(--page-bg)] rounded-2xl overflow-hidden">
-          {/* ヘッダ */}
-          <div className="p-6 sm:p-8 border-b border-[var(--border)]">
-            <p className="text-xs font-bold text-[var(--ogangetext)] tracking-widest uppercase mb-2">
-              最高位受賞
-            </p>
-            <h2 className="text-xl sm:text-2xl font-bold text-black leading-tight">
-              ジュニアマイスター顕彰 経済産業大臣賞
-            </h2>
-            <p className="text-sm text-[var(--lighttext)] mt-1">
-              公益社団法人全国工業高等学校長協会主催 令和5年度
-            </p>
-          </div>
+      <Section en="Special Award" ja="ジュニアマイスター顕彰 経済産業大臣賞">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-8 lg:gap-12 items-start">
+          <ImageSlot
+            src={awardImage}
+            alt="ジュニアマイスター顕彰 経済産業大臣賞"
+            hint="表彰式や賞状の写真（4:3）"
+            className="w-full aspect-[4/3] rounded-3xl"
+          />
 
-          {/* 数値 */}
-          <div className="grid grid-cols-3 gap-3 p-6 sm:p-8 bg-white">
-            {[
-              { value: "270 pt", label: "獲得点数", note: "歴代最高得点" },
-              { value: "17", label: "取得試験数", note: "すべて高校在学中" },
-              { value: "全国 1 名", label: "受賞者数", note: "各年度の最高得点者のみ" },
-            ].map((s) => (
-              <div key={s.label} className="bg-[var(--enableorange)] rounded-xl flex flex-col items-center justify-center py-6 px-3 text-center">
-                <p className="text-2xl sm:text-3xl font-bold text-[var(--ogangetext)]">{s.value}</p>
-                <p className="text-xs text-black font-medium mt-1">{s.label}</p>
-                <p className="text-xs text-[var(--lighttext)] mt-0.5">{s.note}</p>
+          <div className="flex flex-col gap-8">
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { value: "270pt", label: "獲得点数", note: "歴代最高得点" },
+                { value: "15", label: "取得資格数", note: "すべて高校在学中" },
+                { value: "全国1名", label: "受賞者数", note: "各年度の最高得点者" },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="bg-[var(--enableorange)] rounded-2xl flex flex-col items-center justify-center px-2 py-5 text-center"
+                >
+                  {/* 数値は途中で折り返さないよう nowrap */}
+                  <p className="text-2xl sm:text-3xl font-bold text-[var(--ogangetext)] whitespace-nowrap leading-none">{stat.value}</p>
+                  <p className="text-xs text-black font-bold mt-3">{stat.label}</p>
+                  <p className="text-[11px] text-[var(--lighttext)] mt-0.5 text-balance">{stat.note}</p>
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <p className="text-sm font-bold text-black mb-4">基準点との比較</p>
+              <div className="space-y-3">
+                {pointBars.map((bar) => (
+                  <div key={bar.label} className="grid grid-cols-[6.5rem_1fr] items-center gap-3">
+                    <span className={`text-xs ${bar.highlight ? "font-bold text-[var(--ogangetext)]" : "text-black"}`}>
+                      {bar.label}
+                    </span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      {/* 幅を 270pt を 100% とした割合で決める。小さい値でも見えるよう最低幅を付けている */}
+                      <div
+                        className={`h-3 rounded-full min-w-3 ${bar.highlight ? "bg-gradient-to-r from-[var(--clickingorange)] to-[var(--ogangetext)]" : "bg-[var(--onmouseorange)]"}`}
+                        style={{ width: `${(bar.points / MAX_POINTS) * 100}%` }}
+                      />
+                      <span className={`text-xs whitespace-nowrap ${bar.highlight ? "font-bold text-[var(--ogangetext)]" : "text-[var(--lighttext)]"}`}>
+                        {bar.note}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+              <p className="text-xs text-[var(--lighttext)] mt-3">経済産業大臣賞は、各年度の全国最高得点者1名のみに贈られます。</p>
+            </div>
 
-          {/* 説明 */}
-          <div className="px-6 sm:px-8 pb-6 sm:pb-8 pt-0 bg-white space-y-3">
             <p className="text-sm text-black leading-7">
               高校1年の入学直後から、この制度でいちばん上の賞である経済産業大臣賞を目標に資格の勉強を始めました。
               高校3年では歴代最高得点の更新を目標にし、最終的に 270pt を取ることができました。
             </p>
-            <p className="text-sm text-black leading-7">
-              情報処理安全確保支援士や第一級陸上無線技術士など、国家資格を含む15の資格をすべて高校在学中に取得しました。
-            </p>
-          </div>
-
-          {/* 制度概要テーブル */}
-          <div className="px-6 sm:px-8 pb-6 sm:pb-8 bg-white border-t border-[var(--border)] pt-6">
-            <p className="text-xs font-bold text-[var(--ogangetext)] tracking-widest uppercase mb-3">制度概要</p>
-            <div className="rounded-xl overflow-hidden border border-[var(--border)]">
-              {[
-                { rank: "ブロンズ", pts: "20点以上", highlight: false },
-                { rank: "シルバー", pts: "30点以上", highlight: false },
-                { rank: "ゴールド", pts: "45点以上", highlight: false },
-                { rank: "経済産業大臣賞", pts: "各年度・全国最高得点者のみ", highlight: true },
-              ].map((row) => (
-                <div
-                  key={row.rank}
-                  className={`flex items-center justify-between px-4 py-3 text-sm border-b border-[var(--border)] last:border-b-0 ${
-                    row.highlight
-                      ? "bg-[var(--ogangetext)] text-white font-bold"
-                      : "text-black"
-                  }`}
-                >
-                  <span>{row.rank}</span>
-                  <span className="text-xs">{row.pts}</span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </Section>
 
-      {/* IT系 + 電気系 */}
-      <Section heading="Certifications" bg="gray">
-        <div className="xl:grid xl:grid-cols-2 xl:gap-10 2xl:gap-16 space-y-12 xl:space-y-0">
-          {/* IT系 */}
-          <div className="bg-white rounded-xl p-5 sm:p-6">
-            <h3 className="text-xs font-bold text-[var(--ogangetext)] tracking-widest uppercase mb-4 pb-3 border-b border-[var(--border)]">
-              IT・情報処理系
-            </h3>
-            <CertTable certs={itCerts} />
-          </div>
-          {/* 電気・通信系 */}
-          <div className="bg-white rounded-xl p-5 sm:p-6">
-            <h3 className="text-xs font-bold text-[var(--ogangetext)] tracking-widest uppercase mb-4 pb-3 border-b border-[var(--border)]">
-              電気・通信系
-            </h3>
-            <CertTable certs={electricCerts} />
-          </div>
+      <Section en="Certifications" ja="取得した資格" bg="cream">
+        <div className="space-y-12">
+          <CertGroup title="IT・情報処理系" certs={itCerts} />
+          <CertGroup title="電気・通信系" certs={electricCerts} />
+          <CertGroup title="技能・その他" certs={otherCerts} />
         </div>
       </Section>
 
-      {/* 技能・その他 */}
-      <Section heading="Others">
-        <div className="bg-[var(--page-bg)] rounded-xl p-5 sm:p-6 max-w-xl">
-          <h3 className="text-xs font-bold text-[var(--ogangetext)] tracking-widest uppercase mb-4 pb-3 border-b border-[var(--border)]">
-            技能・その他
-          </h3>
-          <CertTable certs={otherCerts} />
-        </div>
-      </Section>
-
-      {/* Note */}
-      <Section heading="Note" bg="gray" last>
-        <div className="max-w-2xl space-y-4">
-          {[
-            {
-              label: "セキュリティ",
-              body: "情報処理安全確保支援士と情報セキュリティマネジメントを取得していて、Webセキュリティやインシデント対応、リスク管理について一通り学んでいます。",
-            },
-            {
-              label: "ハードウェア",
-              body: "電気通信主任技術者・第一級陸上無線技術士・工事担任者・第二種電気工事士などを取得しており、ソフトウェアだけでなく電気・通信の分野も学んできました。",
-            },
-            {
-              label: "取得時期",
-              body: "15の資格は、すべて高校在学中に取得しました。",
-            },
-          ].map((note) => (
-            <div key={note.label} className="bg-white rounded-xl p-5">
-              <p className="text-xs font-bold text-[var(--ogangetext)] tracking-widest uppercase mb-2">{note.label}</p>
-              <p className="text-sm text-black leading-7">{note.body}</p>
+      <Section en="Note" ja="資格から見えること">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {notes.map((note, i) => (
+            <div key={note.label} className="bg-[var(--cream)] rounded-3xl p-6">
+              <p className="text-3xl font-bold text-[var(--clickingorange)] leading-none">{String(i + 1).padStart(2, "0")}</p>
+              <h3 className="text-lg font-bold text-black mt-4">{note.label}</h3>
+              <p className="text-sm text-[var(--lighttext)] leading-7 mt-2">{note.body}</p>
             </div>
           ))}
         </div>
       </Section>
-
     </div>
   );
 }
