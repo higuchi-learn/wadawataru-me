@@ -532,9 +532,9 @@ export default function HomePage() {
       {/* ── Links ────────────────────────────────────────────── */}
       {/* 最後はオレンジの帯で締める。ページの終わりがはっきりして、SNS へ誘導しやすい */}
       <section className={`bg-gradient-to-br from-[var(--ogangetext)] to-[var(--clickingorange)] ${PX} py-16 sm:py-20 text-center`}>
-        <p className="text-sm font-bold text-white/80 tracking-wider">Links</p>
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mt-1">気軽につながってください！</h2>
-        <div className="flex flex-wrap justify-center gap-3 mt-8">
+        {/* 見出しは小さな「Links」だけにして、主役はボタンにする。h2 にしておくとセクションの見出しとして読み上げられる */}
+        <h2 className="text-sm font-bold text-white/80 tracking-wider">Links</h2>
+        <div className="flex flex-wrap justify-center gap-3 mt-6">
           {links.map((link) => (
             <a
               key={link.label}
