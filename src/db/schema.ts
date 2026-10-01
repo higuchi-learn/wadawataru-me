@@ -1,5 +1,5 @@
 // src/db/schema.ts
-import { pgTable, uuid, varchar, text, timestamp, pgEnum, primaryKey, integer, date } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, timestamp, pgEnum, primaryKey, integer, date, boolean } from 'drizzle-orm/pg-core';
 
 // pgEnum で PostgreSQL の ENUM 型を定義する
 // DB レベルで値を制限できるため、想定外の文字列が入るのを防げる
@@ -122,6 +122,11 @@ export const historyEventsTable = pgTable('history_events_table', {
   // mode: 'string' で 'yyyy-mm-dd' 文字列のまま扱う（日記と同じくタイムゾーン変換によるズレを避けるため）
   sortDate: date('sort_date', { mode: 'string' }).notNull(),
   dateLabel: varchar('date_label', { length: 20 }).notNull(),
+  // 期間のある出来事（在籍・アルバイトなど）の終了日。年表ではブランチのように本線から分かれた線で期間を表す
+  // 期間のない出来事と、現在も続いている出来事（ongoing = true）は null
+  endDate: date('end_date', { mode: 'string' }),
+  // 現在も続いている出来事なら true。年表では線が終端まで伸び続ける
+  ongoing: boolean('ongoing').notNull().default(false),
   kind: historyKindEnum('kind').notNull(),
   // ラベル（history_badges_table）への参照。付けない出来事は null
   // onDelete: 'set null' により、ラベルを削除するとそのラベルが付いていた出来事は「ラベルなし」になる

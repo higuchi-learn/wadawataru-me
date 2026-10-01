@@ -272,3 +272,33 @@ body {
   border-radius: 0.375rem;
   margin: 0.75rem 0;
 }
+
+/* 年表（/history）のグラフ。本線（--main）の右側に、同時に続いている期間の数（--lanes）だけ線を並べる
+   md 未満は本線が左端、md 以上は本線と期間の線のまとまりが中央に来るよう本線の位置をずらす */
+.history-graph {
+  /* 線どうしの間隔。history/page.tsx の STEP と揃えること */
+  --step: 14px;
+  --main: 8px;
+}
+.history-row {
+  grid-template-columns: calc(16px + var(--lanes) * var(--step)) 1fr;
+}
+@media (min-width: 48rem) {
+  .history-graph {
+    /* 期間の線をピクセルの境目に揃えてにじませないよう、本線の位置を整数 px に丸める */
+    --main: round(down, calc(50% - var(--lanes) * var(--step) / 2), 1px);
+  }
+  .history-row {
+    grid-template-columns: 1fr calc(32px + var(--lanes) * var(--step)) 1fr;
+  }
+}
+/* 期間の線が通っている所の時代の見出し。md 未満はカードと同じ列から始め、md 以上は本線の左側に右端を寄せて線にかぶらないようにする */
+.history-pill-aside {
+  margin-left: calc(32px + var(--lanes) * var(--step));
+}
+@media (min-width: 48rem) {
+  .history-pill-aside {
+    margin-left: calc(var(--main) + 10px);
+    transform: translateX(-100%);
+  }
+}

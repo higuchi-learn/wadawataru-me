@@ -45,6 +45,7 @@ pnpm run deploy    # 本番デプロイ
 | `src/app/(public)/history/` | 年表（一覧・詳細ページ）。データは `history_events_table` |
 | `src/components/HistoryEventEditor.tsx` | 年表の出来事の作成・編集エディタ（`/admin/history`）|
 | `scripts/seed-history.mjs` | 年表の初期データ投入スクリプト（テーブルが空のときだけ投入）|
+| `src/lib/history.ts` | 年表の時代・種類の定義と、期間（`end_date` / `ongoing`）をブランチ状の線に並べる `buildHistoryGraph` |
 
 ## 認証
 

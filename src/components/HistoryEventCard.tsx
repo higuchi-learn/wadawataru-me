@@ -11,6 +11,8 @@ export type HistoryEventCardData = {
   thumbnail: string | null;
   // 詳細本文があるときだけ詳細ページへのリンクを出す
   hasDetail: boolean;
+  // 期間のある出来事のとき、終わりの文言（「2023年9月まで」など）と年表上の線の色。期間がなければ null
+  period: { label: string; color: string } | null;
 };
 
 // 年表（/history）の1件分の表示。公開ページと管理画面のプレビューで共有する
@@ -30,6 +32,15 @@ export default function HistoryEventCard({ event, align }: { event: HistoryEvent
           </span>
         )}
       </div>
+      {event.period && (
+        <p
+          className={`flex items-center gap-1.5 mt-1 text-xs font-bold ${align === 'left' ? 'md:justify-end' : ''}`}
+          style={{ color: event.period.color }}
+        >
+          <span className="w-4 h-[3px] rounded-full" style={{ backgroundColor: event.period.color }} />
+          {event.period.label}
+        </p>
+      )}
       <h3 className="text-sm font-bold text-black mt-1.5 leading-6">
         {event.hasDetail ? (
           <Link href={detailHref} className="hover:text-[var(--ogangetext)] transition-colors">

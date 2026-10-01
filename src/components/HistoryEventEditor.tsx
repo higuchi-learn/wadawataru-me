@@ -13,7 +13,7 @@ import {
   createHistoryBadgeAction,
 } from '@/app/admin/history-actions';
 import { historyEventSchema, type HistoryEventInput } from '@/lib/schemas';
-import { HISTORY_ERAS, HISTORY_KINDS } from '@/lib/history';
+import { HISTORY_ERAS, HISTORY_KINDS, HISTORY_BRANCH_COLORS, historyPeriodLabel } from '@/lib/history';
 import { uploadImage, attachImageUpload } from '@/lib/uploadImage';
 import 'easymde/dist/easymde.min.css';
 
@@ -42,6 +42,8 @@ const EMPTY: HistoryEventInput = {
   summary: '',
   content: '',
   thumbnail: '',
+  period: 'none',
+  endDate: '',
 };
 
 const selectClass =
@@ -343,6 +345,33 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
           <p className="px-1 text-xs leading-4 text-[var(--lighttext)]">
             年表は「並び順の基準日」の古い順に並びます。同じ日の出来事は登録順です。
           </p>
+          <div className="flex">
+            <div className="flex flex-col gap-0 p-1 w-full">
+              <FormLabel name="期間" error={fieldErrors.period} />
+              <select
+                value={form.period}
+                onChange={(e) => set('period')(e.target.value as HistoryEventInput['period'])}
+                className={selectClass}
+              >
+                <option value="none">期間なし（その時点の出来事）</option>
+                <option value="ended">終了日まで続いた</option>
+                <option value="ongoing">現在も続いている</option>
+              </select>
+            </div>
+            <div className="flex flex-col gap-0 p-1 w-full">
+              <FormLabel name="終了日" error={fieldErrors.endDate} />
+              <input
+                type="date"
+                value={form.endDate}
+                onChange={(e) => set('endDate')(e.target.value)}
+                disabled={form.period !== 'ended'}
+                className={`${selectClass} disabled:opacity-40`}
+              />
+            </div>
+          </div>
+          <p className="px-1 text-xs leading-4 text-[var(--lighttext)]">
+            期間のある出来事は、年表で本線から分かれた線として、始まりから終わりまでの長さが表示されます。
+          </p>
           <div className="p-1">
             <p className="text-xs leading-4 text-black mb-1">年表での表示プレビュー</p>
             <div className="pointer-events-none border border-[var(--unclickable)] rounded-sm p-3">
@@ -356,6 +385,13 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
                   badge: badges.find((b) => b.id === form.badgeId)?.name ?? null,
                   thumbnail: form.thumbnail || null,
                   hasDetail: form.content.trim() !== '',
+                  period:
+                    form.period === 'none'
+                      ? null
+                      : {
+                          label: historyPeriodLabel(form.period === 'ongoing' ? null : form.endDate),
+                          color: HISTORY_BRANCH_COLORS[0],
+                        },
                 }}
               />
             </div>

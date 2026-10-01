@@ -28,6 +28,8 @@ export default async function HistoryEventEditPage({ params }: { params: Promise
         summary: event.summary ?? '',
         content: event.content,
         thumbnail: event.thumbnail ?? '',
+        period: event.ongoing ? 'ongoing' : event.endDate ? 'ended' : 'none',
+        endDate: event.endDate ?? '',
       }}
     />
   );

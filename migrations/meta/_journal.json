@@ -57,6 +57,13 @@
       "when": 1790830444447,
       "tag": "0007_history_events",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790843363370,
+      "tag": "0008_history_periods",
+      "breakpoints": true
     }
   ]
 }

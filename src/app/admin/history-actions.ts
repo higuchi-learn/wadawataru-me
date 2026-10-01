@@ -25,13 +25,16 @@ export async function saveHistoryEventAction(id: string | undefined, input: Hist
     return { error: parsed.error.issues[0].message };
   }
 
-  const { badgeId, summary, thumbnail, ...rest } = parsed.data;
+  const { badgeId, summary, thumbnail, period, endDate, ...rest } = parsed.data;
   // 任意項目は空文字ではなく null で保存し、「未設定」を DB 上で区別できるようにする
   const data = {
     ...rest,
     badgeId: badgeId || null,
     summary: summary.trim() || null,
     thumbnail: thumbnail.trim() || null,
+    // フォームの「期間」の選択を DB の end_date / ongoing の組み合わせに変換する
+    endDate: period === 'ended' ? endDate : null,
+    ongoing: period === 'ongoing',
   };
 
   try {
