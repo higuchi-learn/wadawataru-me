@@ -15,6 +15,10 @@
   --onmouseorange: #ffd6a8; /* ホバー時の背景 */
   --clickingorange: #ffb86a; /* クリック時の背景 */
 
+  /* Warm（トップページの明るい雰囲気用）*/
+  --cream: #fff8f0; /* セクションの暖色背景 */
+  --softborder: #f1e4d3; /* 薄い区切り線・枠線 */
+
   /* Text */
   --lighttext: #6a7282; /* 非アクティブnavのテキスト・補助テキスト */
 
