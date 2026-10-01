@@ -1,4 +1,17 @@
-import type { ReactNode } from 'react';
+import Link from 'next/link';
+import ImageSlot from '@/components/ImageSlot';
+import { PX, CARD_SHADOW, CARD_FOOTER, Section, Watermark } from '@/components/PageSection';
+import MoreDetails from '@/components/MoreDetails';
+
+// ─────────────────────────────────────────────────────────────
+// 画像の差し替え方
+//   1. 画像を public/images/top/ に置く（例: public/images/top/hero.webp）
+//   2. 下のデータの image に "/images/top/hero.webp" のようにパスを書く
+//   image が未指定の間は、ImageSlot が「何の画像を入れるか」を表示する
+// ─────────────────────────────────────────────────────────────
+
+// ヒーローの写真。アバターやイラストでもよい（正方形推奨）
+const heroImage: string | undefined = undefined;
 
 const stats = [
   { value: "15", label: "取得資格数", note: "すべて高校在学中" },
@@ -7,36 +20,140 @@ const stats = [
   { value: "5+", label: "ハッカソン受賞", note: "最優秀賞・優秀賞ほか" },
 ];
 
+// icon は Simple Icons（https://simpleicons.org）のスラッグ。
+// ロゴが存在しない技術（MVC・回路設計など）は icon を省略し、頭文字で代用する。
+type Skill = { name: string; icon?: string };
+
+type Work = {
+  title: string;
+  // 一言で「何を作ったか」がわかる説明。長い説明は /awards や GitHub に任せる
+  catchcopy: string;
+  award: string;
+  image?: string;
+  imageHint: string;
+  tech: Skill[];
+  href: string;
+};
+
+const works: Work[] = [
+  {
+    title: "Gesture Audio",
+    catchcopy: "腕を振るだけで音楽を操作できる、腕に着けるコントローラー",
+    award: "最優秀賞",
+    imageHint: "腕に着けたコントローラーの写真、またはデモの様子（16:9）",
+    tech: [
+      { name: "C++", icon: "cplusplus" },
+    ],
+    href: "https://github.com/higuchi-learn/GestureAudio",
+  },
+  {
+    title: "ステキなステッキ",
+    catchcopy: "魔法の杖を振って MP を溜め、攻撃・防御する体感型の対戦ゲーム",
+    award: "優秀賞 ＋ ゆめみ企業賞",
+    imageHint: "杖を振って遊んでいる様子、または杖の実物（16:9）",
+    tech: [
+      { name: "MicroPython", icon: "micropython" },
+      { name: "Raspberry Pi Pico W", icon: "raspberrypi" },
+    ],
+    href: "https://github.com/higuchi-learn/lovely-stick/",
+  },
+  {
+    title: "Bingo!2",
+    catchcopy: "PC 1台と参加者のスマホだけで、大人数のビンゴ大会ができるアプリ",
+    award: "STECH 協賛賞",
+    imageHint: "ビンゴカードやランキング画面のスクリーンショット（16:9）",
+    tech: [
+      { name: "Next.js", icon: "nextdotjs" },
+      { name: "TypeScript", icon: "typescript" },
+      { name: "Firebase", icon: "firebase" },
+      { name: "Tailwind CSS", icon: "tailwindcss" },
+    ],
+    href: "https://github.com/higuchi-learn/syshack-bingo",
+  },
+  {
+    title: "SysPay",
+    catchcopy: "大学祭の模擬店で使う、スマホから注文できるオンライン注文システム",
+    award: "優秀賞",
+    imageHint: "メニュー画面やカート画面のスクリーンショット（16:9）",
+    tech: [
+      { name: "React", icon: "react" },
+      { name: "TypeScript", icon: "typescript" },
+      { name: "Firebase", icon: "firebase" },
+      { name: "MUI", icon: "mui" },
+    ],
+    href: "https://github.com/SystemEngineeringTeam/sys_ordering_app",
+  },
+];
+
+// これまでの歩み。文章で語っていた About を、横に流れる年表に置き換えている
+const story = [
+  {
+    period: "中学",
+    title: "初めての PC 自作",
+    body: "中学時代のプレゼントをあきらめてパーツを買い、自分で組み立てた",
+    imageHint: "初めて組んだ PC の写真",
+  },
+  {
+    period: "高校",
+    title: "岐阜工業高校 電子工学科",
+    body: "電気電子・通信を基礎から学び、生徒会長も務めた",
+    imageHint: "高校・生徒会活動の写真",
+  },
+  {
+    period: "高3",
+    title: "経済産業大臣賞",
+    body: "15の資格を取り、歴代最高の 270pt で全国1名の賞を受賞",
+    imageHint: "表彰式や賞状の写真",
+  },
+  {
+    period: "大学",
+    title: "愛知工業大学",
+    body: "サークルのチーム開発やハッカソンで、7つのプロダクトを開発",
+    imageHint: "ハッカソンでの発表やチームの写真",
+  },
+  {
+    period: "これから",
+    title: "フルスタック × セキュリティ",
+    body: "安心して長く使ってもらえるものを作れるエンジニアへ",
+    imageHint: "（任意）CTF や勉強会の写真",
+  },
+];
+
+const hobbies = ["料理", "VALORANT", "旅行", "書道", "電子工作", "資格取得"];
+
+// catchcopy で一言だけ見せ、本文は「くわしく」を開いた人だけが読む
 const traits = [
   {
     title: "仕組みで解決したい",
+    catchcopy: "頑張りでカバーするより、同じ問題が起きない仕組みを作る",
     body: "人の頑張りでカバーするより、同じ問題が起きない仕組みを作るほうが好きです。生徒会では紙の意見箱をWebフォームに切り替えたり、作業環境をNASでデジタル化したりしました。開発でも、WebSocket が使えなかったときに HTTP ポーリングで擬似的なリアルタイム通信を実装しました。",
   },
   {
     title: "わかるまで調べる",
+    catchcopy: "わかったつもりにしない。仕組みまで理解して使う",
     body: "わかったつもりのままにしておくのが苦手です。大学の課題はAIを使わずに自分で解くようにしています。ライブラリの中身を理解しないまま使って認識精度で苦労したこともあり、使う技術の仕組みはできるだけ理解しておきたいと思っています。",
   },
   {
     title: "目標を決めてから動く",
+    catchcopy: "ゴールから逆算して、3年かけて大臣賞へ",
     body: "高1のときにジュニアマイスター顕彰の経済産業大臣賞を目標にし、高3では歴代最高得点の更新に目標を引き上げて、270pt で受賞しました。生徒会でも、会長になる前に会計と書記を経験して、実際の業務を知ってから改革に取り組みました。",
   },
   {
     title: "失敗から学ぶ",
+    catchcopy: "ミスの原因を探り、手順書で再発を防ぐ",
     body: "生徒会で放送の操作ミスをしたときは「わかっているつもり」だったことが原因だと考え、すべての業務に手順書を作りました。技育CAMPでは遊び感覚で作ったものが最優秀賞をもらい、苦労の量と評価は必ずしも比例しないことを知りました。",
   },
   {
     title: "人に教えること",
+    catchcopy: "答えではなく、コツをつかむ手助けをする",
     body: "ピアサポートでは、解き方をそのまま教えるのではなく、本人がコツをつかめるように一緒に考えることを意識していました。エクステンションセンターでは、小学生に加算器の面白さを伝えるために 23ビット加算器表示器を自作しました。",
   },
   {
     title: "コツコツ続ける",
+    catchcopy: "1年で1,000時間。積み重ねで信頼をつくる",
     body: "セブンイレブンでは約1年で1,000時間ほど働き、発注業務を任せてもらえるようになりました。生徒会長としての改革を受け入れてもらえたのも、会計・書記の頃から地道に仕事をしてきたからだと思っています。",
   },
 ];
-
-// icon は Simple Icons（https://simpleicons.org）のスラッグ。
-// ロゴが存在しない技術（MVC・回路設計など）は icon を省略し、テキストのみ表示する。
-type Skill = { name: string; icon?: string };
 
 const skillGroups: { category: string; items: Skill[] }[] = [
   {
@@ -101,7 +218,7 @@ const skillGroups: { category: string; items: Skill[] }[] = [
       { name: "Vercel", icon: "vercel" },
       { name: "Cloudflare Workers", icon: "cloudflareworkers" },
       { name: "Neon", icon: "neon" },
-      // AWS は商標の都合で Simple Icons から削除されているためテキストのみ
+      // AWS は商標の都合で Simple Icons から削除されているため頭文字で代用
       { name: "AWS (学習中)" },
       { name: "Figma", icon: "figma" },
       { name: "Typst", icon: "typst" },
@@ -110,43 +227,58 @@ const skillGroups: { category: string; items: Skill[] }[] = [
   },
 ];
 
-const profileItems = [
-  { label: "活動名", value: "わだわたる" },
-  { label: "趣味", value: "料理、VALORANT、旅行、書道、電子工作、資格取得" },
-  { label: "MBTI", value: "ISTP（巨匠）" },
-];
-
+// headline を大きく見せ、detail は補足として小さく添える
 const nowItems = [
-  { label: "インターン", value: "コムスクエア（フルリモート / Web エンジニア）。2026年は SmartHR・kubell・ディップなど計9社の短期インターンに参加しました" },
-  { label: "セキュリティ学習", value: "CTF 参加（防衛省サイバーコンテスト 2026 など）・毎月1冊の技術書読了" },
-  { label: "自企画講座", value: "2026年8月、愛知工業大学「まるごと体験ワールド」で小学生向け講座「コンピューターに『1+1＝10』って言わせてみよう！」を開催しました" },
-  { label: "技術発信", value: "Qiita で記事を公開しています（Next.js + Neon + Cloudflare Workers の構築記事など）" },
-  { label: "所属", value: "愛知工業大学 システム工学研究会 / MatsuribaTech（東海エンジニア学生コミュニティ）" },
+  {
+    label: "インターン",
+    headline: "コムスクエアで Web エンジニア",
+    detail: "フルリモートで勤務。2026年は SmartHR・kubell・ディップなど計9社の短期インターンにも参加しました",
+  },
+  {
+    label: "セキュリティ学習",
+    headline: "CTF と、毎月1冊の技術書",
+    detail: "防衛省サイバーコンテスト 2026 などに参加しています",
+  },
+  {
+    label: "自企画講座",
+    headline: "小学生に「1+1＝10」を教える",
+    detail: "2026年8月、愛知工業大学「まるごと体験ワールド」で小学生向けの講座を開催しました",
+  },
+  {
+    label: "技術発信",
+    headline: "Qiita で記事を公開中",
+    detail: "Next.js + Neon + Cloudflare Workers の構築記事など",
+  },
+  {
+    label: "所属",
+    headline: "システム工学研究会 / MatsuribaTech",
+    detail: "愛知工業大学のサークルと、東海エンジニア学生コミュニティ",
+  },
 ];
 
-function Section({
-  heading,
-  children,
-  bg = "white",
-  last = false,
-}: {
-  heading: string;
-  children: ReactNode;
-  bg?: "white" | "gray";
-  last?: boolean;
-}) {
+const links = [
+  { label: "GitHub", icon: "github", href: "https://github.com/higuchi-learn" },
+  { label: "X", icon: "x", href: "https://x.com/hig270" },
+  { label: "Wantedly", icon: "wantedly", href: "https://www.wantedly.com/id/haruki_higuchi_000" },
+  { label: "Qiita", icon: "qiita", href: "https://qiita.com/wada_wataru" },
+];
+
+// ─────────────────────────────────────────────────────────────
+
+function TechLogo({ icon, name, size = 16 }: { icon: string; name: string; size?: number }) {
   return (
-    <section
-      className={`${bg === "gray" ? "bg-[var(--page-bg)]" : "bg-white"} px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-11 sm:py-13 lg:py-16 xl:py-19${last ? "" : " border-b border-[var(--border)]"}`}
-    >
-      <div className="lg:grid lg:grid-cols-[160px_1fr] lg:gap-10 xl:grid-cols-[200px_1fr] xl:gap-16 2xl:grid-cols-[240px_1fr] 2xl:gap-20">
-        <div className="mb-5 lg:mb-0 shrink-0">
-          <div className="hidden lg:block w-8 h-1 bg-[var(--ogangetext)] rounded-full mb-3" />
-          <h2 className="text-sm font-bold text-[var(--ogangetext)] tracking-widest uppercase">{heading}</h2>
-        </div>
-        <div>{children}</div>
-      </div>
-    </section>
+    // next/image は外部画像の最適化設定（remotePatterns 等）が必要で、
+    // 小さな SVG では恩恵もないため素の <img> を使う
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={`https://cdn.simpleicons.org/${icon}`}
+      alt={name}
+      width={size}
+      height={size}
+      loading="lazy"
+      style={{ width: size, height: size }}
+      className="shrink-0"
+    />
   );
 }
 
@@ -155,131 +287,226 @@ export default function HomePage() {
     <div className="flex-1 flex flex-col">
 
       {/* ── Hero ─────────────────────────────────────────────── */}
-      <section className="bg-white border-b border-[var(--border)] px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-13 sm:py-19 lg:py-21 2xl:py-27">
-        <div className="xl:flex xl:items-start xl:gap-16 2xl:gap-24">
+      {/* relative + overflow-hidden で、背景のぼかし円がはみ出してもスクロールが出ないようにする */}
+      <section className={`relative overflow-hidden bg-[var(--cream)] ${PX} pt-14 pb-12 sm:pt-20 lg:pt-24 lg:pb-16`}>
+        {/* 背景の装飾。blur で輪郭を消し、柔らかい光のように見せている */}
+        <div aria-hidden="true" className="pointer-events-none absolute -top-32 -right-24 size-[28rem] rounded-full bg-[var(--onmouseorange)] opacity-60 blur-3xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-40 -left-24 size-96 rounded-full bg-[var(--tag)] opacity-20 blur-3xl" />
+
+        <div className="relative grid lg:grid-cols-[1.15fr_0.85fr] items-center gap-12 lg:gap-16">
 
           {/* テキスト */}
-          <div className="text-center xl:text-left xl:flex-1">
-            <p className="text-xs font-bold text-[var(--ogangetext)] mb-4 tracking-[0.2em] uppercase">Portfolio</p>
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl 2xl:text-8xl font-bold text-black tracking-tight">
+          <div className="text-center lg:text-left">
+            <p className="inline-block text-sm font-bold text-[var(--ogangetext)] bg-white rounded-full px-4 py-1.5 shadow-sm">
+              はじめまして！
+            </p>
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl 2xl:text-8xl font-bold text-black tracking-tight mt-5">
               わだわたる
             </h1>
-            <p className="text-base text-[var(--lighttext)] mt-3">樋口 陽輝</p>
-            <p className="text-sm text-[var(--lighttext)] mt-1">
-              愛知工業大学 工学部 電気学科 電子情報工学専攻 / 3年
+            <p className="text-xl sm:text-2xl font-bold text-black mt-5 leading-snug">
+              ハードもソフトも、<span className="text-[var(--ogangetext)]">手を動かして</span>つくる。
             </p>
-            <p className="text-sm text-[var(--lighttext)] mt-5 max-w-md mx-auto xl:mx-0 leading-7">
-              ハードとソフトの両方がわかるフルスタックエンジニアを目指しています。
-              高校在学中に15の資格を取り、経済産業大臣賞をいただきました。
-              大学ではこれまでに7つのプロダクトを開発し、ハッカソンでもいくつか賞をいただいています。
+            <p className="text-sm text-[var(--lighttext)] mt-4">
+              樋口 陽輝 ／ 愛知工業大学 電子情報工学専攻 3年
             </p>
+
+            {/* 行動を促すボタン。読む前に「作品を見る」へ誘導する */}
+            <div className="flex flex-wrap justify-center lg:justify-start gap-3 mt-8">
+              <a
+                href="#works"
+                className="text-sm font-bold text-white bg-[var(--ogangetext)] rounded-full px-6 py-3 shadow-md shadow-orange-200 hover:brightness-110 transition"
+              >
+                つくったものを見る →
+              </a>
+              <Link
+                href="/career"
+                className="text-sm font-bold text-black bg-white rounded-full px-6 py-3 shadow-sm hover:text-[var(--ogangetext)] transition"
+              >
+                経歴を見る
+              </Link>
+            </div>
           </div>
 
-          {/* Stats グリッド（xl+） */}
-          {/* 幅が狭いと "270pt" がはみ出し、ラベルも1〜2文字で折り返すため、カード幅を確保している */}
-          <div className="hidden xl:grid xl:grid-cols-2 xl:auto-rows-fr xl:gap-3 xl:shrink-0 xl:w-96 2xl:w-[26rem]">
-            {stats.map((stat, i) => (
-              <div key={i} className="bg-[var(--enableorange)] rounded-xl flex flex-col items-center justify-center px-4 py-6 2xl:py-7 text-center">
-                {/* 数値は途中で折り返さないよう nowrap */}
-                <p className="text-3xl 2xl:text-4xl font-bold text-[var(--ogangetext)] whitespace-nowrap leading-none">{stat.value}</p>
-                {/* text-balance で折り返し時に行の長さを揃え、1文字だけ次行に残るのを防ぐ */}
-                <p className="text-xs text-black mt-3 font-medium leading-5 text-balance">{stat.label}</p>
-                <p className="text-xs text-[var(--lighttext)] mt-0.5 leading-5 text-balance">{stat.note}</p>
-              </div>
-            ))}
+          {/* 写真＋浮かぶバッジ */}
+          <div className="relative mx-auto w-full max-w-xs sm:max-w-sm">
+            <ImageSlot
+              src={heroImage}
+              alt="わだわたる"
+              hint="本人の写真・アバター・イラスト（正方形）"
+              className="w-full aspect-square rounded-[2.5rem] shadow-xl"
+            />
+            {/* 少し傾けたバッジで、写真にステッカーを貼ったような遊びを出す */}
+            <div className="absolute -top-4 -left-4 sm:-left-10 bg-white rounded-2xl shadow-lg px-4 py-2.5 -rotate-6">
+              <p className="text-xs text-[var(--lighttext)]">全国1名</p>
+              <p className="text-sm font-bold text-black">経済産業大臣賞</p>
+            </div>
+            <div className="absolute -bottom-5 -right-3 sm:-right-8 bg-white rounded-2xl shadow-lg px-4 py-2.5 rotate-3">
+              <p className="text-xs text-[var(--lighttext)]">ハッカソン</p>
+              <p className="text-sm font-bold text-black">5回以上受賞</p>
+            </div>
           </div>
         </div>
-      </section>
 
-      {/* ── Stats（モバイル・タブレット）────────────────────────── */}
-      <section className="xl:hidden bg-[var(--enableorange)] grid grid-cols-2 md:grid-cols-4 border-b border-[var(--border)]">
-        {stats.map((stat, i) => (
-          <div key={i} className="flex flex-col items-center justify-center py-7 px-4 text-center">
-            <p className="text-3xl font-bold text-[var(--ogangetext)] whitespace-nowrap">{stat.value}</p>
-            <p className="text-xs text-black mt-1 font-medium text-balance">{stat.label}</p>
-            <p className="text-xs text-[var(--lighttext)] mt-0.5 text-balance">{stat.note}</p>
-          </div>
-        ))}
-      </section>
-
-      {/* ── About ────────────────────────────────────────────── */}
-      <Section heading="About" bg="gray">
-        <div className="max-w-2xl space-y-5 text-sm text-black leading-7">
-          <p>
-            中学生のころ、YouTubeのガジェット動画を見てPCを自作してみたくなり、
-            中学時代のプレゼントをすべてあきらめる代わりにパーツを買って、初めてのPCを自分で組み立てました。
-            気になったものは自分で手を動かして確かめたくなるのは、このころから変わっていません。
-          </p>
-          <p>
-            高校は岐阜工業高等学校の電子工学科に進み、電気電子や通信を基礎から学びました。
-            資格の勉強は高1から始め、ジュニアマイスター顕彰の経済産業大臣賞（全国1名）を目標にしていました。
-            高3では歴代最高得点の更新を目標にし、270pt で受賞しました。
-            並行して、生徒会長や全国高等学校総合文化祭の広報イベント委員長も務めました。
-          </p>
-          <p>
-            大学では電気回路・ディジタル回路・組み込みシステム・数値計算などを学びながら、
-            システム工学研究会というサークルでチーム開発やハッカソンに参加しています。
-            授業の課題はAIに頼らず、自分で理解しながら解くようにしています。
-          </p>
-          <p>
-            将来は、プロダクト全体を理解したうえで、安心して長く使ってもらえるものを作れるフルスタックエンジニアになりたいと考えています。
-            特にセキュリティに興味があり、いずれはセキュリティエンジニアとして働きたいです。
-            長期休みにはプロダクトを1つ作るようにしていて、CTFへの参加（防衛省サイバーコンテスト 学生上位50%）や、毎月1冊技術書を読むことも続けています。
-            職場では、技術のことなら何でも聞いてもらえるような上司になるのが目標です。
-          </p>
-        </div>
-        <dl className="max-w-2xl mt-5 divide-y divide-[var(--border)] border-t border-[var(--border)]">
-          {profileItems.map((item) => (
-            <div key={item.label} className="flex gap-6 py-3">
-              <dt className="text-xs font-bold text-[var(--ogangetext)] w-28 shrink-0 uppercase tracking-wide pt-0.5">{item.label}</dt>
-              <dd className="text-sm text-black leading-6">{item.value}</dd>
+        {/* 数字カード。大きな数字は読まなくても目に入るので、ヒーローの直下に置く */}
+        <div className="relative grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-16 lg:mt-20">
+          {stats.map((stat) => (
+            <div
+              key={stat.label}
+              className="bg-white/80 backdrop-blur rounded-2xl shadow-sm flex flex-col items-center justify-center px-3 py-6 text-center"
+            >
+              {/* 数値は途中で折り返さないよう nowrap */}
+              <p className="text-3xl sm:text-4xl font-bold text-[var(--ogangetext)] whitespace-nowrap leading-none">{stat.value}</p>
+              {/* text-balance で折り返し時に行の長さを揃え、1文字だけ次行に残るのを防ぐ */}
+              <p className="text-xs text-black mt-3 font-bold leading-5 text-balance">{stat.label}</p>
+              <p className="text-xs text-[var(--lighttext)] mt-0.5 leading-5 text-balance">{stat.note}</p>
             </div>
           ))}
-        </dl>
+        </div>
+      </section>
+
+      {/* ── Works ────────────────────────────────────────────── */}
+      {/* ポートフォリオの主役。画像を大きく見せ、説明は一言だけにしている */}
+      <Section id="works" en="Works" ja="つくったもの">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+          {works.map((work) => (
+            <a
+              key={work.title}
+              href={work.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`group bg-white rounded-3xl overflow-hidden flex flex-col ${CARD_SHADOW}`}
+            >
+              <div className="relative">
+                <ImageSlot src={work.image} alt={work.title} hint={work.imageHint} className="w-full aspect-video" />
+                <span className="absolute top-4 left-4 text-xs font-bold text-white bg-[var(--ogangetext)] rounded-full px-3 py-1.5 shadow-md">
+                  {work.award}
+                </span>
+              </div>
+              <div className="p-5 sm:p-6 flex flex-col gap-2 flex-1">
+                <h3 className="text-xl font-bold text-black group-hover:text-[var(--ogangetext)] transition-colors">
+                  {work.title}
+                </h3>
+                <p className="text-sm text-[var(--lighttext)] leading-6">{work.catchcopy}</p>
+                {/* CARD_FOOTER の mt-auto で技術ロゴをカード下端に揃える */}
+                <div className={CARD_FOOTER}>
+                  <div className="flex items-center gap-2">
+                    {work.tech.map((t) =>
+                      t.icon ? (
+                        <span key={t.name} title={t.name} className="bg-[var(--cream)] rounded-lg p-1.5">
+                          <TechLogo icon={t.icon} name={t.name} size={18} />
+                        </span>
+                      ) : null,
+                    )}
+                  </div>
+                  <span className="text-sm font-bold text-[var(--ogangetext)]">GitHub ↗</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+        <div className="flex flex-wrap justify-center gap-3 mt-10">
+          <Link href="/products" className="text-sm font-bold text-[var(--ogangetext)] bg-[var(--enableorange)] rounded-full px-6 py-3 hover:bg-[var(--onmouseorange)] transition-colors">
+            プロダクト一覧へ →
+          </Link>
+          <Link href="/awards" className="text-sm font-bold text-[var(--ogangetext)] bg-[var(--enableorange)] rounded-full px-6 py-3 hover:bg-[var(--onmouseorange)] transition-colors">
+            受賞歴へ →
+          </Link>
+        </div>
+      </Section>
+
+      {/* ── Story ────────────────────────────────────────────── */}
+      <Section en="Story" ja="これまでの歩み" bg="cream">
+        {/* スマホでは横スクロール（snap で1枚ずつ止まる）、lg 以上では5列に並べる。
+            -mx/px で左右の余白ぶんまでスクロール領域を広げ、カードが画面端で切れて「続きがある」と見せる */}
+        <div className={`relative flex lg:grid lg:grid-cols-5 gap-4 lg:gap-5 overflow-x-auto lg:overflow-visible snap-x snap-mandatory -mx-6 px-6 sm:-mx-10 sm:px-10 lg:mx-0 lg:px-0 pb-4`}>
+          {/* 年表をつなぐ線（lg 以上のみ）。各カードの丸の中心を通る高さに置いている */}
+          <div aria-hidden="true" className="hidden lg:block absolute top-[7px] left-2 right-2 h-0.5 bg-[var(--onmouseorange)]" />
+          {story.map((step) => (
+            <div key={step.title} className="relative snap-start shrink-0 w-64 lg:w-auto">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="size-4 rounded-full bg-[var(--ogangetext)] ring-4 ring-[var(--enableorange)]" />
+                <span className="text-sm font-bold text-[var(--ogangetext)]">{step.period}</span>
+              </div>
+              <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+                <ImageSlot alt={step.title} hint={step.imageHint} className="w-full aspect-[4/3]" />
+                <div className="p-4">
+                  <p className="text-base font-bold text-black">{step.title}</p>
+                  <p className="text-xs text-[var(--lighttext)] leading-5 mt-1.5">{step.body}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* プロフィールは表ではなくチップで見せる */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-10">
+          <div className="flex flex-wrap gap-2">
+            <span className="text-sm font-bold text-white bg-[var(--ogangetext)] rounded-full px-3.5 py-1.5">ISTP（巨匠）</span>
+            {hobbies.map((hobby) => (
+              <span key={hobby} className="text-sm text-black bg-white rounded-full px-3.5 py-1.5 shadow-sm">
+                {hobby}
+              </span>
+            ))}
+          </div>
+          <Link href="/career" className="sm:ml-auto shrink-0 text-sm font-bold text-[var(--ogangetext)] hover:underline">
+            くわしい経歴を読む →
+          </Link>
+        </div>
       </Section>
 
       {/* ── Character ────────────────────────────────────────── */}
-      <Section heading="Character">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+      <Section en="Character" ja="大切にしていること">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
           {traits.map((trait, i) => (
-            <div key={i} className="bg-[var(--page-bg)] rounded-xl p-5 xl:p-6">
-              <h3 className="text-sm font-bold text-black mb-2">{trait.title}</h3>
-              <p className="text-sm text-[var(--lighttext)] leading-6">{trait.body}</p>
+            // relative は透かし番号（Watermark）の位置の基準にするため
+            <div
+              key={trait.title}
+              className={`relative bg-white rounded-3xl p-6 overflow-hidden border border-[var(--softborder)] flex flex-col gap-3 ${CARD_SHADOW}`}
+            >
+              <Watermark index={i} />
+              {/* 透かしより手前に出すため、中身にはすべて relative を付ける */}
+              <span aria-hidden="true" className="relative block w-8 h-1 rounded-full bg-[var(--ogangetext)]" />
+              <h3 className="relative text-lg font-bold text-black pr-16">{trait.title}</h3>
+              <p className="relative text-sm text-[var(--lighttext)] leading-6">{trait.catchcopy}</p>
+              <div className={`relative ${CARD_FOOTER}`}>
+                <MoreDetails
+                  title={trait.title}
+                  header={<p className="text-sm text-[var(--lighttext)] leading-6">{trait.catchcopy}</p>}
+                >
+                  <p className="text-sm text-black leading-7">{trait.body}</p>
+                </MoreDetails>
+              </div>
             </div>
           ))}
         </div>
       </Section>
 
       {/* ── Skills ───────────────────────────────────────────── */}
-      <Section heading="Skills" bg="gray">
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+      <Section en="Skills" ja="使える技術" bg="cream">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
           {skillGroups.map((group) => (
-            <div key={group.category} className="bg-white rounded-xl p-5">
-              <h3 className="text-xs font-bold text-[var(--ogangetext)] mb-3 tracking-widest uppercase">
+            <div key={group.category} className="bg-white rounded-3xl p-6 shadow-sm">
+              {/* 見出しの左にオレンジの短い縦線を置き、アイコンなしでも区切りがわかるようにする */}
+              <h3 className="text-base font-bold text-black mb-4 border-l-4 border-[var(--ogangetext)] pl-3 leading-tight">
                 {group.category}
               </h3>
-              <div className="flex flex-wrap gap-2">
+              {/* ロゴを主役にしたタイル状の並び。名前は小さく添える */}
+              <div className="grid grid-cols-3 gap-2">
                 {group.items.map((item) => (
-                  <span
+                  <div
                     key={item.name}
-                    className="inline-flex items-center gap-1.5 text-xs text-[var(--lighttext)] border border-[var(--border)] rounded-full px-2.5 py-0.5"
+                    className="flex flex-col items-center gap-1.5 rounded-xl bg-[var(--cream)] px-1 py-3 text-center"
                   >
-                    {item.icon && (
-                      // next/image は外部画像の最適化設定（remotePatterns 等）が必要で、
-                      // 小さな SVG では恩恵もないため素の <img> を使う。
-                      // CDN はブランドカラーの SVG を返す。alt は隣にテキストがあるので空にして読み上げの重複を防ぐ
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={`https://cdn.simpleicons.org/${item.icon}`}
-                        alt=""
-                        width={14}
-                        height={14}
-                        loading="lazy"
-                        className="w-3.5 h-3.5 shrink-0"
-                      />
+                    {item.icon ? (
+                      <TechLogo icon={item.icon} name="" size={24} />
+                    ) : (
+                      // ロゴがない技術は頭文字を丸に入れて、ロゴと同じ大きさで揃える
+                      <span aria-hidden="true" className="flex items-center justify-center size-6 rounded-full bg-[var(--onmouseorange)] text-[11px] font-bold text-[var(--ogangetext)]">
+                        {item.name.charAt(0)}
+                      </span>
                     )}
-                    {item.name}
-                  </span>
+                    <span className="text-[11px] text-black leading-4 text-balance">{item.name}</span>
+                  </div>
                 ))}
               </div>
             </div>
@@ -288,57 +515,40 @@ export default function HomePage() {
       </Section>
 
       {/* ── Now ──────────────────────────────────────────────── */}
-      <Section heading="Now">
-        <div className="max-w-2xl divide-y divide-[var(--border)]">
+      <Section en="Now" ja="いま取り組んでいること">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {nowItems.map((item) => (
-            <div
-              key={item.label}
-              className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-6 py-4"
-            >
-              <p className="text-xs font-bold text-[var(--ogangetext)] w-28 shrink-0 uppercase tracking-wide">{item.label}</p>
-              <p className="text-sm text-black leading-6">{item.value}</p>
+            <div key={item.label} className="rounded-3xl border border-[var(--softborder)] p-6">
+              <span className="inline-block text-xs font-bold text-[var(--ogangetext)] bg-[var(--enableorange)] rounded-full px-3 py-1">
+                {item.label}
+              </span>
+              <p className="text-base font-bold text-black mt-4 leading-snug">{item.headline}</p>
+              <p className="text-xs text-[var(--lighttext)] leading-5 mt-2">{item.detail}</p>
             </div>
           ))}
         </div>
       </Section>
 
       {/* ── Links ────────────────────────────────────────────── */}
-      <Section heading="Links" bg="gray" last>
-        <div className="flex gap-8">
-          <a
-            href="https://github.com/higuchi-learn"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-black hover:text-[var(--ogangetext)] transition-colors border-b border-[var(--border)] pb-0.5"
-          >
-            GitHub
-          </a>
-          <a
-            href="https://x.com/hig270"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-black hover:text-[var(--ogangetext)] transition-colors border-b border-[var(--border)] pb-0.5"
-          >
-            X (Twitter)
-          </a>
-          <a
-            href="https://www.wantedly.com/id/haruki_higuchi_000"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-black hover:text-[var(--ogangetext)] transition-colors border-b border-[var(--border)] pb-0.5"
-          >
-            Wantedly
-          </a>
-          <a
-            href="https://qiita.com/wada_wataru"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-black hover:text-[var(--ogangetext)] transition-colors border-b border-[var(--border)] pb-0.5"
-          >
-            Qiita
-          </a>
+      {/* 最後はオレンジの帯で締める。ページの終わりがはっきりして、SNS へ誘導しやすい */}
+      <section className={`bg-gradient-to-br from-[var(--ogangetext)] to-[var(--clickingorange)] ${PX} py-16 sm:py-20 text-center`}>
+        <p className="text-sm font-bold text-white/80 tracking-wider">Links</p>
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mt-1">気軽につながってください！</h2>
+        <div className="flex flex-wrap justify-center gap-3 mt-8">
+          {links.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-bold text-black bg-white rounded-full px-5 py-3 shadow-md transition-shadow hover:shadow-lg"
+            >
+              <TechLogo icon={link.icon} name="" size={18} />
+              {link.label}
+            </a>
+          ))}
         </div>
-      </Section>
+      </section>
 
     </div>
   );
