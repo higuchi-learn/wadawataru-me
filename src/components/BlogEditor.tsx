@@ -12,6 +12,7 @@ import ArticlePreview from '@/components/ArticlePreview';
 import type { Genre } from '@/components/GenreAbout';
 import { saveAsDraftAction, publishAction, archiveAction } from '@/app/admin/actions';
 import { articleSchema } from '@/lib/schemas';
+import { uploadImage, attachImageUpload } from '@/lib/uploadImage';
 import 'easymde/dist/easymde.min.css';
 
 // dynamic import + { ssr: false } でクライアントサイドのみで読み込む
@@ -47,21 +48,6 @@ type Props = {
 };
 
 type FieldErrors = Partial<Record<'title' | 'description' | 'slug' | 'content', string>>;
-
-// 画像をアップロードしてURLを取得する関数
-async function uploadImage(file: File): Promise<string | null> {
-  // FormDataを作成してファイルを追加する
-  const form = new FormData();
-  // 画像ファイルをFormDataに追加する
-  form.append('file', file);
-  // /api/uploadエンドポイントにPOSTリクエストを送信して画像をアップロードする
-  const res = await fetch('/api/upload', { method: 'POST', body: form });
-  // レスポンスが正常でない場合はnullを返す
-  if (!res.ok) return null;
-  // レスポンスから画像のURLを取得して返す
-  const { url } = (await res.json()) as { url: string };
-  return url;
-}
 
 export default function BlogEditor({ genre, mode, initialData, availableTags = [], otherGenreTags = [] }: Props) {
   const [title, setTitle] = useState(initialData?.title ?? '');
@@ -103,45 +89,8 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
     // インスタンスをrefに保存する
     mdeRef.current = mde;
 
-    // EasyMDE の内部は CodeMirror エディタで動いている
-    // mde.codemirror でその CodeMirror インスタンスを取得できる
-    const cm = mde.codemirror;
-
-    const insertImage = (file: File) => {
-      uploadImage(file)
-        .then((url) => {
-          if (!url) {
-            setServerError('画像のアップロードに失敗しました');
-            return;
-          }
-          // cm.replaceSelection() でカーソル位置にテキストを挿入する
-          // Markdown の画像記法 ![alt](url) を埋め込む
-          cm.replaceSelection(`![](${url})`);
-          // CodeMirror の値は React の state と連動していないため
-          // cm.getValue() で最新テキストを取り出して state に同期する
-          setContent(cm.getValue());
-        })
-        .catch(() => setServerError('画像のアップロードに失敗しました'));
-    };
-
-    // cm.on() で CodeMirror のネイティブイベントを購読する
-    // 第1引数はイベント名、第2引数はコールバック（第1引数はエディタ本体、第2引数はネイティブイベント）
-    cm.on('paste', (_: unknown, e: ClipboardEvent) => {
-      const file = e.clipboardData?.files[0];
-      // 画像以外（テキストなど）はデフォルトの貼り付け動作に任せる
-      if (!file?.type.startsWith('image/')) return;
-      // e.preventDefault() でブラウザのデフォルト貼り付け処理を止める
-      // これをしないと画像バイナリがそのままエディタに入力されてしまう
-      e.preventDefault();
-      insertImage(file);
-    });
-
-    cm.on('drop', (_: unknown, e: DragEvent) => {
-      const file = e.dataTransfer?.files[0];
-      if (!file?.type.startsWith('image/')) return;
-      e.preventDefault();
-      insertImage(file);
-    });
+    // 画像の貼り付け・ドロップで R2 にアップロードし、本文に画像記法を挿入する
+    attachImageUpload(mde, setContent, setServerError);
   }, []);
 
   const payload = () => ({

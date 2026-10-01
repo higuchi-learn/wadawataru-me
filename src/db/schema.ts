@@ -93,6 +93,50 @@ export const diaryEntriesTable = pgTable('diary_entries_table', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
 });
 
+// 年表（/history）の時代区分。年表上ではこの単位で見出しを挟んでグループ化する
+export const historyEraEnum = pgEnum('history_era_enum', [
+  'elementary',
+  'junior_high',
+  'high_school',
+  'university',
+  'career',
+]);
+
+// 年表の出来事の分類。年表上のドット・日付の色分けに使う（life = 学校・活動・仕事、tech = 技術・開発・資格）
+export const historyKindEnum = pgEnum('history_kind_enum', ['life', 'tech']);
+
+// 年表の出来事に付けるラベル（「受賞」「資格」など）のマスタ
+// PostgreSQL の ENUM 型だと値を増やすたびにマイグレーションが必要になるため、
+// 管理画面から自由に追加・名前変更・削除できるようテーブルで持つ
+export const historyBadgesTable = pgTable('history_badges_table', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 10 }).notNull().unique(),
+});
+
+// 年表（/history）の出来事テーブル
+// 表示用の日付（dateLabel）と並び順用の日付（sortDate）を分けているのは、
+// 「中学時代」「2025年夏」のように暦日で表せない時期も、任意の位置に並べられるようにするため
+export const historyEventsTable = pgTable('history_events_table', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  era: historyEraEnum('era').notNull(),
+  // mode: 'string' で 'yyyy-mm-dd' 文字列のまま扱う（日記と同じくタイムゾーン変換によるズレを避けるため）
+  sortDate: date('sort_date', { mode: 'string' }).notNull(),
+  dateLabel: varchar('date_label', { length: 20 }).notNull(),
+  kind: historyKindEnum('kind').notNull(),
+  // ラベル（history_badges_table）への参照。付けない出来事は null
+  // onDelete: 'set null' により、ラベルを削除するとそのラベルが付いていた出来事は「ラベルなし」になる
+  badgeId: uuid('badge_id').references(() => historyBadgesTable.id, { onDelete: 'set null' }),
+  title: varchar('title', { length: 40 }).notNull(),
+  // 年表上に表示する短い説明。null 許容
+  summary: varchar('summary', { length: 120 }),
+  // 詳細ページ（/history/[id]）に表示する Markdown 本文。空文字なら詳細ページへのリンクを出さない
+  content: text('content').notNull().default(''),
+  // 年表上に表示する画像の R2 URL。未設定の場合は null
+  thumbnail: text('thumbnail'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+});
+
 // $inferInsert / $inferSelect でテーブル定義から TypeScript の型を自動生成する
 // カラムを追加・変更したときに型も自動で追従するため、手書きの型定義が不要になる
 export type InsertPost = typeof postsTable.$inferInsert;
@@ -100,8 +144,12 @@ export type InsertTag = typeof tagsTable.$inferInsert;
 export type InsertPostTag = typeof postTagsTable.$inferInsert;
 export type InsertGenreTagOrder = typeof genreTagOrdersTable.$inferInsert;
 export type InsertDiaryEntry = typeof diaryEntriesTable.$inferInsert;
+export type InsertHistoryEvent = typeof historyEventsTable.$inferInsert;
+export type InsertHistoryBadge = typeof historyBadgesTable.$inferInsert;
 export type SelectPost = typeof postsTable.$inferSelect;
 export type SelectTag = typeof tagsTable.$inferSelect;
 export type SelectPostTag = typeof postTagsTable.$inferSelect;
 export type SelectGenreTagOrder = typeof genreTagOrdersTable.$inferSelect;
 export type SelectDiaryEntry = typeof diaryEntriesTable.$inferSelect;
+export type SelectHistoryEvent = typeof historyEventsTable.$inferSelect;
+export type SelectHistoryBadge = typeof historyBadgesTable.$inferSelect;

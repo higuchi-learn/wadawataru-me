@@ -42,6 +42,9 @@ pnpm run deploy    # 本番デプロイ
 | `src/db/queries/select.ts` | DB 参照クエリ |
 | `src/app/globals.css` | グローバルスタイル（CSS変数含む）|
 | `wrangler.jsonc` | Cloudflare Workers 設定 |
+| `src/app/(public)/history/` | 年表（一覧・詳細ページ）。データは `history_events_table` |
+| `src/components/HistoryEventEditor.tsx` | 年表の出来事の作成・編集エディタ（`/admin/history`）|
+| `scripts/seed-history.mjs` | 年表の初期データ投入スクリプト（テーブルが空のときだけ投入）|
 
 ## 認証
 

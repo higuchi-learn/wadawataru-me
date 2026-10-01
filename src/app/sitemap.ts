@@ -1,10 +1,10 @@
 import type { MetadataRoute } from 'next';
-import { getPublishedPostsForSitemap } from '@/db/queries/select';
+import { getPublishedPostsForSitemap, getHistoryEventsList } from '@/db/queries/select';
 
 const BASE_URL = 'https://wadawataru.me';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const posts = await getPublishedPostsForSitemap();
+  const [posts, historyEvents] = await Promise.all([getPublishedPostsForSitemap(), getHistoryEventsList()]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: BASE_URL },
@@ -12,6 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/products` },
     { url: `${BASE_URL}/books` },
     { url: `${BASE_URL}/career` },
+    { url: `${BASE_URL}/history` },
     { url: `${BASE_URL}/awards` },
     { url: `${BASE_URL}/qualifications` },
   ];
@@ -21,5 +22,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: post.updatedAt,
   }));
 
-  return [...staticRoutes, ...postRoutes];
+  // 年表の出来事は詳細本文があるものだけ個別ページを持つ
+  const historyRoutes: MetadataRoute.Sitemap = historyEvents
+    .filter((event) => event.content.trim() !== '')
+    .map((event) => ({ url: `${BASE_URL}/history/${event.id}`, lastModified: event.updatedAt }));
+
+  return [...staticRoutes, ...postRoutes, ...historyRoutes];
 }

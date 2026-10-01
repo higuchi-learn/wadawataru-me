@@ -8,6 +8,10 @@ import {
   InsertGenreTagOrder,
   diaryEntriesTable,
   InsertDiaryEntry,
+  historyEventsTable,
+  InsertHistoryEvent,
+  historyBadgesTable,
+  InsertHistoryBadge,
 } from '../schema';
 
 export async function createPost(data: InsertPost): Promise<string> {
@@ -62,4 +66,22 @@ export async function upsertDiaryEntry(
       target: diaryEntriesTable.date,
       set: { content, updatedAt: now },
     });
+}
+
+// 年表の出来事を新規作成し、作成した行の id を返す
+export async function createHistoryEvent(
+  data: Omit<InsertHistoryEvent, 'id' | 'createdAt' | 'updatedAt'>,
+): Promise<string> {
+  const now = new Date();
+  const [row] = await db
+    .insert(historyEventsTable)
+    .values({ ...data, createdAt: now, updatedAt: now })
+    .returning({ id: historyEventsTable.id });
+  return row.id;
+}
+
+// 年表のラベルを新規作成し、作成した行の id を返す
+export async function createHistoryBadge(name: InsertHistoryBadge['name']): Promise<string> {
+  const [row] = await db.insert(historyBadgesTable).values({ name }).returning({ id: historyBadgesTable.id });
+  return row.id;
 }

@@ -1,15 +1,18 @@
 import { cache } from 'react';
 import { db } from '../db';
-import { and, asc, desc, eq, inArray, max, ne, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, getTableColumns, inArray, max, ne, sql } from 'drizzle-orm';
 import {
   postsTable,
   tagsTable,
   postTagsTable,
   genreTagOrdersTable,
   diaryEntriesTable,
+  historyEventsTable,
+  historyBadgesTable,
   SelectPost,
   SelectTag,
   SelectDiaryEntry,
+  SelectHistoryEvent,
 } from '../schema';
 
 export const PAGE_SIZE = 20;
@@ -283,4 +286,46 @@ export async function getPublishedPostsForSitemap() {
     })
     .from(postsTable)
     .where(eq(postsTable.status, 'published'));
+}
+
+// 年表の出来事の全カラム + ラベル名（badge）
+// ラベルは別テーブルなので leftJoin で名前を引く（ラベルなしの出来事は badge が null になる）
+const historyEventWithBadge = {
+  ...getTableColumns(historyEventsTable),
+  badge: historyBadgesTable.name,
+};
+
+// 年表の出来事を古い順にすべて取得する
+// sortDate が同じ出来事は登録順（createdAt）で並べる
+export async function getHistoryEventsList() {
+  return await db
+    .select(historyEventWithBadge)
+    .from(historyEventsTable)
+    .leftJoin(historyBadgesTable, eq(historyEventsTable.badgeId, historyBadgesTable.id))
+    .orderBy(asc(historyEventsTable.sortDate), asc(historyEventsTable.createdAt));
+}
+
+// 年表の出来事を1件取得する。generateMetadata と詳細ページ本体の両方から呼ばれるため cache() でメモ化する
+export const getHistoryEventById = cache(async (id: SelectHistoryEvent['id']) => {
+  const rows = await db
+    .select(historyEventWithBadge)
+    .from(historyEventsTable)
+    .leftJoin(historyBadgesTable, eq(historyEventsTable.badgeId, historyBadgesTable.id))
+    .where(eq(historyEventsTable.id, id));
+  return rows[0] ?? null;
+});
+
+// 年表のラベル一覧を、それぞれ何件の出来事に使われているかと合わせて名前順で取得する
+// 使用件数は管理画面で「削除するとどれだけ影響があるか」を示すために使う
+export async function getHistoryBadgesList() {
+  return await db
+    .select({
+      id: historyBadgesTable.id,
+      name: historyBadgesTable.name,
+      usageCount: count(historyEventsTable.id),
+    })
+    .from(historyBadgesTable)
+    .leftJoin(historyEventsTable, eq(historyEventsTable.badgeId, historyBadgesTable.id))
+    .groupBy(historyBadgesTable.id)
+    .orderBy(asc(historyBadgesTable.name));
 }

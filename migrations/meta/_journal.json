@@ -50,6 +50,13 @@
       "when": 1790266213558,
       "tag": "0006_wet_marvel_apes",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790830444447,
+      "tag": "0007_history_events",
+      "breakpoints": true
     }
   ]
 }

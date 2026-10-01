@@ -1,6 +1,16 @@
 import { db } from '../db';
 import { and, eq } from 'drizzle-orm';
-import { tagsTable, postTagsTable, genreTagOrdersTable, SelectTag, SelectGenreTagOrder } from '../schema';
+import {
+  tagsTable,
+  postTagsTable,
+  genreTagOrdersTable,
+  historyEventsTable,
+  historyBadgesTable,
+  SelectTag,
+  SelectGenreTagOrder,
+  SelectHistoryEvent,
+  SelectHistoryBadge,
+} from '../schema';
 
 // タグを指定ジャンルからのみ除外する（タグ本体と他ジャンルへの紐付けは残す）
 // 「制作物から TypeScript を消したいが読書記録には残したい」という操作に対応する
@@ -30,4 +40,15 @@ export async function deleteTagById(id: SelectTag['id']) {
   await db.delete(genreTagOrdersTable).where(eq(genreTagOrdersTable.tagId, id));
   // ③ タグ本体を削除する（①②が終わってから実行するため FK 違反は起きない）
   await db.delete(tagsTable).where(eq(tagsTable.id, id));
+}
+
+// 年表の出来事を削除する。他テーブルから参照されていないため、そのまま消せる
+export async function deleteHistoryEventById(id: SelectHistoryEvent['id']): Promise<void> {
+  await db.delete(historyEventsTable).where(eq(historyEventsTable.id, id));
+}
+
+// 年表のラベルを削除する
+// 外部キーが onDelete: 'set null' なので、このラベルが付いていた出来事は DB 側で自動的に「ラベルなし」になる
+export async function deleteHistoryBadgeById(id: SelectHistoryBadge['id']): Promise<void> {
+  await db.delete(historyBadgesTable).where(eq(historyBadgesTable.id, id));
 }

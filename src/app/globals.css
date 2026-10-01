@@ -38,6 +38,9 @@
   /* Status */
   --draft: #00a6f4; /* 未公開ステータスの背景 */
   --successtext: #497d00; /* 保存成功テキスト */
+
+  /* Timeline */
+  --timelineblue: #0095db; /* 年表の技術・開発系イベント */
 }
 
 @theme inline {

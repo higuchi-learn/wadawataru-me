@@ -1,7 +1,19 @@
 import { db } from '../db';
-import { postsTable, tagsTable, postTagsTable, genreTagOrdersTable, SelectPost, SelectTag, SelectGenreTagOrder } from '../schema';
+import {
+  postsTable,
+  tagsTable,
+  postTagsTable,
+  genreTagOrdersTable,
+  historyEventsTable,
+  historyBadgesTable,
+  SelectPost,
+  SelectTag,
+  SelectGenreTagOrder,
+  SelectHistoryEvent,
+  InsertHistoryEvent,
+  SelectHistoryBadge,
+} from '../schema';
 import { and, eq } from 'drizzle-orm';
-
 
 export async function updateTagById(id: SelectTag['id'], name: SelectTag['name'], imageUrl: SelectTag['imageUrl']) {
   // タグ名と画像URLをまとめて更新する（編集モーダルからの保存で使う）
@@ -80,4 +92,23 @@ export async function syncPostTags(postId: SelectPost['id'], tagNames: string[])
     // 記事とタグを紐づける中間テーブルにレコードを追加する
     await db.insert(postTagsTable).values({ postId, tagId });
   }
+}
+
+// 年表の出来事を更新する。createdAt は変更せず updatedAt だけ現在時刻にする
+export async function updateHistoryEventById(
+  id: SelectHistoryEvent['id'],
+  data: Omit<InsertHistoryEvent, 'id' | 'createdAt' | 'updatedAt'>,
+): Promise<void> {
+  await db
+    .update(historyEventsTable)
+    .set({ ...data, updatedAt: new Date() })
+    .where(eq(historyEventsTable.id, id));
+}
+
+// 年表のラベル名を変更する。出来事側は id で参照しているので、付いている出来事すべてに反映される
+export async function renameHistoryBadge(
+  id: SelectHistoryBadge['id'],
+  name: SelectHistoryBadge['name'],
+): Promise<void> {
+  await db.update(historyBadgesTable).set({ name }).where(eq(historyBadgesTable.id, id));
 }

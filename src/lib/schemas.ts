@@ -23,3 +23,27 @@ export const articleSchema = z.object({
 export const diaryEntrySchema = z.object({
   content: z.string().min(1, 'この要素は必須です。'),
 });
+
+// 年表の出来事。最大文字数は history_events_table の varchar の長さと揃えている
+export const historyEventSchema = z.object({
+  era: z.enum(['elementary', 'junior_high', 'high_school', 'university', 'career'], 'この要素は必須です。'),
+  // date 型のカラムに入れるため 'yyyy-mm-dd' 形式のみ許可する（<input type="date"> の値もこの形式）
+  sortDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'この要素は必須です。'),
+  dateLabel: z.string().min(1, 'この要素は必須です。').max(20, '文字数が超過しています。最大文字数は20字です。'),
+  kind: z.enum(['life', 'tech'], 'この要素は必須です。'),
+  // ラベルの id。空文字は「ラベルなし」を表す
+  badgeId: z.union([z.literal(''), z.uuid('使用できない文字が含まれています。')]),
+  title: z.string().min(1, 'この要素は必須です。').max(40, '文字数が超過しています。最大文字数は40字です。'),
+  summary: z.string().max(120, '文字数が超過しています。最大文字数は120字です。'),
+  content: z.string(),
+  thumbnail: z.string(),
+});
+
+export type HistoryEventInput = z.infer<typeof historyEventSchema>;
+
+// 年表のラベル名。最大文字数は history_badges_table.name の varchar の長さと揃えている
+export const historyBadgeNameSchema = z
+  .string()
+  .trim()
+  .min(1, 'この要素は必須です。')
+  .max(10, '文字数が超過しています。最大文字数は10字です。');
