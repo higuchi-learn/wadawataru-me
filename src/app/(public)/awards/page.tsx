@@ -13,16 +13,17 @@ const awards: Award[] = [
   {
     rank: "最優秀賞",
     title: "Gesture Audio",
-    event: "技育CAMP ハッカソン",
+    event: "技育CAMP2025 ハッカソン Vol.10",
     date: "2025年8月",
     description:
-      "腕に装着するコントローラーで音楽を操作するシステム。作業中にスマートフォンに触れずに音楽操作できれば集中力を維持できるという着想から開発。XIAO BLE を用いたマイコン側の実装（センサー値取得・BLE 送信）と、受信データによる再生/停止/スキップなどのイベント発火ロジックを担当した。",
+      "腕に装着するコントローラーで音楽を操作するシステム。作業中にスマートフォンに触れずに音楽操作できれば集中力を維持できるという着想から開発。ハードウェア側を担当し、XIAO BLE Sense を用いた腕装着型コントローラーの電子回路設計・実装、マイコン側の実装（6軸加速度センサーの値取得・BLE 送信）と、受信データによる再生/停止/スキップなどのイベント発火ロジックを担当した。",
     insight:
       "遊び感覚で開発したものが最高賞を受賞した。「苦労して作ったものほど評価される」という思い込みを崩す体験になり、ユーザーが評価するものの本質は苦労の量ではないという気づきを得た。",
-    tech: ["Next.js", "TypeScript", "C++", "XIAO BLE"],
+    tech: ["C++", "XIAO BLE Sense", "BLE", "6軸加速度センサー"],
     links: [
       { label: "発表資料", href: "https://www.canva.com/design/DAGvlxQLaRw/8fbZ3A8wx9VI0na9Rp_ppA/view" },
       { label: "GitHub (ハード)", href: "https://github.com/higuchi-learn/GestureAudio" },
+      { label: "GitHub (フロント)", href: "https://github.com/rinyaaa/Music" },
     ],
   },
   {
@@ -38,25 +39,35 @@ const awards: Award[] = [
   {
     rank: "STECH 協賛賞",
     title: "Bingo!2",
-    event: "SysHack（サークル主催ハッカソン）",
+    event: "システム工学研究会 SysHack（サークル主催ハッカソン）",
     date: "2025年3月",
     description:
-      "紙ベースのビンゴ大会が大人数では非効率という課題を解決するため開発。ルーム・カード自動生成、抽選番号確定時のリアルタイムカード判定、リーチ・ビンゴ確率算出アルゴリズムを実装。Firestore の onSnapshot を活用したリアルタイム更新とDB設計を含め、デザイン以外の全工程をほぼ個人で担当した。",
+      "紙ベースのビンゴ大会が大人数では非効率という課題を解決するため開発。ルーム・カード自動生成、抽選番号確定時のリアルタイムカード判定、リーチ・ビンゴ確率算出アルゴリズム、リアルタイムの順位表示、ルール変更機能を実装。1台のパソコンと参加者のスマホだけで、すぐに大人数のビンゴ大会を運営できる。Firestore の onSnapshot を活用したリアルタイム更新とDB設計を含め、デザイン以外の全工程をほぼ個人で担当した。",
     insight:
-      "開発に AI を本格導入した最初のプロジェクト。AI が補助ツールとして機能する中で、「設計力がなければ AI も使いこなせない」という事実がより鮮明になった。コードを書く速度よりも、設計の質が成果を左右するという認識を得た。",
-    tech: ["Next.js", "TypeScript", "Firebase", "Shadcn"],
+      "開発に AI を本格導入した最初のプロジェクト。AI が補助ツールとして機能する中で、「設計力がなければ AI も使いこなせない」という事実がより鮮明になった。コードを書く速度よりも、設計の質が成果を左右するという認識を得た。また、多人数が同時参加すると Firestore の読み書き回数が急増して無料枠をすぐに超えることが分かり、「そもそもデータを永続化する必要があるのか」という設計の根本から再設計を計画している。",
+    tech: ["Next.js", "TypeScript", "Tailwind CSS", "Firebase", "Shadcn"],
     links: [
       { label: "発表資料", href: "https://www.canva.com/design/DAGjQ4RHnYU/YvluRIHCfkngv1QldyFMLQ/view" },
       { label: "GitHub", href: "https://github.com/higuchi-learn/syshack-bingo" },
     ],
   },
   {
-    rank: "優秀賞（2位）",
+    rank: "株式会社ゆめみ 企業賞",
     title: "ステキなステッキ",
-    event: "技育CAMP ハッカソン vol.19",
+    event: "技育博 2024 vol.6",
     date: "2025年2月",
     description:
-      "Raspberry Pi Pico W を用いた対戦型組み込みゲーム。センサー値を JSON でサーバーへ送信し、ゲーム状態をリアルタイムに反映する仕組みを担当。WebSocket ライブラリが MicroPython で利用不可と判明したため、毎秒 HTTP 通信＋レスポンス条件分岐による擬似リアルタイム通信を設計・実装した。",
+      "技育博 2024 vol.6 において同作品が株式会社ゆめみ企業賞を受賞。技育CAMP2024 ハッカソン Vol.19 優秀賞と同一プロダクト。",
+    insight: "同一プロダクトが複数の場で評価されたことで、制約環境での代替案設計というアプローチの普遍的な価値を感じた。",
+    tech: ["MicroPython", "Raspberry Pi Pico W"],
+  },
+  {
+    rank: "優秀賞（2位）",
+    title: "ステキなステッキ",
+    event: "技育CAMP2024 ハッカソン Vol.19",
+    date: "2024年12月",
+    description:
+      "魔法の杖を使って「MPを溜める・攻撃する・守る」の行動を選び、相手のHPを0にしたら勝ちの、体を動かす対戦ゲーム。電子回路を小型化し、画面を見なくても音で入力操作を判断できるようにした。Raspberry Pi Pico W を用いた組み込み部分では、センサー値を JSON でサーバーへ送信し、ゲーム状態をリアルタイムに反映する仕組みを担当。WebSocket ライブラリが MicroPython で利用不可と判明したため、毎秒 HTTP 通信＋レスポンス条件分岐による擬似リアルタイム通信を設計・実装した。",
     insight:
       "「できない理由を探す」のではなく、「この制約の中で何ができるか」を考える思考パターンが形になった経験。ベストプラクティスを知った上で状況に応じた最適解を選ぶことの重要性を体得した。",
     tech: ["MicroPython", "Raspberry Pi Pico W", "電子回路設計・実装"],
@@ -66,19 +77,9 @@ const awards: Award[] = [
     ],
   },
   {
-    rank: "株式会社ゆめみ 企業賞",
-    title: "ステキなステッキ",
-    event: "技育博 2024 vol.6",
-    date: "2025年2月",
-    description:
-      "技育博 2024 vol.6 において同作品が株式会社ゆめみ企業賞を受賞。技育CAMP ハッカソン vol.19 優秀賞と同一プロダクト。",
-    insight: "同一プロダクトが複数の場で評価されたことで、制約環境での代替案設計というアプローチの普遍的な価値を感じた。",
-    tech: ["MicroPython", "Raspberry Pi Pico W"],
-  },
-  {
     rank: "優秀賞",
     title: "SysPay",
-    event: "愛知工業大学 工科展",
+    event: "愛知工業大学 工科展2024",
     date: "2024年10月",
     description:
       "大学祭の模擬店向けオンライン注文システム。Firebase 上で管理するメニューデータを動的表示し、カート管理ロジックと注文確定時のDB送信処理を実装。UI/UX 設計も担当した。",

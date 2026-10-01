@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 const stats = [
   { value: "15", label: "取得資格数", note: "すべて高校在学中" },
   { value: "270pt", label: "ジュニアマイスター顕彰", note: "経済産業大臣賞・歴代最高得点" },
-  { value: "3.45", label: "大学 GPA", note: "専門科目はほぼ「秀」" },
+  { value: "3.5", label: "大学 GPA", note: "専門科目はほぼ「秀」" },
   { value: "5+", label: "ハッカソン受賞", note: "最優秀賞・優秀賞ほか" },
 ];
 
@@ -36,17 +36,24 @@ const traits = [
 
 const skillGroups = [
   { category: "フロントエンド", items: ["TypeScript", "React", "Next.js", "Tailwind CSS", "Shadcn", "MUI"] },
-  { category: "バックエンド", items: ["Python", "FastAPI", "C / C++", "Rails", "Laravel"] },
+  { category: "バックエンド", items: ["Python", "FastAPI", "C / C++", "Rails", "Laravel", "MVC"] },
   { category: "データベース", items: ["Firebase / Firestore", "PostgreSQL", "MariaDB", "MySQL", "SQLite", "Drizzle"] },
-  { category: "組み込み / ハードウェア", items: ["Arduino", "Raspberry Pi", "XIAO BLE", "MicroPython", "C++ (マイコン)"] },
-  { category: "AI・機械学習", items: ["YOLO (物体検出)", "CVAT (アノテーション)", "scikit-learn (入門)"] },
-  { category: "インフラ / ツール", items: ["Vercel", "Cloudflare Workers", "Figma", "Typst", "Marp"] },
+  { category: "組み込み / ハードウェア", items: ["Arduino", "Raspberry Pi", "XIAO BLE", "MicroPython", "C++ (マイコン)", "VHDL / FPGA", "回路設計", "JW_CAD", "TINA-TI"] },
+  { category: "AI・機械学習", items: ["YOLO (物体検出)", "CVAT (アノテーション)", "scikit-learn (入門)", "Unity (連携)"] },
+  { category: "インフラ / ツール", items: ["Vercel", "Cloudflare Workers", "Neon", "AWS (学習中)", "Figma", "Typst", "Marp"] },
+];
+
+const profileItems = [
+  { label: "活動名", value: "わだわたる" },
+  { label: "趣味", value: "料理、VALORANT、旅行、書道、電子工作、資格取得" },
+  { label: "MBTI", value: "ISTP（巨匠）" },
 ];
 
 const nowItems = [
-  { label: "インターン", value: "コムスクエア（フルリモート / Web エンジニア）" },
+  { label: "インターン", value: "コムスクエア（フルリモート / Web エンジニア）。2026年は SmartHR・kubell・ディップなど計9社の短期インターンに参加" },
   { label: "セキュリティ学習", value: "CTF 参加（防衛省サイバーコンテスト 2026 など）・毎月1冊の技術書読了" },
-  { label: "自企画講座", value: "愛知工業大学エクステンションセンター：小学生向け電子工作体験講座を 2026年度に開催予定" },
+  { label: "自企画講座", value: "2026年8月、愛知工業大学「まるごと体験ワールド」で小学生向け講座「コンピューターに『1+1＝10』って言わせてみよう！」を開催" },
+  { label: "技術発信", value: "Qiita で記事を公開（Next.js + Neon + Cloudflare Workers の構築記事など）" },
   { label: "所属", value: "愛知工業大学 システム工学研究会 / MatsuribaTech（東海エンジニア学生コミュニティ）" },
 ];
 
@@ -99,8 +106,8 @@ export default function HomePage() {
             </p>
             <p className="text-sm text-[var(--lighttext)] mt-3 max-w-md mx-auto xl:mx-0 leading-7">
               ハードとソフトを横断するフルスタックエンジニア志望。
-              高校在学中に国家資格15個・経済産業大臣賞を取得。
-              大学ではハッカソンで複数受賞。
+              高校在学中に15資格・経済産業大臣賞を取得。
+              大学ではこれまでに7つのプロダクトを開発し、ハッカソンで複数受賞。
             </p>
           </div>
 
@@ -149,10 +156,20 @@ export default function HomePage() {
             「なんとなくわかった」では止まらない——これは意識的な努力ではなく、自然にそうなっている性質だ。
           </p>
           <p>
-            現在はフルスタックエンジニアを目指しつつ、セキュリティ・フロントエンド・バックエンドを横断して習得中。
-            CTFへの参加・毎月1冊の技術書読了を継続している。
+            目指すのは、プロダクト全体を理解し、安心して使われ続けるプロダクトを社会に長く提供できるフルスタックエンジニア。
+            そのためにセキュリティへの理解を特に深めたいと考えており、将来はセキュリティエンジニアとして社会に貢献したい。
+            長期休みには必ずプロダクトを開発し、CTFへの参加（防衛省サイバーコンテスト 学生上位50%）・毎月1冊の技術書読了を継続している。
+            会社では「技術に関する質問には何でも答えられる、頼れる上司」になることが目標だ。
           </p>
         </div>
+        <dl className="max-w-2xl mt-8 divide-y divide-[var(--border)] border-t border-[var(--border)]">
+          {profileItems.map((item) => (
+            <div key={item.label} className="flex gap-6 py-3">
+              <dt className="text-xs font-bold text-[var(--ogangetext)] w-28 shrink-0 uppercase tracking-wide pt-0.5">{item.label}</dt>
+              <dd className="text-sm text-black leading-6">{item.value}</dd>
+            </div>
+          ))}
+        </dl>
       </Section>
 
       {/* ── Character ────────────────────────────────────────── */}
@@ -223,6 +240,22 @@ export default function HomePage() {
             className="text-sm text-black hover:text-[var(--ogangetext)] transition-colors border-b border-[var(--border)] pb-0.5"
           >
             X (Twitter)
+          </a>
+          <a
+            href="https://www.wantedly.com/id/haruki_higuchi_000"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-black hover:text-[var(--ogangetext)] transition-colors border-b border-[var(--border)] pb-0.5"
+          >
+            Wantedly
+          </a>
+          <a
+            href="https://qiita.com/wada_wataru"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-black hover:text-[var(--ogangetext)] transition-colors border-b border-[var(--border)] pb-0.5"
+          >
+            Qiita
           </a>
         </div>
       </Section>
