@@ -182,6 +182,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
                 badge: event.badge,
                 thumbnail: event.thumbnail,
                 hasDetail: event.content.trim() !== '',
+                productSlug: event.productSlug,
                 period: branchColor ? { label: historyPeriodLabel(event.endDate), color: branchColor } : null,
               };
               return (

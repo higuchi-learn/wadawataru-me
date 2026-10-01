@@ -173,6 +173,15 @@ export default function QualificationsPage() {
               高校1年の入学直後から、この制度でいちばん上の賞である経済産業大臣賞を目標に資格の勉強を始めました。
               高校3年では歴代最高得点の更新を目標にし、最終的に 270pt を取ることができました。
             </p>
+
+            {/* 受賞歴ページのカードからこのページに飛んでくるので、受賞歴に書いていた学びもここに置く */}
+            <div className="bg-[var(--enableorange)] rounded-2xl p-5">
+              <p className="text-xs font-bold text-[var(--ogangetext)] mb-2">学び・気づき</p>
+              <p className="text-sm text-black leading-7">
+                資格の数を増やすこと自体が目的だったわけではなく、先に目標を決めて、そこから逆算して勉強の計画を立てていました。
+                3年間続けられたのは、目標がはっきりしていたからだと思います。
+              </p>
+            </div>
           </div>
         </div>
       </Section>

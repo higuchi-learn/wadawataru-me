@@ -42,6 +42,7 @@ const EMPTY: HistoryEventInput = {
   summary: '',
   content: '',
   thumbnail: '',
+  productSlug: '',
   period: 'none',
   endDate: '',
 };
@@ -372,6 +373,19 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
           <p className="px-1 text-xs leading-4 text-[var(--lighttext)]">
             期間のある出来事は、年表で本線から分かれた線として、始まりから終わりまでの長さが表示されます。
           </p>
+          <div className="flex flex-col gap-0 p-1 w-full">
+            <FormLabel name="制作物の記事（slug）" error={fieldErrors.productSlug} />
+            <input
+              type="text"
+              value={form.productSlug}
+              onChange={(e) => set('productSlug')(e.target.value)}
+              placeholder="例: gesture-audio"
+              className={selectClass}
+            />
+          </div>
+          <p className="px-1 text-xs leading-4 text-[var(--lighttext)]">
+            制作物に関する出来事なら、その記事の slug を入れます。年表のカードは本文の詳細ページではなく、/products/slug の記事にリンクします。
+          </p>
           <div className="p-1">
             <p className="text-xs leading-4 text-black mb-1">年表での表示プレビュー</p>
             <div className="pointer-events-none border border-[var(--unclickable)] rounded-sm p-3">
@@ -385,6 +399,7 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
                   badge: badges.find((b) => b.id === form.badgeId)?.name ?? null,
                   thumbnail: form.thumbnail || null,
                   hasDetail: form.content.trim() !== '',
+                  productSlug: form.productSlug || null,
                   period:
                     form.period === 'none'
                       ? null

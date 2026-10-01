@@ -1,0 +1,1 @@
+ALTER TABLE "history_events_table" ADD COLUMN "product_slug" varchar(20);

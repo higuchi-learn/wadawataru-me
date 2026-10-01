@@ -11,6 +11,8 @@ export type HistoryEventCardData = {
   thumbnail: string | null;
   // 詳細本文があるときだけ詳細ページへのリンクを出す
   hasDetail: boolean;
+  // 制作物の記事の slug。あれば詳細ページではなく記事（/products/slug）へリンクする
+  productSlug: string | null;
   // 期間のある出来事のとき、終わりの文言（「2023年9月まで」など）と年表上の線の色。期間がなければ null
   period: { label: string; color: string } | null;
 };
@@ -19,7 +21,9 @@ export type HistoryEventCardData = {
 // align: 'left' は md 以上で中央線の左側に置くときの右寄せ表示
 export default function HistoryEventCard({ event, align }: { event: HistoryEventCardData; align: 'left' | 'right' }) {
   const color = historyKindColor(event.kind);
-  const detailHref = event.id ? `/history/${event.id}` : '#';
+  // 制作物の出来事は、受賞歴やトップページと同じ記事へ飛ばし、どこから押しても行き先が揃うようにする
+  const detailHref = event.productSlug ? `/products/${event.productSlug}` : event.id ? `/history/${event.id}` : '#';
+  const hasLink = event.productSlug !== null || event.hasDetail;
   return (
     <div className={align === 'left' ? 'md:text-right' : ''}>
       <div className={`flex flex-wrap items-baseline gap-x-3 gap-y-1 ${align === 'left' ? 'md:justify-end' : ''}`}>
@@ -42,7 +46,7 @@ export default function HistoryEventCard({ event, align }: { event: HistoryEvent
         </p>
       )}
       <h3 className="text-sm font-bold text-black mt-1.5 leading-6">
-        {event.hasDetail ? (
+        {hasLink ? (
           <Link href={detailHref} className="hover:text-[var(--ogangetext)] transition-colors">
             {event.title}
           </Link>
@@ -58,12 +62,12 @@ export default function HistoryEventCard({ event, align }: { event: HistoryEvent
           className={`mt-3 w-full max-w-sm aspect-video object-cover rounded-lg border border-[var(--unclickable)] ${align === 'left' ? 'md:ml-auto' : ''}`}
         />
       )}
-      {event.hasDetail && (
+      {hasLink && (
         <Link
           href={detailHref}
           className="inline-block mt-2 text-xs font-bold text-[var(--lighttext)] hover:text-[var(--ogangetext)] transition-colors border-b border-[var(--border)] pb-0.5"
         >
-          詳しく見る →
+          {event.productSlug ? '制作物の記事を読む →' : '詳しく見る →'}
         </Link>
       )}
     </div>

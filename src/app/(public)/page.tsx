@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import ImageSlot from '@/components/ImageSlot';
-import { PX, CARD_SHADOW, CARD_FOOTER, Section, Watermark } from '@/components/PageSection';
+import { PX, CARD_SHADOW, CARD_FOOTER, ReadMore, Section, Watermark } from '@/components/PageSection';
 import MoreDetails from '@/components/MoreDetails';
 
 // ─────────────────────────────────────────────────────────────
@@ -26,12 +26,13 @@ type Skill = { name: string; icon?: string };
 
 type Work = {
   title: string;
-  // 一言で「何を作ったか」がわかる説明。長い説明は /awards や GitHub に任せる
+  // 一言で「何を作ったか」がわかる説明。長い説明は記事に任せる
   catchcopy: string;
   award: string;
   image?: string;
   imageHint: string;
   tech: Skill[];
+  // 制作物の記事（/products/slug）
   href: string;
 };
 
@@ -44,7 +45,7 @@ const works: Work[] = [
     tech: [
       { name: "C++", icon: "cplusplus" },
     ],
-    href: "https://github.com/higuchi-learn/GestureAudio",
+    href: "/products/gesture-audio",
   },
   {
     title: "ステキなステッキ",
@@ -55,7 +56,7 @@ const works: Work[] = [
       { name: "MicroPython", icon: "micropython" },
       { name: "Raspberry Pi Pico W", icon: "raspberrypi" },
     ],
-    href: "https://github.com/higuchi-learn/lovely-stick/",
+    href: "/products/lovely-stick",
   },
   {
     title: "Bingo!2",
@@ -68,7 +69,7 @@ const works: Work[] = [
       { name: "Firebase", icon: "firebase" },
       { name: "Tailwind CSS", icon: "tailwindcss" },
     ],
-    href: "https://github.com/higuchi-learn/syshack-bingo",
+    href: "/products/bingo2",
   },
   {
     title: "SysPay",
@@ -81,7 +82,7 @@ const works: Work[] = [
       { name: "Firebase", icon: "firebase" },
       { name: "MUI", icon: "mui" },
     ],
-    href: "https://github.com/SystemEngineeringTeam/sys_ordering_app",
+    href: "/products/syspay",
   },
 ];
 
@@ -369,11 +370,10 @@ export default function HomePage() {
       <Section id="works" en="Works" ja="つくったもの">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
           {works.map((work) => (
-            <a
+            // 受賞歴・年表と同じく、制作物は記事ページに飛ばして行き先を揃える
+            <Link
               key={work.title}
               href={work.href}
-              target="_blank"
-              rel="noopener noreferrer"
               className={`group bg-white rounded-3xl overflow-hidden flex flex-col ${CARD_SHADOW}`}
             >
               <div className="relative">
@@ -398,10 +398,10 @@ export default function HomePage() {
                       ) : null,
                     )}
                   </div>
-                  <span className="text-sm font-bold text-[var(--ogangetext)]">GitHub ↗</span>
+                  <ReadMore label="記事を読む" />
                 </div>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
         <div className="flex flex-wrap justify-center gap-3 mt-10">

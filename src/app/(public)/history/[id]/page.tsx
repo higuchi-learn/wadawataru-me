@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { getHistoryEventById } from '@/db/queries/select';
@@ -31,6 +31,8 @@ export default async function HistoryEventPage({ params }: Props) {
   if (!UUID_PATTERN.test(id)) notFound();
   const event = await getHistoryEventById(id);
   if (!event) notFound();
+  // 制作物の出来事は記事に一本化しているので、URL を直接開いた場合も記事へ移す
+  if (event.productSlug) redirect(`/products/${event.productSlug}`);
 
   const color = historyKindColor(event.kind);
 

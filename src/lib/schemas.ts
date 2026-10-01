@@ -38,6 +38,14 @@ export const historyEventSchema = z
     summary: z.string().max(120, '文字数が超過しています。最大文字数は120字です。'),
     content: z.string(),
     thumbnail: z.string(),
+    // 制作物の記事の slug。空文字は「紐づけなし」。記事の slug と同じ形式・長さに制限する
+    productSlug: z.union([
+      z.literal(''),
+      z
+        .string()
+        .max(20, '文字数が超過しています。最大文字数は20字です。')
+        .regex(/^[a-zA-Z0-9_-]+$/, '使用できない文字が含まれています。'),
+    ]),
     // 期間の種類。none = 期間なし、ended = 終了日あり、ongoing = 現在も継続中
     period: z.enum(['none', 'ended', 'ongoing']),
     // period が ended のときだけ使う終了日。それ以外のときは空文字
