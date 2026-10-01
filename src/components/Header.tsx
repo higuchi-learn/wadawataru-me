@@ -16,32 +16,34 @@ export default function Header({ variant = 'public' }: HeaderProps) {
 
   return (
     <>
-      <header className="bg-white flex items-center justify-between px-1 2xl:px-8 w-full shrink-0 print:hidden">
+      <header className="bg-white flex items-center justify-between gap-4 px-1 2xl:px-8 w-full shrink-0 print:hidden">
         <div className="flex items-center gap-6">
           {/* ロゴ */}
           <Link href="/" className="shrink-0">
             <Image src="/logo-long.webp" alt="わだわたる" width={200} height={50} priority />
           </Link>
 
-          {/* デスクトップ: ナビゲーション */}
-          <SelectBar items={navItems} className="hidden md:flex items-center gap-2" />
+          {/* デスクトップ: ナビゲーション
+              ロゴ（200px）＋タブ8つ（約460px）＋SNS アイコン（約74px）で約760px あり、md（768px）では右端の GitHub アイコンと重なるため、
+              タブを横に並べるのは lg（1024px）以上にしている。管理画面のタブ10個（約880px）でも lg なら収まる */}
+          <SelectBar items={navItems} className="hidden lg:flex items-center gap-2" />
 
-          {/* モバイル: SNSアイコン */}
-          <div className="flex md:hidden items-center gap-2.5">
+          {/* モバイル・タブレット（lg 未満）: SNSアイコン */}
+          <div className="flex lg:hidden items-center gap-2.5">
             <SocialIcons />
           </div>
         </div>
 
-        {/* デスクトップ: SNSアイコン */}
-        <div className="hidden md:flex items-center gap-2.5">
+        {/* デスクトップ（lg 以上）: SNSアイコン */}
+        <div className="hidden lg:flex items-center gap-2.5">
           <SocialIcons />
         </div>
 
-        {/* モバイル: ハンバーガーメニュー */}
+        {/* モバイル・タブレット（lg 未満）: ハンバーガーメニュー */}
         <button
           type="button"
           onClick={() => setSidebarOpen(true)}
-          className="flex md:hidden size-8 items-center justify-center cursor-pointer"
+          className="flex lg:hidden size-8 items-center justify-center cursor-pointer"
           aria-label="メニューを開く"
         >
           <svg viewBox="0 0 24 24" className="size-5 fill-current text-[var(--lighttext)]">
