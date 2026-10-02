@@ -19,12 +19,15 @@ const education: TimelineItem[] = [
   {
     period: "2018 〜 2021",
     title: "中学時代",
-    summary: "ガジェット好きが高じて、13万円分のパーツで初めての PC を自作",
-    imageHint: "初めて組んだ PC の写真",
+    summary: "卓球に打ち込み、学級委員や生徒会にも進んで取り組んだ",
+    imageHint: "中学時代の写真（卓球・生徒会など）",
     items: [
+      "卓球に打ち込んでいました。当時の趣味はフォートナイトでした",
+      "小学校のころから学級委員や生徒会に挑戦するのが好きで、中学でも進んで取り組んでいました",
       "YouTuberのガジェット動画をきっかけに、ガジェットや家電に興味を持ちました。ラムダ技術部に憧れて、電子工作やプログラミングをやってみたいと思うようになりました",
-      "高校入学の直前、中学時代のプレゼントをすべてあきらめる代わりに13万円分のパーツを買い、初めてのPCを自作しました",
-      "電子工作をちゃんと学びたくて、工業高校に進むことにしました",
+      "電子工作をちゃんと学びたくて岐阜高専を受験しましたが、英語の点数が低すぎて不合格でした。英語が平均点さえ取れていれば、合格ラインを超えていました",
+      "英語が苦手なのはわかっていたのに、克服しようとせずに避けていました。嫌なことから逃げていた結果が、そのまま失敗につながりました",
+      "その後、岐阜工業高校の電子工学科に進みました。この失敗があって、高校では手を抜かず、何事にも全力で取り組めるようになりました",
     ],
   },
   {
@@ -34,6 +37,7 @@ const education: TimelineItem[] = [
     summary: "電気電子・通信を学び、15の資格と経済産業大臣賞。生徒会長も務めた",
     imageHint: "高校での実習や生徒会活動の写真",
     items: [
+      "高校入学の直前、中学時代のプレゼントをすべてあきらめる代わりに13万円分のパーツを買い、初めてのPCを自作しました",
       "電気回路・電子回路・通信技術・PLCプログラミング・組み込み・LAN構築などを学びました",
       "実習では JW_CAD での回路図作成、TINA-TI での回路シミュレーション、基板設計を経験しました",
       "授業で初めてプログラミングに触れ、アルゴリズムや数学の手法を C で書いて練習していました",
@@ -52,6 +56,7 @@ const education: TimelineItem[] = [
     summary: "回路から組み込みまで学びつつ、サークルでチーム開発とハッカソンに参加",
     imageHint: "大学やサークルでの活動の写真",
     items: [
+      "信州大学を受験しましたが不合格となり、愛知工業大学に進みました",
       "電気回路（ラプラス変換・三相交流）、アナログ回路（オペアンプ・発振回路）、ディジタル回路（VHDL・FPGA）などを学びました",
       "組み込みシステム（割り込み・PWM制御）、電気磁気学、数値計算、フーリエ/ラプラス解析なども学んでいます",
       "授業の課題はAIを使わず、自分で理解しながら解くようにしています",
@@ -272,7 +277,7 @@ function EducationSteps({ items }: { items: TimelineItem[] }) {
             <Watermark index={i} />
             {/* 透かしより手前に出すため relative を付ける */}
             <p className="relative text-xs font-bold tracking-wider text-[var(--ogangetext)]">STEP {i + 1}</p>
-            <h3 className="relative text-lg font-bold text-black leading-snug pr-16">{item.title}</h3>
+            <h4 className="relative text-lg font-bold text-black leading-snug pr-16">{item.title}</h4>
             <div className="relative">
               <EducationSummary item={item} />
             </div>
@@ -364,7 +369,7 @@ function Timeline({ items }: { items: TimelineItem[] }) {
               <div className="sm:flex">
                 <div className="flex-1 min-w-0 p-5 sm:p-6 flex flex-col gap-2">
                   <p className="sm:hidden text-xs font-bold text-[var(--ogangetext)]">{item.period}</p>
-                  <h3 className="text-base sm:text-lg font-bold text-black leading-snug">{item.title}</h3>
+                  <h4 className="text-base sm:text-lg font-bold text-black leading-snug">{item.title}</h4>
                   <WorkSummary item={item} />
                   {item.items.length > 0 && (
                     <div className={CARD_FOOTER}>
@@ -396,47 +401,112 @@ function Timeline({ items }: { items: TimelineItem[] }) {
   );
 }
 
+// ── 自己紹介 ──────────────────────────────────────────
+
+const intro =
+  "愛知工業大学で電子情報工学を学んでいる3年生です。工業高校の電子工学科で回路や組み込みを学び、大学ではサークルやハッカソンで Web アプリやデバイスを作っています。ハードとソフトの両方を、手を動かしてつくるのが好きです。";
+
+// 基本情報。表ではなく「項目名＋値」の並びで見せる
+const basics = [
+  { label: "名前", value: "樋口 陽輝（わだわたる）" },
+  { label: "所属", value: "愛知工業大学 工学部 電気学科 電子情報工学専攻 3年" },
+  { label: "出身校", value: "岐阜県立岐阜工業高等学校 電子工学科" },
+  { label: "いまやっていること", value: "コムスクエアで Web エンジニアのインターン" },
+  { label: "目指しているもの", value: "フルスタック × セキュリティのエンジニア" },
+  { label: "性格タイプ", value: "ISTP（巨匠）" },
+];
+
+// note は一言の補足。書いていない趣味は名前だけを表示する
+const hobbies: { name: string; note?: string }[] = [
+  { name: "料理" },
+  { name: "VALORANT" },
+  { name: "旅行", note: "高校時代は毎年夏に、青春18きっぷで全国を一人旅していました" },
+  { name: "書道" },
+  { name: "電子工作", note: "ラムダ技術部に憧れて始め、ハッカソンでもハード担当です" },
+  { name: "資格取得", note: "高校在学中に、国家資格を含む15の資格を取りました" },
+];
+
+// 「経歴」セクションの中の小見出し。セクション見出し（h2）より一段小さく見せる
+function SubHeading({ en, ja }: { en: string; ja: string }) {
+  return (
+    <div className="flex items-baseline gap-3 mb-6 sm:mb-8">
+      <h3 className="text-xl sm:text-2xl font-bold text-black">{ja}</h3>
+      <span className="text-xs font-bold text-[var(--ogangetext)] tracking-wider">{en}</span>
+    </div>
+  );
+}
+
 export default function CareerPage() {
   return (
     <div className="flex-1 flex flex-col">
       <PageHero
-        en="Career"
-        ja="経歴"
-        lead="PC の自作から始まって、工業高校、大学、そして Web エンジニアのインターンへ。これまでの学びと活動をまとめています。"
+        en="Profile"
+        ja="プロフィール"
+        lead="どんな人なのかと、PC の自作から工業高校、大学、そして Web エンジニアのインターンまでの経歴をまとめています。"
       />
 
-      <Section en="Education" ja="学歴" bg="cream">
-        <EducationSteps items={education} />
-      </Section>
+      <Section en="About me" ja="自己紹介">
+        <p className="text-base text-black leading-8 max-w-3xl">{intro}</p>
 
-      <Section en="Activities" ja="課外活動">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
-          {activities.map((act) => (
-            <article
-              key={act.title}
-              className={`bg-white rounded-3xl overflow-hidden border border-[var(--softborder)] flex flex-col ${CARD_SHADOW}`}
-            >
-              <ActivityMedia act={act} />
-              <div className="p-6 flex flex-col gap-3 flex-1">
-                <h3 className="text-lg font-bold text-black leading-snug">{act.title}</h3>
-                <ActivitySummary act={act} />
-                <div className={CARD_FOOTER}>
-                  <MoreDetails
-                    title={act.title}
-                    media={<ActivityMedia act={act} />}
-                    header={<ActivitySummary act={act} />}
-                  >
-                    <BulletList items={act.body} />
-                  </MoreDetails>
-                </div>
-              </div>
-            </article>
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 mt-10 max-w-4xl">
+          {basics.map((item) => (
+            <div key={item.label} className="py-4 border-b border-[var(--softborder)]">
+              <dt className="text-xs font-bold text-[var(--ogangetext)]">{item.label}</dt>
+              <dd className="text-sm text-black leading-6 mt-1">{item.value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <h3 className="text-xl font-bold text-black mt-14 mb-6">趣味</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {hobbies.map((hobby) => (
+            <div key={hobby.name} className="bg-[var(--cream)] rounded-2xl p-5">
+              <p className="text-base font-bold text-black">{hobby.name}</p>
+              {hobby.note && <p className="text-xs text-[var(--lighttext)] leading-5 mt-2">{hobby.note}</p>}
+            </div>
           ))}
         </div>
       </Section>
 
-      <Section en="Work / Internship" ja="仕事・インターン" bg="cream">
-        <Timeline items={work} />
+      <Section en="Career" ja="経歴" bg="cream">
+        <div className="flex flex-col gap-16 sm:gap-20">
+          <div>
+            <SubHeading en="Education" ja="学歴" />
+            <EducationSteps items={education} />
+          </div>
+
+          <div>
+            <SubHeading en="Activities" ja="課外活動" />
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
+              {activities.map((act) => (
+                <article
+                  key={act.title}
+                  className={`bg-white rounded-3xl overflow-hidden border border-[var(--softborder)] flex flex-col ${CARD_SHADOW}`}
+                >
+                  <ActivityMedia act={act} />
+                  <div className="p-6 flex flex-col gap-3 flex-1">
+                    <h4 className="text-lg font-bold text-black leading-snug">{act.title}</h4>
+                    <ActivitySummary act={act} />
+                    <div className={CARD_FOOTER}>
+                      <MoreDetails
+                        title={act.title}
+                        media={<ActivityMedia act={act} />}
+                        header={<ActivitySummary act={act} />}
+                      >
+                        <BulletList items={act.body} />
+                      </MoreDetails>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <SubHeading en="Work / Internship" ja="仕事・インターン" />
+            <Timeline items={work} />
+          </div>
+        </div>
       </Section>
     </div>
   );

@@ -21,7 +21,7 @@ const stats = [
 ];
 
 // icon は Simple Icons（https://simpleicons.org）のスラッグ。
-// ロゴが存在しない技術（MVC・回路設計など）は icon を省略し、頭文字で代用する。
+// ロゴが存在しない技術（回路設計など）は icon を省略し、頭文字で代用する。
 type Skill = { name: string; icon?: string };
 
 type Work = {
@@ -86,12 +86,43 @@ const works: Work[] = [
   },
 ];
 
-// これまでの歩み。文章で語っていた About を、横に流れる年表に置き換えている
-const story = [
+// これまでの歩み。PC 幅では線の上下に交互にカードを置き、スマホでは縦に並べる
+type StoryStep = {
+  period: string;
+  title: string;
+  body: string;
+  image?: string;
+  imageHint: string;
+  // まだ来ていない先の話。線を破線にして、丸を中抜きにする
+  future?: boolean;
+  // 受験の失敗など、うまくいかなかった出来事。丸と期間のタグを灰色にして見分ける
+  setback?: boolean;
+};
+
+const story: StoryStep[] = [
+  {
+    period: "小学校",
+    title: "人前に立つ役に挑戦",
+    body: "学級委員・委員長・応援団長・生徒会長に、自分から手を挙げて挑戦した",
+    imageHint: "小学校時代の写真（運動会の応援団など）",
+  },
   {
     period: "中学",
+    title: "卓球とフォートナイトの日々",
+    body: "卓球に打ち込み、フォートナイトを楽しみながら、学級委員や生徒会にも進んで取り組んだ",
+    imageHint: "中学時代の写真（卓球・生徒会など）",
+  },
+  {
+    period: "高校受験",
+    title: "岐阜高専に不合格",
+    body: "苦手な英語から逃げた結果、英語の点数が足りずに不合格。この失敗から、高校では何事にも全力で取り組むようになった",
+    imageHint: "（任意）当時の写真",
+    setback: true,
+  },
+  {
+    period: "高校入学前",
     title: "初めての PC 自作",
-    body: "中学時代のプレゼントをあきらめてパーツを買い、自分で組み立てた",
+    body: "中学時代のプレゼントをすべてあきらめ、13万円分のパーツで組み立てた",
     imageHint: "初めて組んだ PC の写真",
   },
   {
@@ -107,6 +138,13 @@ const story = [
     imageHint: "表彰式や賞状の写真",
   },
   {
+    period: "大学受験",
+    title: "信州大学に不合格",
+    body: "信州大学を受験したが不合格となり、愛知工業大学に進んだ",
+    imageHint: "（任意）当時の写真",
+    setback: true,
+  },
+  {
     period: "大学",
     title: "愛知工業大学",
     body: "サークルのチーム開発やハッカソンで、7つのプロダクトを開発",
@@ -117,10 +155,106 @@ const story = [
     title: "フルスタック × セキュリティ",
     body: "安心して長く使ってもらえるものを作れるエンジニアへ",
     imageHint: "（任意）CTF や勉強会の写真",
+    future: true,
   },
 ];
 
-const hobbies = ["料理", "VALORANT", "旅行", "書道", "電子工作", "資格取得"];
+function StoryCard({ step }: { step: StoryStep }) {
+  return (
+    <div className={`bg-white rounded-2xl overflow-hidden ${CARD_SHADOW} ${step.future ? "border-2 border-dashed border-[var(--onmouseorange)]" : ""}`}>
+      <ImageSlot src={step.image} alt={step.title} hint={step.imageHint} className="w-full aspect-video" />
+      <div className="p-4">
+        <span
+          className={`inline-block text-xs font-bold rounded-full px-2.5 py-0.5 ${
+            step.setback ? "text-[var(--lighttext)] bg-[var(--unclickable)]" : "text-[var(--ogangetext)] bg-[var(--enableorange)]"
+          }`}
+        >
+          {step.period}
+        </span>
+        <p className="text-base font-bold text-black leading-snug mt-2">{step.title}</p>
+        <p className="text-xs text-[var(--lighttext)] leading-5 mt-1.5">{step.body}</p>
+      </div>
+    </div>
+  );
+}
+
+// 線の上の丸。future は中抜き、setback は灰色にして見分ける
+function StoryDot({ step }: { step: StoryStep }) {
+  const color = step.future
+    ? "bg-[var(--cream)] border-2 border-[var(--ogangetext)]"
+    : step.setback
+      ? "bg-[var(--inputborder)]"
+      : "bg-[var(--ogangetext)]";
+  return <span className={`block size-4 rounded-full ring-4 ring-[var(--cream)] ${color}`} />;
+}
+
+// PC 幅の年表。列を「出来事の数 + 1」本に分け、各カードを2列ぶんの幅で1列ずつずらして置く。
+// 偶数番目は線の上、奇数番目は線の下に置くので、隣どうしのカードが重ならずに半分ずつ食い込む。
+// 丸は各カードの中央＝列の境目に来るので、等間隔に並ぶ
+function StoryTimelineWide({ steps }: { steps: StoryStep[] }) {
+  const cols = steps.length + 1;
+  // 線は最初の丸から最後の丸まで。最後の区間（「これから」へ向かう部分）だけ破線にする
+  const first = (1 / cols) * 100;
+  const lastSolid = ((cols - 2) / cols) * 100;
+  const last = ((cols - 1) / cols) * 100;
+  return (
+    <div className="grid gap-x-4" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+      {steps.map((step, i) => {
+        const above = i % 2 === 0;
+        return (
+          <div
+            key={step.title}
+            className={`flex flex-col ${above ? "justify-end" : ""}`}
+            style={{ gridColumn: `${i + 1} / span 2`, gridRow: above ? 1 : 3 }}
+          >
+            {!above && <span aria-hidden="true" className="mx-auto h-6 w-0.5 bg-[var(--onmouseorange)]" />}
+            <StoryCard step={step} />
+            {above && <span aria-hidden="true" className="mx-auto h-6 w-0.5 bg-[var(--onmouseorange)]" />}
+          </div>
+        );
+      })}
+
+      {/* 線と丸の行 */}
+      <div aria-hidden="true" className="relative h-4" style={{ gridColumn: "1 / -1", gridRow: 2 }}>
+        <span
+          className="absolute top-1/2 -translate-y-1/2 h-1 rounded-full bg-[var(--ogangetext)]"
+          style={{ left: `${first}%`, width: `${lastSolid - first}%` }}
+        />
+        <span
+          className="absolute top-1/2 -translate-y-1/2 border-t-4 border-dashed border-[var(--ogangetext)] opacity-60"
+          style={{ left: `${lastSolid}%`, width: `${last - lastSolid}%` }}
+        />
+        {steps.map((step, i) => (
+          <span
+            key={step.title}
+            className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2"
+            style={{ left: `${((i + 1) / cols) * 100}%` }}
+          >
+            <StoryDot step={step} />
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// スマホ・タブレットの年表。左に縦線を引き、カードを縦に並べる
+function StoryTimelineNarrow({ steps }: { steps: StoryStep[] }) {
+  return (
+    <ol className="relative flex flex-col gap-6 pl-8 max-w-xl mx-auto">
+      {/* 縦線。最初と最後の丸の中心のあいだに引く */}
+      <span aria-hidden="true" className="absolute left-[7px] top-2 bottom-2 w-1 rounded-full bg-gradient-to-b from-[var(--ogangetext)] from-80% to-[var(--onmouseorange)]" />
+      {steps.map((step) => (
+        <li key={step.title} className="relative">
+          <span aria-hidden="true" className="absolute -left-8 top-1">
+            <StoryDot step={step} />
+          </span>
+          <StoryCard step={step} />
+        </li>
+      ))}
+    </ol>
+  );
+}
 
 // catchcopy で一言だけ見せ、本文は「くわしく」を開いた人だけが読む
 const traits = [
@@ -176,7 +310,6 @@ const skillGroups: { category: string; items: Skill[] }[] = [
       { name: "C / C++", icon: "cplusplus" },
       { name: "Rails", icon: "rubyonrails" },
       { name: "Laravel", icon: "laravel" },
-      { name: "MVC" },
     ],
   },
   {
@@ -209,8 +342,6 @@ const skillGroups: { category: string; items: Skill[] }[] = [
     items: [
       { name: "YOLO (物体検出)", icon: "yolo" },
       { name: "CVAT (アノテーション)" },
-      { name: "scikit-learn (入門)", icon: "scikitlearn" },
-      { name: "Unity (連携)", icon: "unity" },
     ],
   },
   {
@@ -416,39 +547,16 @@ export default function HomePage() {
 
       {/* ── Story ────────────────────────────────────────────── */}
       <Section en="Story" ja="これまでの歩み" bg="cream">
-        {/* スマホでは横スクロール（snap で1枚ずつ止まる）、lg 以上では5列に並べる。
-            -mx/px で左右の余白ぶんまでスクロール領域を広げ、カードが画面端で切れて「続きがある」と見せる */}
-        <div className={`relative flex lg:grid lg:grid-cols-5 gap-4 lg:gap-5 overflow-x-auto lg:overflow-visible snap-x snap-mandatory -mx-6 px-6 sm:-mx-10 sm:px-10 lg:mx-0 lg:px-0 pb-4`}>
-          {/* 年表をつなぐ線（lg 以上のみ）。各カードの丸の中心を通る高さに置いている */}
-          <div aria-hidden="true" className="hidden lg:block absolute top-[7px] left-2 right-2 h-0.5 bg-[var(--onmouseorange)]" />
-          {story.map((step) => (
-            <div key={step.title} className="relative snap-start shrink-0 w-64 lg:w-auto">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="size-4 rounded-full bg-[var(--ogangetext)] ring-4 ring-[var(--enableorange)]" />
-                <span className="text-sm font-bold text-[var(--ogangetext)]">{step.period}</span>
-              </div>
-              <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
-                <ImageSlot alt={step.title} hint={step.imageHint} className="w-full aspect-[4/3]" />
-                <div className="p-4">
-                  <p className="text-base font-bold text-black">{step.title}</p>
-                  <p className="text-xs text-[var(--lighttext)] leading-5 mt-1.5">{step.body}</p>
-                </div>
-              </div>
-            </div>
-          ))}
+        {/* 出来事が9件あるので、カード1枚の幅が足りる xl 以上でだけ横並びにする */}
+        <div className="hidden xl:block">
+          <StoryTimelineWide steps={story} />
+        </div>
+        <div className="xl:hidden">
+          <StoryTimelineNarrow steps={story} />
         </div>
 
-        {/* プロフィールは表ではなくチップで見せる */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-10">
-          <div className="flex flex-wrap gap-2">
-            <span className="text-sm font-bold text-white bg-[var(--ogangetext)] rounded-full px-3.5 py-1.5">ISTP（巨匠）</span>
-            {hobbies.map((hobby) => (
-              <span key={hobby} className="text-sm text-black bg-white rounded-full px-3.5 py-1.5 shadow-sm">
-                {hobby}
-              </span>
-            ))}
-          </div>
-          <Link href="/career" className="sm:ml-auto shrink-0 text-sm font-bold text-[var(--ogangetext)] hover:underline">
+        <div className="flex justify-end mt-10">
+          <Link href="/career" className="text-sm font-bold text-[var(--ogangetext)] hover:underline">
             くわしい経歴を読む →
           </Link>
         </div>

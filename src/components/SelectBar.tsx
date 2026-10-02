@@ -7,7 +7,7 @@ export type NavItem = { label: string; href: string };
 
 export const NAV_ITEMS: NavItem[] = [
   { label: 'ホーム', href: '/' },
-  { label: '経歴', href: '/career' },
+  { label: 'プロフィール', href: '/career' },
   { label: '年表', href: '/history' },
   { label: '資格', href: '/qualifications' },
   { label: '受賞歴', href: '/awards' },
@@ -18,7 +18,7 @@ export const NAV_ITEMS: NavItem[] = [
 
 export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: 'ホーム', href: '/' },
-  { label: '経歴', href: '/career' },
+  { label: 'プロフィール', href: '/career' },
   { label: '年表', href: '/admin/history' },
   { label: '資格', href: '/qualifications' },
   { label: '受賞歴', href: '/awards' },
