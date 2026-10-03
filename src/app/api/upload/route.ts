@@ -2,6 +2,7 @@ import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { Hono } from 'hono';
 import { handle } from 'hono/vercel';
 import { detectImageType } from '@/lib/imageType';
+import { isAuthenticated } from '@/lib/authGuard';
 
 type Bindings = { R2: R2Bucket };
 
@@ -18,6 +19,16 @@ const { env } = await getCloudflareContext({ async: true });
 const app = new Hono<{ Bindings: Bindings }>().basePath('/api');
 
 app.post('/upload', async (c) => {
+  // ミドルウェア（src/middleware.ts）でも未ログインのアクセスは /login に飛ばしているが、それだけに頼らない
+  // ミドルウェアは matcher の書き間違いや、Next.js 自体の脆弱性（実際に 16.2.6 未満にはミドルウェアを
+  // すり抜けられる不具合があった）で素通りされることがある。保護すべき処理の入口でも認証を確かめておけば、
+  // どちらか一方が破られても R2 への書き込みは防げる（多層防御）
+  // ファイルを読み込む前に確認することで、未ログインのリクエストに無駄な処理をさせない
+  if (!(await isAuthenticated())) {
+    // API なのでリダイレクトではなく 401（認証が必要）をそのまま返す
+    return c.json({ error: 'unauthorized' }, 401);
+  }
+
   // parseBody() は multipart/form-data や application/x-www-form-urlencoded を
   // 自動で解析してくれる。フロント側の FormData.append('file', ...) に対応している
   const body = await c.req.parseBody();
