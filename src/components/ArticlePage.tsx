@@ -1,13 +1,14 @@
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import React from 'react';
+import Link from 'next/link';
 import TagsList, { type TagListItem } from '@/components/TagsList';
-import { GENRE_LABEL_EN, type Genre } from '@/components/GenreAbout';
+import { GENRE_INFO, GENRE_LABEL_EN, type Genre } from '@/components/GenreAbout';
 import TableOfContents from '@/components/TableOfContents';
 import { parseHeadings, generateHeadingId } from '@/lib/parseHeadings';
 
 export type ArticlePageData = {
-  // タイトル上の英字ラベル（Products など）に使う
+  // タイトル上の英字ラベル（Products など）と、一覧へ戻るボタンの行き先に使う
   genre: Genre;
   title: string;
   description: string;
@@ -88,9 +89,19 @@ export default function ArticlePage({
           <h1 className="text-3xl font-bold leading-tight text-black mb-2">{title}</h1>
           <p className="text-sm leading-6 text-[var(--lighttext)] mb-2">{description}</p>
           <TagsList tags={tags} className="mb-2" />
-          <div className="flex gap-4 text-xs text-[var(--lighttext)] mb-8">
-            <span>公開日：{publishedAt}</span>
-            <span>最終更新日：{updatedAt}</span>
+          {/* 日付と「一覧へ戻る」ボタンの行
+              各日付は whitespace-nowrap で途中折り返しを禁止し、入りきらないときは flex-wrap で日付・ボタンの単位で次の行へ送る
+              （以前は日付の文字列の途中で折り返され、スマホ幅で「2026年10月02 / 日」のように切れていた） */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[var(--lighttext)] mb-8">
+            <span className="whitespace-nowrap">公開日：{publishedAt}</span>
+            <span className="whitespace-nowrap">最終更新日：{updatedAt}</span>
+            {/* トップページのボタンと同じピル型。ヘッダーに戻らなくても、同じジャンルの一覧へ移れるようにする */}
+            <Link
+              href={`/${genre}`}
+              className="whitespace-nowrap text-xs font-bold text-[var(--ogangetext)] bg-[var(--enableorange)] rounded-full px-4 py-1.5 hover:bg-[var(--onmouseorange)] transition-colors"
+            >
+              ← {GENRE_INFO[genre].title}の一覧へ
+            </Link>
           </div>
           <div className="markdown-preview">
             {/*
