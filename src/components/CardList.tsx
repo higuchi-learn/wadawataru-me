@@ -17,6 +17,12 @@ type CardListProps = {
   className?: string;
 };
 
+// 一覧の並べ方と、ブレークポイントごとのカード幅
+// 読み込み中の骨組み（PostListSkeleton）も同じクラスを使い、骨組みと本物の並び・幅を一致させる
+export const CARD_LIST_CLASS =
+  'w-full flex flex-col items-center gap-0 sm:gap-1.5 sm:p-1 lg:flex-row lg:flex-wrap lg:justify-center lg:gap-1.5 lg:py-1';
+export const CARD_WIDTH_CLASS = 'w-full sm:w-[500px] md:w-[600px] lg:w-[500px] xl:w-[600px] 2xl:w-[700px]';
+
 /**
  * カード一覧グリッド
  *
@@ -30,12 +36,7 @@ type CardListProps = {
  */
 export default function CardList({ cards, className }: CardListProps) {
   return (
-    <div
-      className={
-        className ??
-        'w-full flex flex-col items-center gap-0 sm:gap-1.5 sm:p-1 lg:flex-row lg:flex-wrap lg:justify-center lg:gap-1.5 lg:py-1'
-      }
-    >
+    <div className={className ?? CARD_LIST_CLASS}>
       {cards.map((card) => (
         <Card
           key={card.id}
@@ -47,7 +48,7 @@ export default function CardList({ cards, className }: CardListProps) {
           thumbnailUrl={card.thumbnailUrl}
           href={card.href}
           // ブレークポイントごとのカード幅
-          className="w-full sm:w-[500px] md:w-[600px] lg:w-[500px] xl:w-[600px] 2xl:w-[700px]"
+          className={CARD_WIDTH_CLASS}
         />
       ))}
     </div>

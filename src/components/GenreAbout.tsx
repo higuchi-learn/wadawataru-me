@@ -16,6 +16,14 @@ export const GENRE_INFO: Record<Genre, { title: string; description: string }> =
   },
 };
 
+// 公開側の一覧ページの見出し帯に添える小さな英字ラベル
+// 一覧ページ本体（PostListPage）と読み込み中の表示（PostListSkeleton）の両方で使うためここに置く
+export const GENRE_LABEL_EN: Record<Genre, string> = {
+  products: 'Products',
+  blogs: 'Blog',
+  books: 'Books',
+};
+
 type GenreAboutProps = {
   genre: Genre;
   className?: string;

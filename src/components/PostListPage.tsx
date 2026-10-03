@@ -1,18 +1,11 @@
 import { Suspense } from 'react';
 import { SearchBar, SelectPageBar, CardList } from '@/components';
-import { GENRE_INFO } from '@/components/GenreAbout';
+import { GENRE_INFO, GENRE_LABEL_EN } from '@/components/GenreAbout';
 import { PageHero } from '@/components/PageSection';
 import type { Genre } from '@/components';
 import type { CardData } from '@/components';
 import { getPostsList, getPostsCount, getTagsForGenre, PAGE_SIZE } from '@/db/queries/select';
 import { formatDate } from '@/lib/formatDate';
-
-// 見出し帯の小さな英字ラベル。日本語の見出しと説明は GENRE_INFO（管理画面と共通）から取る
-const GENRE_LABEL_EN: Record<Genre, string> = {
-  products: 'Products',
-  blogs: 'Blog',
-  books: 'Books',
-};
 
 type Props = {
   genre: Genre;
