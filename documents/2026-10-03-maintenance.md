@@ -149,7 +149,9 @@ ETag: image.httpEtag,
 - `immutable`: 期限内は再検証（サーバーへの「変わっていないか」の問い合わせ）も不要だと伝える。
 - `ETag`: 期限切れ後の再検証で、変わっていなければ 304 で済ませるための識別子。
 
-[OG 画像のキャッシュ対応](./og-image-caching-fix.md)で `/api/og` に付けたのと同じ考え方。2回目以降の表示では Worker も R2 も動かなくなる。
+[OG 画像のキャッシュ対応](./og-image-caching-fix.md)で `/api/og` に付けたのと同じ考え方。~~2回目以降の表示では Worker も R2 も動かなくなる。~~
+
+> **訂正（2026-10-04）**: 「Worker も R2 も動かなくなる」は誤りだった。Worker が返したレスポンスは `Cache-Control` を付けるだけでは Cloudflare のエッジにキャッシュされない（本番で `cf-cache-status` が出ないことを確認）。効くのは**同じ人のブラウザのキャッシュだけ**で、初めて見る人には毎回 Worker と R2 が動く。エッジにキャッシュするには、`/api/og` と同じく Cache API（`caches.default`）を明示的に使う必要がある（[詳細](./2026-10-04-list-page-loading.md#残っていること関連して分かったこと)）。
 
 ---
 
