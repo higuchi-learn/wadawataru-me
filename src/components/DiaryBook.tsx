@@ -131,8 +131,6 @@ export default function DiaryBook({ entries }: Props) {
   }, []);
 
   const [pageIndex, setPageIndex] = useState(0);
-  const pageIndexRef = useRef(pageIndex);
-  pageIndexRef.current = pageIndex;
 
   // 初回にページ分割が終わったら、最新（一番最後）のページをアニメーションなしで表示する
   const initializedRef = useRef(false);
@@ -157,7 +155,10 @@ export default function DiaryBook({ entries }: Props) {
     if (isAnimatingRef.current) return;
     if (!contentPages) return;
     if (targetIndex < 0 || targetIndex >= contentPages.length) return;
-    const fromIndex = pageIndexRef.current;
+    // goTo はボタンの onClick から呼ばれ、描画のたびに作り直されるので、ここで見える pageIndex は常に最新の値
+    // （以前は描画中に ref へ pageIndex を書き写して参照していたが、React では描画中に ref を書き換えると
+    //   描画が中断・やり直しされたときに値がずれる恐れがあり、eslint-plugin-react-hooks 7 の refs ルールで禁止された）
+    const fromIndex = pageIndex;
     if (targetIndex === fromIndex) return;
 
     isAnimatingRef.current = true;

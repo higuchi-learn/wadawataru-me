@@ -1,19 +1,12 @@
 // @ts-check
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
 import { defineConfig } from 'eslint/config';
 import eslint from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
+// eslint-config-next 16 は flat config（ESLint 9 の設定形式）の配列をそのまま export している
+// 15 までは旧形式（.eslintrc）だったため、FlatCompat という変換レイヤーを通して読み込む必要があった
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
 import tslint from 'typescript-eslint';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
 
 export default defineConfig(
   {
@@ -22,7 +15,7 @@ export default defineConfig(
   },
   eslint.configs.recommended,
   ...tslint.configs.recommendedTypeChecked,
-  ...compat.extends('next/core-web-vitals'),
+  ...nextCoreWebVitals,
   eslintPluginPrettierRecommended,
   {
     languageOptions: {
