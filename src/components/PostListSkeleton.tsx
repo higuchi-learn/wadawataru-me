@@ -32,7 +32,7 @@ export default function PostListSkeleton({ genre }: { genre: Genre }) {
         <p role="status" className="sr-only">
           読み込み中です
         </p>
-        {/* 検索バー（本物の SearchBar は w-[365px] h-8） */}
+        {/* 検索バー（本物の SearchBar は w-[365px] max-w-full h-8） */}
         <div className="flex flex-col items-center pt-8 pb-2 px-4 w-full shrink-0">
           <SkeletonBox className="w-[365px] max-w-full h-8 rounded-sm" />
         </div>

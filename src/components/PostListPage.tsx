@@ -47,7 +47,9 @@ export default async function PostListPage({ genre, searchParams }: Props) {
       <div className="flex flex-col items-center pt-8 pb-2 px-4 w-full shrink-0">
         <Suspense>
           {/* getTagsList が返す全カラムをそのまま渡す（id・name・imageUrl・sortOrder） */}
-          <SearchBar availableTags={allTags} className="w-[365px]" />
+          {/* max-w-full: 幅 365px 固定のままだと、365px より狭い画面（320px・360px の端末）で画面からはみ出し、
+              横スクロールが出てしまう。親の幅（画面幅 - 左右の余白 16px ずつ）までは縮むようにする */}
+          <SearchBar availableTags={allTags} className="w-[365px] max-w-full" />
         </Suspense>
       </div>
       <main className="flex-1 flex flex-col items-center gap-2.5 pb-16">

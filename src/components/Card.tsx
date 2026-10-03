@@ -35,8 +35,10 @@ type CardProps = {
 // カードの外枠・各部分のクラス
 // 読み込み中の骨組み（PostListSkeleton）も同じクラスを使うことで、骨組みと本物のカードの大きさを常に一致させる
 // （骨組み側で値を書き写すと、カードの見た目を変えたときに骨組みだけ古い寸法のまま残ってしまう）
-export const CARD_CLASS = `bg-white flex flex-col
-  sm:px-3 sm:py-2 sm:rounded-2xl sm:overflow-hidden
+// pb-10（40px）: mobile ではカードに枠線も影も無く、縦に並んだカードがすき間なくつながって区切りが分かりにくいため、
+// カードの下に余白を入れて次のカードのサムネイルと離す。sm 以上は枠線と sm:py-2 があるので sm:pb-2 に戻す
+export const CARD_CLASS = `bg-white flex flex-col pb-10
+  sm:px-3 sm:py-2 sm:pb-2 sm:rounded-2xl sm:overflow-hidden
   sm:border sm:border-[var(--softborder)] sm:shadow-sm
   2xl:flex-row 2xl:gap-2 2xl:items-center`;
 // sm-xl: テキスト + サムネイルの行 / 2xl: テキスト列
