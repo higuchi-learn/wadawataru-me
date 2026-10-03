@@ -10,7 +10,10 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "wadawataru-me",
 	"main": ".open-next/worker.js",
-	"compatibility_date": "2025-09-27",
+	// Workers ランタイムの挙動をどの日付時点の仕様に合わせるかの指定。日付を進めると、それまでに追加された
+	// 挙動の変更（compatibility flags）が有効になる。2026-10-03 に 2025-09-27 から更新した
+	// （変更内容の確認は documents/2026-10-03-remaining-tasks.md を参照）
+	"compatibility_date": "2026-10-01",
 	"compatibility_flags": [
 		"nodejs_compat",
 		"global_fetch_strictly_public"
