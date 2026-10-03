@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import RoundButton from '@/components/RoundButton';
 import type { TagItem } from '@/app/admin/tag-actions';
 import { createTagAction, addExistingTagToGenreAction, type GenreTab } from '@/app/admin/tag-actions';
@@ -17,7 +17,12 @@ type Props = {
   genre?: GenreTab;
   // このジャンルに未登録の他ジャンルタグ一覧
   otherGenreTags?: TagItem[];
+  // ダイアログの見出し（読み上げソフトにも、何のための画面かとして伝わる）
+  title?: string;
 };
+
+// ダイアログ内で Tab キーの移動先になる要素
+const FOCUSABLE = 'button:not([disabled]), input:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
 
 export default function TagSelectOverlay({
   tags: initialTags,
@@ -26,6 +31,7 @@ export default function TagSelectOverlay({
   onClose,
   genre,
   otherGenreTags: initialOtherGenreTags = [],
+  title = 'タグを選択',
 }: Props) {
   const [selected, setSelected] = useState<string[]>(initialSelected);
   // 作成・他ジャンル追加で増えたタグを即時反映するためローカル state で管理する
@@ -43,6 +49,58 @@ export default function TagSelectOverlay({
   const [otherGenreError, setOtherGenreError] = useState<string | null>(null); // 他ジャンル追加のエラー
   const [isCreating, setIsCreating] = useState(false);
   const [addingId, setAddingId] = useState<string | null>(null);
+
+  // ---- ダイアログとしての振る舞い（キーボード・読み上げソフトでも使えるようにする） ----
+  const panelRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  // onClose は親が描画のたびに作り直すことがあるので、最新のものを ref に入れておき、
+  // 下の useEffect（開いたときに 1 回だけ登録する）からは ref 経由で呼ぶ
+  // ref の書き換えは描画中ではなく useEffect の中で行う（描画中の書き換えは react-hooks/refs で禁止されている）
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
+
+  useEffect(() => {
+    // 開く前にフォーカスしていた要素（検索バーなど）を覚えておき、閉じたらそこへ戻す
+    // 戻さないと、閉じた後のフォーカスがページの先頭に飛び、キーボード利用者がどこにいるか分からなくなる
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    // 開いている間は背後のページがスクロールしないようにする（暗くした背景が動くと、どこを操作しているか分かりにくい）
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    // フォーカスをダイアログの中へ移す。背後の検索バーに残ったままだと、Tab で暗くなった背後のページを移動してしまう
+    panelRef.current?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      // Esc で閉じる（ダイアログの一般的な操作）
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+      // Tab がダイアログの外へ出ないよう、最後の要素の次は最初へ、最初の要素の前は最後へ回す（フォーカストラップ）
+      if (e.key !== 'Tab' || !panelRef.current) return;
+      const items = panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE);
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || active === panelRef.current)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+      previouslyFocused?.focus();
+    };
+  }, []);
 
   const toggleTag = (name: string) => {
     setSelected((prev) => (prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]));
@@ -101,19 +159,48 @@ export default function TagSelectOverlay({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      {/* role="dialog" + aria-modal で、読み上げソフトに「ダイアログが開いた」「背後は操作対象外」と伝える
+          aria-labelledby で見出しをダイアログの名前にする。tabIndex={-1} は、開いたときにここへフォーカスを移すため */}
       <div
-        className="w-full max-w-2xl max-h-[80vh] bg-[var(--page-bg)] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className="w-full max-w-2xl max-h-[80vh] bg-[var(--page-bg)] rounded-2xl shadow-2xl flex flex-col overflow-hidden focus:outline-none"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* 上部ボタン行 */}
-        <div className="flex items-center justify-between p-3 shrink-0">
-          <RoundButton onClick={onClose}>戻る</RoundButton>
+        {/* 上部ボタン行。「キャンセル」は変更を取り消して閉じる、「決定」は選択を反映して閉じる */}
+        <div className="flex items-center justify-between gap-2 p-3 shrink-0">
+          <RoundButton onClick={onClose}>キャンセル</RoundButton>
+          <h2 id={titleId} className="text-sm font-bold text-black">
+            {title}
+          </h2>
           <RoundButton state="Enabled" onClick={() => onConfirm(selected)}>
             決定
           </RoundButton>
         </div>
 
+        {/* 選択中の件数と、まとめて解除するボタン。1 つずつ外さなくても、選び直しやすくする */}
+        {selected.length > 0 && (
+          <div className="flex items-center justify-between gap-2 px-4 pb-1 shrink-0 text-xs text-[var(--lighttext)]">
+            <span>選択中: {selected.length}件</span>
+            <button
+              type="button"
+              onClick={() => setSelected([])}
+              className="font-bold text-[var(--ogangetext)] rounded-full px-2 py-1 hover:bg-[var(--enableorange)] transition-colors"
+            >
+              すべて解除
+            </button>
+          </div>
+        )}
+
         <div className="flex-1 overflow-auto flex flex-col">
+          {/* 選べるタグが 1 つもないとき。何も出さないと、空の画面に「キャンセル」「決定」だけが並んで壊れて見える
+              （管理画面ではこの下の「新しいタグを作成」から追加できるので、公開側のときだけ案内を出す） */}
+          {availableTags.length === 0 && !genre && (
+            <p className="px-4 py-8 text-sm text-[var(--lighttext)] text-center">選べるタグはまだありません。</p>
+          )}
           {/* このジャンルのタグ一覧 */}
           {availableTags.length > 0 && (
             <div className="grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] gap-2 p-3">
@@ -123,6 +210,8 @@ export default function TagSelectOverlay({
                   <button
                     key={tag.id}
                     type="button"
+                    // aria-pressed: 選択中かどうかを読み上げソフトに伝える（見た目の色と枠線だけでは伝わらない）
+                    aria-pressed={isSelected}
                     onClick={() => toggleTag(tag.name)}
                     className={`flex flex-col items-center gap-1 p-1 rounded-xl w-full transition-colors
                       ${

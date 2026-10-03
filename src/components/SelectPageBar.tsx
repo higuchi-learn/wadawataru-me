@@ -1,5 +1,6 @@
 'use client';
 
+import { useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import PageSelectButton from '@/components/PageSelectButton';
 
@@ -12,11 +13,16 @@ export default function SelectPageBar({ totalPages, className }: SelectPageBarPr
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentPage = Math.max(1, Number(searchParams.get('page') ?? '1'));
+  // ページ送りも URL の ?page= だけが変わる移動なので loading.tsx の骨組みが出ない。
+  // startTransition で包んで読み込み中（isPending）を受け取り、data-list-pending でカード一覧を薄くする（globals.css）
+  const [isPending, startTransition] = useTransition();
 
   const setPage = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', String(page));
-    router.push(`?${params.toString()}`);
+    startTransition(() => {
+      router.push(`?${params.toString()}`);
+    });
   };
 
   const isFirst = currentPage === 1;
@@ -40,7 +46,7 @@ export default function SelectPageBar({ totalPages, className }: SelectPageBarPr
 
   return (
     // ボタンを 28px の円にしたので、間隔も 2px → 4px に広げて詰まって見えないようにする
-    <div className={className ?? 'flex items-center gap-1'}>
+    <div className={className ?? 'flex items-center gap-1'} data-list-pending={isPending}>
       <PageSelectButton category="First" isDisabled={isFirst} onClick={() => setPage(1)} />
       <PageSelectButton category="Before" isDisabled={isFirst} onClick={() => setPage(currentPage - 1)} />
       {getPageNumbers().map((page) => (

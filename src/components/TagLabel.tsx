@@ -32,7 +32,10 @@ export default function TagLabel({ label, imageUrl, isSelected, onRemove }: TagL
             e.stopPropagation();
             onRemove();
           }}
-          className="shrink-0 leading-none text-[var(--lighttext)] hover:text-black transition-colors"
+          // 押せる範囲を 24×24px（size-6）にする。「×」の文字だけ（約 11×16px）だと指で押しにくく、
+          // 検索バーではすぐ隣が「押すと選択画面が開く場所」なので、押し間違えて選択画面が開いてしまう
+          // -my-1・-mr-2 の負の余白で、押せる範囲だけを広げ、ラベルの高さや見た目の位置はほぼ変えない
+          className="shrink-0 inline-flex items-center justify-center size-6 -my-1 -mr-2 rounded-full leading-none text-[var(--lighttext)] hover:text-black hover:bg-[var(--enableorange)] transition-colors"
           aria-label={`${label}を削除`}
         >
           ×

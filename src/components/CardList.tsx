@@ -41,7 +41,8 @@ export const CARD_WIDTH_CLASS = 'w-full sm:w-[500px] md:w-[600px] lg:w-[500px] x
  */
 export default function CardList({ cards, className }: CardListProps) {
   return (
-    <div className={className ?? CARD_LIST_CLASS}>
+    // data-card-list: 絞り込み・ページ送りの読み込み中に、globals.css でこの一覧を薄くするための目印
+    <div className={className ?? CARD_LIST_CLASS} data-card-list>
       {cards.map((card) => (
         <Card
           key={card.id}
