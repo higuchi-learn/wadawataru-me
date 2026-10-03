@@ -131,7 +131,7 @@ export default function TagSelectOverlay({
                           : 'bg-white hover:bg-[var(--onmouseorange)]'
                       }`}
                   >
-                    <div className="w-full aspect-square rounded-lg overflow-hidden bg-neutral-200 shrink-0">
+                    <div className="w-full aspect-square rounded-lg overflow-hidden bg-white shrink-0">
                       {tag.imageUrl && <img src={tag.imageUrl} alt={tag.name} className="w-full h-full object-cover" />}
                     </div>
                     <span className="text-xs leading-4 text-black text-center w-full truncate">{tag.name}</span>
@@ -158,7 +158,7 @@ export default function TagSelectOverlay({
                       onClick={() => void handleAddFromOtherGenre(tag)}
                       className="flex flex-col items-center gap-1 p-1 rounded-xl w-full bg-white border border-dashed border-neutral-300 hover:bg-[var(--onmouseorange)] transition-colors disabled:opacity-50"
                     >
-                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-neutral-200 shrink-0">
+                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-white shrink-0">
                         {tag.imageUrl && (
                           <img src={tag.imageUrl} alt={tag.name} className="w-full h-full object-cover" />
                         )}

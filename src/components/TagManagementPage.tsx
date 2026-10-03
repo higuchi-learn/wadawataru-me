@@ -46,7 +46,7 @@ function SortableTagCard({ tag, onEdit }: SortableTagCardProps) {
     <div ref={setNodeRef} style={style} className="flex flex-col items-center gap-1 bg-white rounded-xl p-1 shadow-sm">
       {/* 画像エリアがドラッグハンドル。PointerSensor の distance:8 制約により単なるクリックではドラッグが起動しない */}
       <div
-        className="w-full aspect-square rounded-lg overflow-hidden bg-neutral-200 cursor-grab active:cursor-grabbing"
+        className="w-full aspect-square rounded-lg overflow-hidden bg-white cursor-grab active:cursor-grabbing"
         {...attributes}
         {...listeners}
       >
@@ -178,7 +178,7 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
           onPaste={(e) => void handleImagePaste(e)}
         />
         {imageUrl && (
-          <img src={imageUrl} alt="プレビュー" className="w-16 h-16 rounded-lg object-cover bg-neutral-200 ml-1" />
+          <img src={imageUrl} alt="プレビュー" className="w-16 h-16 rounded-lg object-cover bg-white ml-1" />
         )}
         <div className="flex items-center gap-2 flex-wrap">
           <SquareButton state={!isLoading && name.trim() ? 'Enabled' : 'Disabled'} onClick={() => void handleSave()}>
@@ -253,7 +253,7 @@ function OtherGenreTagPicker({ tags, genre, onAdded, onClose }: OtherGenreTagPic
                   onClick={() => void handleAdd(tag)}
                   className="flex flex-col items-center gap-1 bg-[var(--inputcontainer)] hover:bg-[var(--onmouseorange)] active:bg-[var(--clickingorange)] rounded-xl p-1 transition-colors disabled:opacity-50"
                 >
-                  <div className="w-full aspect-square rounded-lg overflow-hidden bg-neutral-200">
+                  <div className="w-full aspect-square rounded-lg overflow-hidden bg-white">
                     {tag.imageUrl ? (
                       <img src={tag.imageUrl} alt={tag.name} className="w-full h-full object-cover" />
                     ) : null}
@@ -341,9 +341,7 @@ function TagCreateForm({ genre, onCreated }: TagCreateFormProps) {
         placeholder="画像をペースト"
         onPaste={(e) => void handleImagePaste(e)}
       />
-      {imageUrl && (
-        <img src={imageUrl} alt="プレビュー" className="w-16 h-16 rounded-lg object-cover bg-neutral-200 ml-1" />
-      )}
+      {imageUrl && <img src={imageUrl} alt="プレビュー" className="w-16 h-16 rounded-lg object-cover bg-white ml-1" />}
       <div className="ml-1">
         <SquareButton state={!isLoading && name.trim() ? 'Enabled' : 'Disabled'} onClick={() => void handleSubmit()}>
           {isLoading ? '追加中…' : '追加'}

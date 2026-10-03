@@ -13,9 +13,11 @@ export default function TagLabel({ label, imageUrl, isSelected, onRemove }: TagL
     <div
       className={`flex items-center gap-1 px-1 py-px rounded-md bg-[var(--tag)] ${isSelected ? 'ring-1 ring-[var(--ogangetext)]' : ''}`}
     >
-      {/* imageUrl が明示的に渡されたときだけ画像スペースを表示する */}
+      {/* imageUrl が明示的に渡されたときだけ画像スペースを表示する
+          背景は白: タグ画像はアップロード時に透明の余白で正方形にしている（padImageToSquare）ため、
+          背景が灰色だと余白部分が灰色の帯になって見づらい。白ならロゴの周りが自然になじむ */}
       {imageUrl !== undefined && (
-        <div className="w-4 h-4 rounded-sm overflow-hidden shrink-0 bg-neutral-300">
+        <div className="w-4 h-4 rounded-sm overflow-hidden shrink-0 bg-white">
           {imageUrl && <img src={imageUrl} alt="" className="w-full h-full object-cover" />}
         </div>
       )}
