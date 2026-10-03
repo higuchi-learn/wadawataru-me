@@ -74,6 +74,8 @@ pnpm lint:fix  # 自動修正できる lint エラー・整形を直す
 - Client Component で async 関数をイベントに渡すときは `onClick={() => void handleX()}` とし、ハンドラー内は try/catch/finally で例外とローディング解除を処理する（Server Action を catch する場合は `unstable_rethrow` で redirect を投げ直す）
 - スマホは画面幅 360px 以上を対応範囲とする（360px 以上でレイアウトが崩れないことを保証する。360px 未満は内容が読めて操作できれば十分とし、細かな見た目の崩れは許容する）
 - 既存の見た目（記事カードなど）は、依頼された変更以外は変えない。不具合修正でデザイン変更が必要になったら先に確認する
+- 公開ページの見た目は `src/components/PageSection.tsx` の部品・定数にそろえる（見出し帯 `PageHero`、見出しつきセクション `Section`、カードの影 `CARD_SHADOW`、カード下端 `CARD_FOOTER`、「〇〇 ›」の `ReadMore`、横余白 `PX`）。ボタン・タグ・ページ送りは丸いピル型、アクセントはオレンジ
+- 例外: 記事一覧のカードは、何枚も並ぶので影を控えめにする（薄い暖色の枠線＋オレンジ 10% の小さな影）。記事ページは読みやすさを優先し、中央寄せ・白地の元のデザインを保つ（見出し帯 `PageHero` は使わない）
 - `<img>` を使ってよい（next/image は IMAGES バインディング経由で Cloudflare Images の変換料金が発生しうるため、意図的に `<img>` を使う方針。`@next/next/no-img-element` は無効化済み）
 - バリデーションエラーはフィールド別にインライン表示（Zod + BlogEditor の `fieldErrors` state）
 - エラーメッセージは `この要素は必須です。` / `文字数が超過しています。最大文字数は〇〇字です。` / `使用できない文字が含まれています。`
