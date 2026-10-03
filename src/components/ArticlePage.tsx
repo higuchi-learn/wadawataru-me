@@ -67,7 +67,7 @@ export default function ArticlePage({ title, description, tags, publishedAt, upd
   const headings = parseHeadings(content);
 
   return (
-    <div className="flex justify-center px-4 py-8">
+    <div className="flex justify-center px-4 py-2">
       <div className="flex gap-8 w-full max-w-5xl">
         <article className="flex-1 min-w-0 max-w-3xl">
           <h1 className="text-3xl font-bold leading-tight text-black mb-2">{title}</h1>

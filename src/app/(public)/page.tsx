@@ -420,7 +420,7 @@ export default function HomePage() {
     <div className="flex-1 flex flex-col">
       {/* ── Hero ─────────────────────────────────────────────── */}
       {/* relative + overflow-hidden で、背景のぼかし円がはみ出してもスクロールが出ないようにする */}
-      <section className={`relative overflow-hidden bg-[var(--cream)] ${PX} pt-14 pb-12 sm:pt-20 lg:pt-24 lg:pb-16`}>
+      <section className={`relative overflow-hidden bg-[var(--cream)] ${PX} pt-3.5 pb-3 sm:pt-5 lg:pt-6 lg:pb-4`}>
         {/* 背景の装飾。blur で輪郭を消し、柔らかい光のように見せている */}
         <div
           aria-hidden="true"
@@ -654,7 +654,7 @@ export default function HomePage() {
       {/* ── Links ────────────────────────────────────────────── */}
       {/* 最後はオレンジの帯で締める。ページの終わりがはっきりして、SNS へ誘導しやすい */}
       <section
-        className={`bg-gradient-to-br from-[var(--ogangetext)] to-[var(--clickingorange)] ${PX} py-16 sm:py-20 text-center`}
+        className={`bg-gradient-to-br from-[var(--ogangetext)] to-[var(--clickingorange)] ${PX} py-4 sm:py-5 text-center`}
       >
         {/* 見出しは小さな「Links」だけにして、主役はボタンにする。h2 にしておくとセクションの見出しとして読み上げられる */}
         <h2 className="text-sm font-bold text-white/80 tracking-wider">Links</h2>

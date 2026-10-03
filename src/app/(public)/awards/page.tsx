@@ -150,7 +150,7 @@ export default function AwardsPage() {
         lead="ハッカソンや顕彰制度でいただいた賞です。カードを押すと、作ったものや学んだことをくわしく読めます。"
       />
 
-      <div className={`bg-[var(--cream)] ${PX} py-14 sm:py-20`}>
+      <div className={`bg-[var(--cream)] ${PX} py-3.5 sm:py-5`}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
           {awards.map((award) => (
             // カード全体を1つのリンクにする。どこを押しても同じ行き先に行くので迷わない

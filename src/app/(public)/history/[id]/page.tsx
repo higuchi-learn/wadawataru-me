@@ -38,7 +38,7 @@ export default async function HistoryEventPage({ params }: Props) {
 
   return (
     <div className="flex-1 flex flex-col">
-      <div className="bg-[var(--page-bg)] border-b border-[var(--border)] px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-12 sm:py-16">
+      <div className="bg-[var(--page-bg)] border-b border-[var(--border)] px-6 sm:px-10 lg:px-16 xl:px-20 2xl:px-28 py-3 sm:py-4">
         <Link
           href="/history"
           className="text-xs font-bold text-[var(--lighttext)] hover:text-[var(--ogangetext)] transition-colors"

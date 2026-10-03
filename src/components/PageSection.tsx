@@ -21,7 +21,8 @@ export function PageHero({
 }) {
   return (
     // relative + overflow-hidden で、背景のぼかし円がはみ出してもスクロールが出ないようにする
-    <div className={`relative overflow-hidden bg-[var(--cream)] ${PX} py-14 sm:py-20`}>
+    // 見出しを含む要素の上下の余白は、画面に表示できる情報量を優先して以前の約 1/4 に詰めている（2026-10-04）
+    <div className={`relative overflow-hidden bg-[var(--cream)] ${PX} py-3.5 sm:py-5`}>
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -top-32 -right-24 size-96 rounded-full bg-[var(--onmouseorange)] opacity-50 blur-3xl"
@@ -55,9 +56,10 @@ export function Section({
 }) {
   return (
     // 濃い区切り線をやめ、白とクリーム色の背景の切り替えだけでセクションを区切る
+    // 見出しを含む要素の上下の余白は、画面に表示できる情報量を優先して以前の約 1/4 に詰めている（2026-10-04）
     <section
       id={id}
-      className={`${bg === 'cream' ? 'bg-[var(--cream)]' : 'bg-white'} ${PX} py-16 sm:py-20 lg:py-24 scroll-mt-4`}
+      className={`${bg === 'cream' ? 'bg-[var(--cream)]' : 'bg-white'} ${PX} py-4 sm:py-5 lg:py-6 scroll-mt-4`}
     >
       {/* 小さな英字ラベル＋大きな日本語見出し。英字だけより、何のセクションかがすぐ伝わる */}
       <div className="mb-8 sm:mb-12">
