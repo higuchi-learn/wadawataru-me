@@ -2,6 +2,7 @@
 // 短い方の辺がトリミングされて見切れてしまう。
 // この関数は画像の長い方の辺に合わせた正方形キャンバスを作り、中央に描画することで
 // 短い方の辺の余白を透明ピクセルで埋めた新しい画像ファイルを返す。
+// （ここで書き出した PNG は、アップロード時に uploadImage → convertToWebp で WebP に変換される。透過はそのまま保たれる）
 export async function padImageToSquare(file: File): Promise<File> {
   // SVG は座標系がラスター画像と異なり、意図しないサイズで描画されることがあるため対象外にする
   if (file.type === 'image/svg+xml') return file;

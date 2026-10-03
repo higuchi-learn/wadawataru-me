@@ -1,10 +1,12 @@
 import type EasyMDE from 'easymde';
+import { convertToWebp } from '@/lib/convertToWebp';
 
 // 画像を /api/upload（R2）にアップロードして配信用 URL を取得する
-// BlogEditor と HistoryEventEditor で共有する
+// 管理画面の画像アップロード（記事の本文・サムネイル、年表、タグ画像）はすべてこの関数を通る
+// そのため WebP への変換もここで行えば、どの画面から上げた画像にも漏れなく効く
 export async function uploadImage(file: File): Promise<string | null> {
   const form = new FormData();
-  form.append('file', file);
+  form.append('file', await convertToWebp(file));
   const res = await fetch('/api/upload', { method: 'POST', body: form });
   if (!res.ok) return null;
   const { url } = await res.json<{ url: string }>();
