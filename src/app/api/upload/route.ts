@@ -1,6 +1,7 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { Hono } from 'hono';
 import { handle } from 'hono/vercel';
+import { detectImageType } from '@/lib/imageType';
 
 type Bindings = { R2: R2Bucket };
 
@@ -20,35 +21,40 @@ app.post('/upload', async (c) => {
   // parseBody() は multipart/form-data や application/x-www-form-urlencoded を
   // 自動で解析してくれる。フロント側の FormData.append('file', ...) に対応している
   const body = await c.req.parseBody();
-  const file = body.file as File;
+  const file = body.file;
 
   // ファイルが存在しない場合はエラーを返す
-  if (!file) {
+  // parseBody() の値はファイルなら File、テキスト項目なら string になるため、instanceof で File であることを確かめる
+  // （as File で型だけ合わせると、文字列が送られたときに file.size などが undefined のまま素通りしてしまう）
+  if (!(file instanceof File)) {
     return c.json({ error: 'file is required' }, 400);
   }
 
-  // サーバー側で MIME タイプを検証する
-  // クライアント側の file.type.startsWith('image/') は偽装可能なため、サーバー側でも必ず確認する
-  if (!file.type.startsWith('image/')) {
-    return c.json({ error: 'only image files are allowed' }, 400);
-  }
-
   // ファイルサイズを 5MB に制限する
+  // 中身を読み込む前に確認することで、巨大なファイルを arrayBuffer() でメモリに展開する無駄を避ける
   const MAX_SIZE = 5 * 1024 * 1024;
   if (file.size > MAX_SIZE) {
     return c.json({ error: 'file size must be 5MB or less' }, 400);
   }
 
-  // 拡張子のみ保持し、UUIDでユニークなキーを生成する（日本語等の非ASCII文字を避ける）
+  // file.type（Content-Type）や file.name（拡張子）は、送信側が自由に書き換えられる「自己申告」にすぎない
+  // 例えば curl で HTML ファイルを type=image/png と名乗らせて送ることもできるため、検証には使えない
+  // そこでファイルの中身（先頭のマジックナンバー）を読んで、本当に許可した画像形式かをサーバー側で判定する
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const detected = detectImageType(bytes);
+  if (!detected) {
+    return c.json({ error: 'only png, jpeg, gif, webp, svg images are allowed' }, 400);
+  }
+
+  // 拡張子は判定結果から付ける（ファイル名の拡張子は使わない）。日本語等の非ASCII文字も避けられる
   // Date.now() でミリ秒タイムスタンプ、Math.random().toString(36) で英数字ランダム文字列を生成する
   // .slice(2, 8) で先頭の '0.' を除いた6文字を取り出す
-  const ext = file.name.split('.').pop() ?? 'bin';
-  const key = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const key = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${detected.ext}`;
 
-  // file.arrayBuffer() でファイルをバイナリデータ（ArrayBuffer）として読み込んでから R2 に渡す
-  // httpMetadata.contentType を指定しておくと、画像取得 API がそのまま Content-Type を返せる
-  await env.R2.put(key, await file.arrayBuffer(), {
-    httpMetadata: { contentType: file.type },
+  // httpMetadata.contentType も判定結果の MIME を保存する。画像配信 API はこの値を Content-Type として返すため、
+  // 申告値を保存してしまうと、偽装された text/html などがそのまま配信される恐れがある
+  await env.R2.put(key, bytes, {
+    httpMetadata: { contentType: detected.mime },
   });
 
   // /api/images/[key] は R2 から取得して返す別の Route Handler（画像配信 API）
