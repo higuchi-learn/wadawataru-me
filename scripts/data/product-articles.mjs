@@ -6,7 +6,7 @@
 export const updatedContents = {
   'gesture-audio': `腕のジェスチャーで音楽を操作するウェアラブルコントローラーです。腕に装着したコントローラーのセンサー値を BLE で Web アプリへ送信し、ジェスチャーによって音楽の再生・停止・スキップを操作できます。技育CAMP2025 ハッカソン Vol.10 で最優秀賞を受賞しました。
 
-![](https://github.com/user-attachments/assets/94a34dba-6ce4-47c0-89f9-0fd50d92efd0)
+![](/api/images/1791042762319-vwttim.webp)
 
 
 ## 時期
@@ -42,7 +42,7 @@ XIAO BLE Sense / C++ / BLE / 6軸加速度センサー
 
 技育CAMP ハッカソン vol.19 で優秀賞（2位）、技育博2024 vol.6 で株式会社ゆめみ企業賞を受賞しました。
 
-![](https://github.com/user-attachments/assets/a09384c2-9828-4d07-ab33-7206d0b33fa4)
+![](/api/images/1791042755876-v938gp.webp)
 
 
 ## 時期
@@ -82,7 +82,7 @@ MicroPython / Raspberry Pi Pico W / HTTP（擬似リアルタイム）/ セン�
 `,
   'bingo2': `大人数のビンゴ大会をデジタル化した Web アプリです。紙のビンゴカードをスマートフォン・PC で代替し、ビンゴカードの自動生成・リアルタイム判定・リーチ/ビンゴ確率の表示まで行えます。ルームを作成して複数人で参加でき、1台のパソコンと参加者のスマホがあればすぐにビンゴ大会を開けます。
 
-![](https://github.com/user-attachments/assets/2c6cb1e8-21a5-4316-90e0-730f1314dfb9)
+![](/api/images/1791042768842-o47i9s.webp)
 
 
 ## 時期
@@ -118,7 +118,7 @@ TypeScript / Next.js / Tailwind CSS / Shadcn UI / Firebase（Firestore）
 `,
   'entry-system': `カメラ映像から顔を認識して、部室の入退室を管理するシステムです。Raspberry Pi に接続したカメラで人物を検出・識別し、入退室の記録をリアルタイムで Web アプリに反映します。部室の利用状況を可視化することで、オープンで活気ある空間の雰囲気づくりを目的に開発しました。
 
-![](https://github.com/user-attachments/assets/3ba55c67-f945-4396-82d5-c8f6883192c6)
+![](/api/images/1791042775224-t8r6g4.webp)
 
 
 ## 時期
