@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { unstable_rethrow } from 'next/navigation';
 import { saveDiaryEntryAction } from '@/app/admin/diary-actions';
 import { diaryEntrySchema } from '@/lib/schemas';
 import { formatDiaryDate } from '@/lib/formatDate';
@@ -44,13 +45,23 @@ export default function DiaryEditor({ date, initialContent, initialSavedAt }: Pr
     }
     setError(null);
     setIsLoading(true);
-    const result = await saveDiaryEntryAction(date, content);
-    if (result?.error) {
-      setError(result.error);
+    // Server Action は通信エラーなどで例外を投げることがある（戻り値の { error } とは別の経路）
+    // try/catch がないと setIsLoading(false) に届かず、ボタンが「処理中」のまま固まる
+    try {
+      const result = await saveDiaryEntryAction(date, content);
+      if (result?.error) {
+        setError(result.error);
+      }
+    } catch (e) {
+      // 成功時の redirect() は「NEXT_REDIRECT」という特殊な例外で画面遷移を実現している
+      // これを握りつぶすと遷移しなくなるため、unstable_rethrow で Next.js 内部の例外だけ投げ直す
+      unstable_rethrow(e);
+      setError('通信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      // 成功時は redirect() でアンマウントされるため基本的に意味はないが、
+      // finally に置くことで成功・失敗・例外のどの経路でもローディング状態が必ず解除される
+      setIsLoading(false);
     }
-    // 成功時は redirect() でアンマウントされるため基本的に到達しないが
-    // リダイレクトが発生しなかった場合にローディング状態が残らないようにリセットする
-    setIsLoading(false);
   };
 
   const a4WidthPx = A4_WIDTH_MM * A4_MM_TO_PX;

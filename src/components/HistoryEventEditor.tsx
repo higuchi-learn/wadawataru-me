@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo, useRef } from 'react';
 import EasyMDE from 'easymde';
 import dynamic from 'next/dynamic';
+import { unstable_rethrow } from 'next/navigation';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { FormLabel, InputField } from '@/components/InputField';
@@ -104,15 +105,22 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
   const handleAddBadge = async () => {
     if (newBadgeName === null) return;
     setBadgeError(null);
-    const result = await createHistoryBadgeAction(newBadgeName);
-    if ('error' in result) {
-      setBadgeError(result.error);
-      return;
+    // Server Action は通信エラーなどで例外を投げることがある（戻り値の { error } とは別の経路）
+    // catch しないと例外が放置され、エラー表示も出ないまま処理が止まる
+    try {
+      const result = await createHistoryBadgeAction(newBadgeName);
+      if ('error' in result) {
+        setBadgeError(result.error);
+        return;
+      }
+      // 名前順で並べておくと、ラベルが増えてもプルダウンから探しやすい
+      setBadges((prev) => [...prev, result.badge].sort((a, b) => a.name.localeCompare(b.name, 'ja')));
+      set('badgeId')(result.badge.id);
+      setNewBadgeName(null);
+    } catch (e) {
+      unstable_rethrow(e);
+      setBadgeError('通信に失敗しました。時間をおいて再度お試しください。');
     }
-    // 名前順で並べておくと、ラベルが増えてもプルダウンから探しやすい
-    setBadges((prev) => [...prev, result.badge].sort((a, b) => a.name.localeCompare(b.name, 'ja')));
-    set('badgeId')(result.badge.id);
-    setNewBadgeName(null);
   };
 
   const validate = (): FieldErrors | null => {
@@ -136,10 +144,19 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
     setFieldErrors({});
     setServerError(null);
     setIsLoading(true);
-    const result = await saveHistoryEventAction(id, form);
-    if (result?.error) setServerError(result.error);
-    // 成功時は redirect() でアンマウントされるが、リダイレクトしなかった場合にローディング状態が残らないようにする
-    setIsLoading(false);
+    try {
+      const result = await saveHistoryEventAction(id, form);
+      if (result?.error) setServerError(result.error);
+    } catch (e) {
+      // 成功時の redirect() は「NEXT_REDIRECT」という特殊な例外で画面遷移を実現している
+      // これを握りつぶすと遷移しなくなるため、unstable_rethrow で Next.js 内部の例外だけ投げ直す
+      unstable_rethrow(e);
+      setServerError('通信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      // 成功・エラー・例外のどの経路でもローディング状態を必ず解除する
+      // （例外で処理が止まると、ボタンが「処理中」のまま固まってしまうため）
+      setIsLoading(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -147,9 +164,15 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
     if (!window.confirm(`「${form.title}」を削除します。元に戻せませんがよろしいですか？`)) return;
     setServerError(null);
     setIsLoading(true);
-    const result = await deleteHistoryEventAction(id);
-    if (result?.error) setServerError(result.error);
-    setIsLoading(false);
+    try {
+      const result = await deleteHistoryEventAction(id);
+      if (result?.error) setServerError(result.error);
+    } catch (e) {
+      unstable_rethrow(e);
+      setServerError('通信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

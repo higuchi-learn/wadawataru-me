@@ -7,6 +7,8 @@ import { CSS } from '@dnd-kit/utilities';
 import SquareButton from '@/components/SquareButton';
 import { InputField } from '@/components/InputField';
 import { padImageToSquare } from '@/lib/padImageToSquare';
+// BlogEditor・HistoryEventEditor と同じアップロード関数を使う（以前はこのファイルに同じ処理の複製があった）
+import { uploadImage } from '@/lib/uploadImage';
 import {
   createTagAction,
   deleteTagAction,
@@ -23,17 +25,6 @@ const GENRE_TABS: { value: GenreTab; label: string }[] = [
   { value: 'blogs', label: 'ブログ' },
   { value: 'books', label: '読書記録' },
 ];
-
-// ---- 画像アップロード（フォーム間で共有） ----
-
-async function uploadImage(file: File): Promise<string | null> {
-  const form = new FormData();
-  form.append('file', file);
-  const res = await fetch('/api/upload', { method: 'POST', body: form });
-  if (!res.ok) return null;
-  const { url } = (await res.json()) as { url: string };
-  return url;
-}
 
 // ---- ソータブルタグカード ----
 
@@ -90,43 +81,77 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Server Action は通信エラーなどで例外を投げることがある（戻り値の { error } とは別経路）
+  // try/catch がないと例外が誰にも受け取られず、エラー表示も出ないまま処理が止まる
+  // finally は成功・return・例外のどの経路でも必ず実行されるため、ローディング解除の置き場所に向いている
   const handleSave = async () => {
     setIsLoading(true);
     setError(null);
-    const result = await updateTagAction(tag.id, name, imageUrl || null);
-    setIsLoading(false);
-    if ('error' in result) {
-      setError(result.error);
-      return;
+    try {
+      const result = await updateTagAction(tag.id, name, imageUrl || null);
+      if ('error' in result) {
+        setError(result.error);
+        return;
+      }
+      onSaved(result);
+      onClose();
+    } catch {
+      setError('通信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      setIsLoading(false);
     }
-    onSaved(result);
-    onClose();
   };
 
   const handleRemoveFromGenre = async () => {
     setIsLoading(true);
     setError(null);
-    const result = await removeTagFromGenreAction(tag.id, genre);
-    setIsLoading(false);
-    if (result?.error) {
-      setError(result.error);
-      return;
+    try {
+      const result = await removeTagFromGenreAction(tag.id, genre);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      onRemovedFromGenre(tag.id);
+      onClose();
+    } catch {
+      setError('通信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      setIsLoading(false);
     }
-    onRemovedFromGenre(tag.id);
-    onClose();
   };
 
   const handleDelete = async () => {
     setIsLoading(true);
     setError(null);
-    const result = await deleteTagAction(tag.id);
-    setIsLoading(false);
-    if (result?.error) {
-      setError(result.error);
-      return;
+    try {
+      const result = await deleteTagAction(tag.id);
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      onDeleted(tag.id);
+      onClose();
+    } catch {
+      setError('通信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      setIsLoading(false);
     }
-    onDeleted(tag.id);
-    onClose();
+  };
+
+  // 画像のペーストでアップロードする処理
+  // e.preventDefault() は最初の await より前に呼ぶ必要がある。await の後ではブラウザの既定動作（貼り付け）がすでに走っている
+  const handleImagePaste = async (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const file = e.clipboardData.files[0];
+    if (!file?.type.startsWith('image/')) return;
+    e.preventDefault();
+    try {
+      // タグ画像は正方形の枠で表示されるため、アップロード前に長辺基準の正方形へパディングする
+      const squared = await padImageToSquare(file);
+      const url = await uploadImage(squared);
+      if (url) setImageUrl(url);
+    } catch {
+      setError('画像のアップロードに失敗しました。');
+    }
   };
 
   return (
@@ -148,25 +173,15 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
           value={imageUrl}
           onChange={setImageUrl}
           placeholder="画像をペースト"
-          onPaste={async (e) => {
-            const file = e.clipboardData.files[0];
-            if (!file?.type.startsWith('image/')) return;
-            e.preventDefault();
-            try {
-              // タグ画像は正方形の枠で表示されるため、アップロード前に長辺基準の正方形へパディングする
-              const squared = await padImageToSquare(file);
-              const url = await uploadImage(squared);
-              if (url) setImageUrl(url);
-            } catch {
-              setError('画像のアップロードに失敗しました。');
-            }
-          }}
+          // React はイベントハンドラーの戻り値を使わないので、async 関数を直接渡すと返した Promise が放置される
+          // void を付けて「Promise を意図的に待たない（エラーは関数内の try/catch で処理済み）」ことを明示する
+          onPaste={(e) => void handleImagePaste(e)}
         />
         {imageUrl && (
           <img src={imageUrl} alt="プレビュー" className="w-16 h-16 rounded-lg object-cover bg-neutral-200 ml-1" />
         )}
         <div className="flex items-center gap-2 flex-wrap">
-          <SquareButton state={!isLoading && name.trim() ? 'Enabled' : 'Disabled'} onClick={handleSave}>
+          <SquareButton state={!isLoading && name.trim() ? 'Enabled' : 'Disabled'} onClick={() => void handleSave()}>
             {isLoading ? '保存中…' : '保存'}
           </SquareButton>
           <SquareButton state="Disabled" onClick={onClose}>
@@ -175,10 +190,10 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
         </div>
         {/* 破壊的操作は下段に分ける */}
         <div className="flex items-center gap-2 flex-wrap border-t border-neutral-100 pt-2">
-          <SquareButton state={isLoading ? 'Disabled' : 'Enabled'} onClick={handleRemoveFromGenre}>
+          <SquareButton state={isLoading ? 'Disabled' : 'Enabled'} onClick={() => void handleRemoveFromGenre()}>
             このジャンルから除外
           </SquareButton>
-          <SquareButton state={isLoading ? 'Disabled' : 'Enabled'} onClick={handleDelete}>
+          <SquareButton state={isLoading ? 'Disabled' : 'Enabled'} onClick={() => void handleDelete()}>
             完全に削除
           </SquareButton>
         </div>
@@ -203,13 +218,18 @@ function OtherGenreTagPicker({ tags, genre, onAdded, onClose }: OtherGenreTagPic
   const handleAdd = async (tag: TagItem) => {
     setLoadingId(tag.id);
     setError(null);
-    const result = await addExistingTagToGenreAction(tag, genre);
-    setLoadingId(null);
-    if ('error' in result) {
-      setError(result.error);
-      return;
+    try {
+      const result = await addExistingTagToGenreAction(tag, genre);
+      if ('error' in result) {
+        setError(result.error);
+        return;
+      }
+      onAdded(result);
+    } catch {
+      setError('通信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      setLoadingId(null);
     }
-    onAdded(result);
   };
 
   return (
@@ -230,7 +250,7 @@ function OtherGenreTagPicker({ tags, genre, onAdded, onClose }: OtherGenreTagPic
                   key={tag.id}
                   type="button"
                   disabled={loadingId === tag.id}
-                  onClick={() => handleAdd(tag)}
+                  onClick={() => void handleAdd(tag)}
                   className="flex flex-col items-center gap-1 bg-[var(--inputcontainer)] hover:bg-[var(--onmouseorange)] active:bg-[var(--clickingorange)] rounded-xl p-1 transition-colors disabled:opacity-50"
                 >
                   <div className="w-full aspect-square rounded-lg overflow-hidden bg-neutral-200">
@@ -270,16 +290,35 @@ function TagCreateForm({ genre, onCreated }: TagCreateFormProps) {
   const handleSubmit = async () => {
     setIsLoading(true);
     setError(null);
-    // 同名タグが既存の場合はそのタグをジャンルに追加する（tag-actions 内で処理）
-    const result = await createTagAction(name, imageUrl || null, genre);
-    setIsLoading(false);
-    if ('error' in result) {
-      setError(result.error);
-      return;
+    try {
+      // 同名タグが既存の場合はそのタグをジャンルに追加する（tag-actions 内で処理）
+      const result = await createTagAction(name, imageUrl || null, genre);
+      if ('error' in result) {
+        setError(result.error);
+        return;
+      }
+      setName('');
+      setImageUrl('');
+      onCreated(result);
+    } catch {
+      setError('通信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      setIsLoading(false);
     }
-    setName('');
-    setImageUrl('');
-    onCreated(result);
+  };
+
+  const handleImagePaste = async (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const file = e.clipboardData.files[0];
+    if (!file?.type.startsWith('image/')) return;
+    e.preventDefault();
+    try {
+      // タグ画像は正方形の枠で表示されるため、アップロード前に長辺基準の正方形へパディングする
+      const squared = await padImageToSquare(file);
+      const url = await uploadImage(squared);
+      if (url) setImageUrl(url);
+    } catch {
+      setError('画像のアップロードに失敗しました。');
+    }
   };
 
   return (
@@ -300,25 +339,13 @@ function TagCreateForm({ genre, onCreated }: TagCreateFormProps) {
         value={imageUrl}
         onChange={setImageUrl}
         placeholder="画像をペースト"
-        onPaste={async (e) => {
-          const file = e.clipboardData.files[0];
-          if (!file?.type.startsWith('image/')) return;
-          e.preventDefault();
-          try {
-            // タグ画像は正方形の枠で表示されるため、アップロード前に長辺基準の正方形へパディングする
-            const squared = await padImageToSquare(file);
-            const url = await uploadImage(squared);
-            if (url) setImageUrl(url);
-          } catch {
-            setError('画像のアップロードに失敗しました。');
-          }
-        }}
+        onPaste={(e) => void handleImagePaste(e)}
       />
       {imageUrl && (
         <img src={imageUrl} alt="プレビュー" className="w-16 h-16 rounded-lg object-cover bg-neutral-200 ml-1" />
       )}
       <div className="ml-1">
-        <SquareButton state={!isLoading && name.trim() ? 'Enabled' : 'Disabled'} onClick={handleSubmit}>
+        <SquareButton state={!isLoading && name.trim() ? 'Enabled' : 'Disabled'} onClick={() => void handleSubmit()}>
           {isLoading ? '追加中…' : '追加'}
         </SquareButton>
       </div>
@@ -375,11 +402,16 @@ export default function TagManagementPage({ initialTagsByGenre }: Props) {
 
     // ドラッグ完了後にジャンル固有の並び順を自動保存する
     // selectedGenre を渡すことで他ジャンルの sortOrder には影響を与えない
-    const result = await updateTagsSortOrderAction(
-      selectedGenre,
-      newTags.map((t) => t.id),
-    );
-    setStatusMessage(result?.error ?? '並び順を保存しました');
+    try {
+      const result = await updateTagsSortOrderAction(
+        selectedGenre,
+        newTags.map((t) => t.id),
+      );
+      setStatusMessage(result?.error ?? '並び順を保存しました');
+    } catch {
+      // 画面上は並び替え済みだが保存はされていない状態なので、それが分かるメッセージを出す
+      setStatusMessage('並び順の保存に失敗しました。再読み込みして確認してください。');
+    }
   };
 
   const handleSaved = (updated: TagItem) => {
@@ -475,7 +507,7 @@ export default function TagManagementPage({ initialTagsByGenre }: Props) {
       </div>
 
       {/* タググリッド：画像ドラッグ→並び替え、タグ名クリック→編集モーダル */}
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(event) => void handleDragEnd(event)}>
         <SortableContext items={currentTags.map((t) => t.id)} strategy={rectSortingStrategy}>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-3">
             {currentTags.map((tag) => (

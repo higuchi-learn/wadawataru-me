@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { unstable_rethrow, useRouter } from 'next/navigation';
 import {
   createHistoryBadgeAction,
   renameHistoryBadgeAction,
@@ -29,15 +29,24 @@ export default function HistoryBadgeManager({ badges }: { badges: Badge[] }) {
   const run = async (action: () => Promise<{ error: string } | object | undefined>, onSuccess?: () => void) => {
     setError(null);
     setIsLoading(true);
-    const result = await action();
-    setIsLoading(false);
-    if (result && 'error' in result) {
-      setError(result.error);
-      return;
+    // Server Action は通信エラーなどで例外を投げることがある（戻り値の { error } とは別の経路）
+    // 以前は await の直後で setIsLoading(false) していたため、例外が出るとボタンが無効のまま固まっていた
+    try {
+      const result = await action();
+      if (result && 'error' in result) {
+        setError(result.error);
+        return;
+      }
+      onSuccess?.();
+      // revalidatePath 済みのサーバーコンポーネント（使用件数・一覧のラベル表示）を再取得する
+      router.refresh();
+    } catch (e) {
+      // ラベル操作の Action は redirect() しないが、将来追加されたときに遷移を壊さないよう Next.js 内部の例外は投げ直す
+      unstable_rethrow(e);
+      setError('通信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      setIsLoading(false);
     }
-    onSuccess?.();
-    // revalidatePath 済みのサーバーコンポーネント（使用件数・一覧のラベル表示）を再取得する
-    router.refresh();
   };
 
   const handleDelete = (badge: Badge) => {

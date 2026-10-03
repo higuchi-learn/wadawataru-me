@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useMemo } from 'react';
 import EasyMDE from 'easymde';
 import dynamic from 'next/dynamic';
+import { unstable_rethrow } from 'next/navigation';
 import AdminHeader from '@/components/AdminHeader';
 import TagLabel from '@/components/TagLabel';
 import TagSelectOverlay, { type TagItem } from '@/components/TagSelectOverlay';
@@ -122,7 +123,9 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
       for (const issue of parsed.error.issues) {
         const field = issue.path[0] as keyof FieldErrors;
         if (!messagesMap[field]) messagesMap[field] = [];
-        messagesMap[field]!.push(issue.message);
+        // 直前の if で配列を入れているため、TypeScript は messagesMap[field] が存在すると推論できている
+        // （以前ここにあった ! による非 null アサーションは型を変えない無意味なものだった）
+        messagesMap[field].push(issue.message);
       }
       const errors: FieldErrors = {};
       for (const [field, messages] of Object.entries(messagesMap) as [keyof FieldErrors, string[]][]) {
@@ -146,17 +149,28 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
     setFieldErrors({});
     setServerError(null);
     setIsLoading(true);
-    const result = await saveAsDraftAction(payload());
-    if (result?.error) {
-      if (result.error.includes('URLパス')) {
-        setFieldErrors({ slug: result.error });
-      } else {
-        setServerError(result.error);
+    // Server Action は通信エラーなどで例外を投げることがある（戻り値の { error } とは別の経路）
+    // try/catch がないと例外が誰にも受け取られず、setIsLoading(false) に届かないためボタンが「処理中」のまま固まる
+    try {
+      const result = await saveAsDraftAction(payload());
+      if (result?.error) {
+        if (result.error.includes('URLパス')) {
+          setFieldErrors({ slug: result.error });
+        } else {
+          setServerError(result.error);
+        }
       }
+    } catch (e) {
+      // Server Action 内の redirect() は「NEXT_REDIRECT」という特殊な例外を投げて画面遷移を実現している
+      // これを catch で握りつぶすと遷移しなくなるため、unstable_rethrow で Next.js 内部の例外だけ投げ直す
+      // （Next.js 内部の例外でなければ何もせず、下のエラー表示に進む）
+      unstable_rethrow(e);
+      setServerError('通信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      // 成功時は redirect() でアンマウントされるため基本的に意味はないが、
+      // finally に置くことで成功・失敗・例外のどの経路でもローディング状態が必ず解除される
+      setIsLoading(false);
     }
-    // 成功時は redirect() でアンマウントされるため基本的に到達しないが
-    // リダイレクトが発生しなかった場合にローディング状態が残らないようにリセットする
-    setIsLoading(false);
   };
 
   const handlePublish = async () => {
@@ -168,32 +182,54 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
     setFieldErrors({});
     setServerError(null);
     setIsLoading(true);
-    const result = await publishAction({ ...payload(), wasAlreadyPublished: publishStatus === 'published' });
-    if (result?.error) {
-      if (result.error.includes('URLパス')) {
-        setFieldErrors({ slug: result.error });
-      } else {
-        setServerError(result.error);
+    try {
+      const result = await publishAction({ ...payload(), wasAlreadyPublished: publishStatus === 'published' });
+      if (result?.error) {
+        if (result.error.includes('URLパス')) {
+          setFieldErrors({ slug: result.error });
+        } else {
+          setServerError(result.error);
+        }
       }
+    } catch (e) {
+      unstable_rethrow(e);
+      setServerError('通信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      setIsLoading(false);
     }
-    // if の外に出すことでエラー・成功どちらでもリセットされる
-    // 成功時は通常 redirect() でアンマウントされるが、リダイレクトが発生しなかった場合に
-    // ボタンがローディング状態のまま固まるのを防ぐための保険
-    setIsLoading(false);
   };
 
   const handleArchive = async () => {
     if (!initialData?.id) return;
     setServerError(null);
     setIsLoading(true);
-    const result = await archiveAction({ id: initialData.id, genre, title, description, content, thumbnail });
-    if (result?.error) {
-      setServerError(result.error);
+    try {
+      const result = await archiveAction({ id: initialData.id, genre, title, description, content, thumbnail });
+      if (result?.error) {
+        setServerError(result.error);
+      }
+    } catch (e) {
+      unstable_rethrow(e);
+      setServerError('通信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      setIsLoading(false);
     }
-    // if の外に出すことでエラー・成功どちらでもリセットされる
-    // 成功時は通常 redirect() でアンマウントされるが、リダイレクトが発生しなかった場合に
-    // ボタンがローディング状態のまま固まるのを防ぐための保険
-    setIsLoading(false);
+  };
+
+  // サムネイル欄への画像ペーストでアップロードする
+  // e.preventDefault() は最初の await より前に呼ぶ。await の後ではブラウザの既定動作（貼り付け）がすでに走っている
+  const handleThumbnailPaste = async (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const file = e.clipboardData.files[0];
+    if (!file?.type.startsWith('image/')) return;
+    e.preventDefault();
+    try {
+      const url = await uploadImage(file);
+      if (url) setThumbnail(url);
+    } catch {
+      // fetch や res.json() が例外をスローした場合（ネットワークエラー・不正レスポンスなど）
+      // try/catch がないと unhandled rejection になるためここで捕捉してエラー表示する
+      setServerError('画像のアップロードに失敗しました');
+    }
   };
 
   return (
@@ -204,9 +240,11 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
         publishStatus={publishStatus}
         savedAt={savedAt || undefined}
         isLoading={isLoading}
-        onArchive={mode === 'edit' ? handleArchive : undefined}
-        onSaveDraft={handleSaveDraft}
-        onPublish={handlePublish}
+        // AdminHeader の props は () => void 型。async 関数をそのまま渡すと返した Promise が放置されるため、
+        // void を付けて「Promise を意図的に待たない（エラーは各ハンドラー内で処理済み）」ことを明示する
+        onArchive={mode === 'edit' ? () => void handleArchive() : undefined}
+        onSaveDraft={() => void handleSaveDraft()}
+        onPublish={() => void handlePublish()}
       />
 
       {serverError && (
@@ -280,19 +318,7 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
             onChange={setThumbnail}
             placeholder="サムネイル画像をペースト"
             // InputフィールドにonPasteイベントハンドラーを渡して、画像の貼り付けをサポートする
-            onPaste={async (e) => {
-              const file = e.clipboardData.files[0];
-              if (!file?.type.startsWith('image/')) return;
-              e.preventDefault();
-              try {
-                const url = await uploadImage(file);
-                if (url) setThumbnail(url);
-              } catch {
-                // fetch や res.json() が例外をスローした場合（ネットワークエラー・不正レスポンスなど）
-                // try/catch がないと unhandled rejection になるためここで捕捉してエラー表示する
-                setServerError('画像のアップロードに失敗しました');
-              }
-            }}
+            onPaste={(e) => void handleThumbnailPaste(e)}
           />
         </div>
 

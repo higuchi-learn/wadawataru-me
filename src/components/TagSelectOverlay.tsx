@@ -55,17 +55,23 @@ export default function TagSelectOverlay({
     if (!genre || !newTagName.trim()) return;
     setIsCreating(true);
     setCreateError(null);
-    const result = await createTagAction(newTagName.trim(), null, genre);
-    setIsCreating(false);
-    if ('error' in result) {
-      setCreateError(result.error);
-      return;
+    // Server Action が通信エラーなどで例外を投げても、作成中のまま固まらないよう finally で必ず解除する
+    try {
+      const result = await createTagAction(newTagName.trim(), null, genre);
+      if ('error' in result) {
+        setCreateError(result.error);
+        return;
+      }
+      // availableTags にすでに同じ id があれば追加しない（べき等性の担保）
+      setAvailableTags((prev) => (prev.some((t) => t.id === result.id) ? prev : [...prev, result]));
+      // 作成直後に自動選択することで、タグを作って即決定できる UX にする
+      setSelected((prev) => (prev.includes(result.name) ? prev : [...prev, result.name]));
+      setNewTagName('');
+    } catch {
+      setCreateError('通信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      setIsCreating(false);
     }
-    // availableTags にすでに同じ id があれば追加しない（べき等性の担保）
-    setAvailableTags((prev) => (prev.some((t) => t.id === result.id) ? prev : [...prev, result]));
-    // 作成直後に自動選択することで、タグを作って即決定できる UX にする
-    setSelected((prev) => (prev.includes(result.name) ? prev : [...prev, result.name]));
-    setNewTagName('');
   };
 
   // 他ジャンルの既存タグをこのジャンルに追加し、メインリストへ移動して自動選択する
@@ -75,17 +81,22 @@ export default function TagSelectOverlay({
     if (!genre) return;
     setAddingId(tag.id);
     setOtherGenreError(null);
-    const result = await addExistingTagToGenreAction(tag, genre);
-    setAddingId(null);
-    if ('error' in result) {
-      setOtherGenreError(result.error);
-      return;
+    try {
+      const result = await addExistingTagToGenreAction(tag, genre);
+      if ('error' in result) {
+        setOtherGenreError(result.error);
+        return;
+      }
+      // 他ジャンルリストから除去してメインリストに追加する
+      setOtherGenreTags((prev) => prev.filter((t) => t.id !== tag.id));
+      setAvailableTags((prev) => (prev.some((t) => t.id === result.id) ? prev : [...prev, result]));
+      // 追加したタグを自動選択して即使える状態にする
+      setSelected((prev) => (prev.includes(result.name) ? prev : [...prev, result.name]));
+    } catch {
+      setOtherGenreError('通信に失敗しました。時間をおいて再度お試しください。');
+    } finally {
+      setAddingId(null);
     }
-    // 他ジャンルリストから除去してメインリストに追加する
-    setOtherGenreTags((prev) => prev.filter((t) => t.id !== tag.id));
-    setAvailableTags((prev) => (prev.some((t) => t.id === result.id) ? prev : [...prev, result]));
-    // 追加したタグを自動選択して即使える状態にする
-    setSelected((prev) => (prev.includes(result.name) ? prev : [...prev, result.name]));
   };
 
   return (
@@ -144,7 +155,7 @@ export default function TagSelectOverlay({
                       key={tag.id}
                       type="button"
                       disabled={addingId === tag.id}
-                      onClick={() => handleAddFromOtherGenre(tag)}
+                      onClick={() => void handleAddFromOtherGenre(tag)}
                       className="flex flex-col items-center gap-1 p-1 rounded-xl w-full bg-white border border-dashed border-neutral-300 hover:bg-[var(--onmouseorange)] transition-colors disabled:opacity-50"
                     >
                       <div className="w-full aspect-square rounded-lg overflow-hidden bg-neutral-200 shrink-0">
@@ -171,14 +182,18 @@ export default function TagSelectOverlay({
                 type="text"
                 value={newTagName}
                 onChange={(e) => setNewTagName(e.target.value)}
+                // void: 返ってくる Promise を待たないことを明示する（エラーは handleCreate 内の try/catch で処理済み）
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleCreate();
+                  if (e.key === 'Enter') void handleCreate();
                 }}
                 placeholder="タグ名（最大20字）"
                 maxLength={20}
                 className="bg-[var(--inputcontainer)] border border-[var(--inputborder,#9f9fa9)] rounded-sm shadow-sm px-2 h-7 text-sm leading-5 flex-1 focus:outline-none focus:ring-1 focus:ring-[var(--ogangetext)]"
               />
-              <RoundButton state={!isCreating && newTagName.trim() ? 'Enabled' : 'Disabled'} onClick={handleCreate}>
+              <RoundButton
+                state={!isCreating && newTagName.trim() ? 'Enabled' : 'Disabled'}
+                onClick={() => void handleCreate()}
+              >
                 {isCreating ? '作成中…' : '作成'}
               </RoundButton>
             </div>
