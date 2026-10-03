@@ -13,7 +13,6 @@ export default function ImageSlot({ src, alt, hint, className = '' }: ImageSlotP
   if (src) {
     // next/image は width/height か fill の指定が必要で、アスペクト比を className で決める
     // この部品とは相性が悪いため素の <img> を使う。object-cover で枠に合わせて切り抜く
-    // eslint-disable-next-line @next/next/no-img-element
     return <img src={src} alt={alt} loading="lazy" className={`object-cover ${className}`} />;
   }
 

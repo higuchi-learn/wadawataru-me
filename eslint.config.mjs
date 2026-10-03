@@ -17,7 +17,8 @@ const compat = new FlatCompat({
 
 export default defineConfig(
   {
-    ignores: ['eslint.config.mjs', '.next/**', 'dist/**'],
+    // .open-next / .wrangler は OpenNext・wrangler が生成するビルド成果物。人が書いたコードではないので対象外にする
+    ignores: ['eslint.config.mjs', '.next/**', 'dist/**', '.open-next/**', '.wrangler/**'],
   },
   eslint.configs.recommended,
   ...tslint.configs.recommendedTypeChecked,
@@ -44,6 +45,13 @@ export default defineConfig(
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
       'prettier/prettier': ['error', { endOfLine: 'lf' }],
+      // next/image の <Image> は画像を変換・縮小して配信する仕組み。このサイト（OpenNext on Cloudflare）では
+      // wrangler.jsonc の IMAGES バインディングを通じて Cloudflare Images が変換を担当する
+      // ただし変換回数に応じて Cloudflare Images の料金が発生しうるうえ、このサイトの画像は
+      // アップロード済みの PNG・ロゴの SVG などが中心で、変換による効果が小さい
+      // そのため意図的に素の <img> を使っており、このルールは無効にする
+      // （表示速度が問題になったら、<Image> と料金を比較して見直す）
+      '@next/next/no-img-element': 'off',
     },
   },
 );

@@ -403,7 +403,6 @@ function TechLogo({ icon, name, size = 16 }: { icon: string; name: string; size?
   return (
     // next/image は外部画像の最適化設定（remotePatterns 等）が必要で、
     // 小さな SVG では恩恵もないため素の <img> を使う
-    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={`https://cdn.simpleicons.org/${icon}`}
       alt={name}
