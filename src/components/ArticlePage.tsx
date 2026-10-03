@@ -2,10 +2,13 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import React from 'react';
 import TagsList, { type TagListItem } from '@/components/TagsList';
+import { GENRE_LABEL_EN, type Genre } from '@/components/GenreAbout';
 import TableOfContents from '@/components/TableOfContents';
 import { parseHeadings, generateHeadingId } from '@/lib/parseHeadings';
 
 export type ArticlePageData = {
+  // タイトル上の英字ラベル（Products など）に使う
+  genre: Genre;
   title: string;
   description: string;
   tags: TagListItem[];
@@ -62,14 +65,26 @@ const headingComponents = {
   h6: makeHeading('h6'),
 };
 
-export default function ArticlePage({ title, description, tags, publishedAt, updatedAt, content }: ArticlePageData) {
+export default function ArticlePage({
+  genre,
+  title,
+  description,
+  tags,
+  publishedAt,
+  updatedAt,
+  content,
+}: ArticlePageData) {
   // Markdown 文字列から見出し一覧を取得して目次に渡す
   const headings = parseHeadings(content);
 
   return (
+    // 記事を読みやすいよう、元のデザインどおり本文の列を画面の中央に置き、白地のまま見出しから本文まで一続きにする
+    // ほかのページとの雰囲気合わせは、タイトル上の英字ラベル（オレンジ）・ピル型のタグ・目次の枠・本文 h2 の左線程度にとどめる
     <div className="flex justify-center px-4 py-2">
       <div className="flex gap-8 w-full max-w-5xl">
         <article className="flex-1 min-w-0 max-w-3xl">
+          {/* ほかのページの見出し（PageHero・Section）と同じ、オレンジの小さな英字ラベル。どのジャンルの記事かが分かる */}
+          <p className="text-sm font-bold text-[var(--ogangetext)] tracking-wider mb-1">{GENRE_LABEL_EN[genre]}</p>
           <h1 className="text-3xl font-bold leading-tight text-black mb-2">{title}</h1>
           <p className="text-sm leading-6 text-[var(--lighttext)] mb-2">{description}</p>
           <TagsList tags={tags} className="mb-2" />

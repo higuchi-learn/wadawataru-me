@@ -177,7 +177,9 @@ body {
   font-weight: 700;
   line-height: 1.75rem; /* 28px = leading-7 */
   color: #000;
-  border-bottom: 1px solid var(--border);
+  /* トップページの小見出し（Skills の分類名）と同じ、オレンジの左線。サイト全体で見出しの見た目をそろえる */
+  border-left: 4px solid var(--ogangetext);
+  padding-left: 0.75rem; /* 12px = pl-3 */
   margin-top: 1.25rem;
   margin-bottom: 0.5rem;
 }

@@ -29,6 +29,15 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: '日記', href: '/admin/diary' },
 ];
 
+// そのナビ項目を「今いる場所」としてハイライトするかどうか
+// 完全一致だけだと、記事ページ（/products/bingo2）や年表の詳細（/history/xxx）でどの項目も光らず、
+// 今どこにいるのかが分からない。そのため、配下のページ（href + '/' で始まるパス）にいるときも選択中とする
+// ホーム（'/'）はすべてのパスが '/' で始まってしまうので、完全一致のときだけにする
+export function isNavActive(pathname: string, href: string): boolean {
+  if (href === '/') return pathname === '/';
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 type SelectBarProps = {
   items?: NavItem[];
   className?: string;
@@ -43,8 +52,8 @@ export default function SelectBar({ items = NAV_ITEMS, className }: SelectBarPro
   return (
     <nav className={className ?? 'flex items-center gap-2'}>
       {items.map(({ label, href }) => (
-        // 現在のパスと一致するボタンを Enabled（選択済み）スタイルにする
-        <RoundButton key={label} href={href} state={pathname === href ? 'Enabled' : 'Disabled'}>
+        // 今いる場所（そのページか、その配下のページ）のボタンを Enabled（選択済み）スタイルにする
+        <RoundButton key={label} href={href} state={isNavActive(pathname, href) ? 'Enabled' : 'Disabled'}>
           {label}
         </RoundButton>
       ))}

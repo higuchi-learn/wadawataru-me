@@ -43,10 +43,11 @@ export default function SearchBar({ availableTags = [], className }: SearchBarPr
   return (
     <>
       <div
-        className={`bg-[var(--inputcontainer)] h-8 flex items-center justify-between px-1 rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.25)] ${className ?? ''}`}
+        // トップページのボタンと同じピル型。白地に薄い枠線で、検索ボタンだけをオレンジにして押せる場所を示す
+        className={`bg-white h-9 flex items-center justify-between pl-2 pr-1 rounded-full border border-[var(--softborder)] shadow-sm ${className ?? ''}`}
       >
         {/* 選択中タグ一覧（または未選択時のプレースホルダ） */}
-        <div className="flex items-center gap-0.5 overflow-hidden flex-1 pr-1">
+        <div className="flex items-center gap-1 overflow-hidden flex-1 pr-1">
           {selectedItems.length > 0 ? (
             selectedItems.map((tag) => (
               <TagLabel key={tag.id} label={tag.name} imageUrl={tag.imageUrl} onRemove={() => removeTag(tag.name)} />
@@ -60,12 +61,12 @@ export default function SearchBar({ availableTags = [], className }: SearchBarPr
         <button
           type="button"
           onClick={() => setIsOverlayOpen(true)}
-          className="bg-white rounded-sm shadow-[0_0_4px_rgba(0,0,0,0.25)] p-0.5 flex items-center justify-center shrink-0 cursor-pointer"
+          className="size-7 rounded-full bg-[var(--enableorange)] text-[var(--ogangetext)] hover:bg-[var(--onmouseorange)] transition-colors flex items-center justify-center shrink-0 cursor-pointer"
           aria-label="タグを選択"
         >
           <svg
             viewBox="0 0 24 24"
-            className="size-5 fill-none stroke-current text-[var(--lighttext)]"
+            className="size-4 fill-none stroke-current"
             strokeWidth={2}
             strokeLinecap="round"
             strokeLinejoin="round"

@@ -39,7 +39,8 @@ export default function SelectPageBar({ totalPages, className }: SelectPageBarPr
   };
 
   return (
-    <div className={className ?? 'flex items-center gap-0.5'}>
+    // ボタンを 28px の円にしたので、間隔も 2px → 4px に広げて詰まって見えないようにする
+    <div className={className ?? 'flex items-center gap-1'}>
       <PageSelectButton category="First" isDisabled={isFirst} onClick={() => setPage(1)} />
       <PageSelectButton category="Before" isDisabled={isFirst} onClick={() => setPage(currentPage - 1)} />
       {getPageNumbers().map((page) => (

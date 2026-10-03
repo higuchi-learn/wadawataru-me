@@ -4,5 +4,5 @@ export { generatePostMetadata as generateMetadata } from '@/lib/generatePostMeta
 
 export default async function BlogArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  return <PostDetailPage slug={slug} />;
+  return <PostDetailPage genre="blogs" slug={slug} />;
 }

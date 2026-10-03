@@ -38,9 +38,11 @@ export default function PageSelectButton({
   onClick,
   className,
 }: PageSelectButtonProps) {
-  const bgClass = isDisabled ? 'bg-[var(--unclickable)]' : isActive ? 'bg-[var(--enableorange)]' : 'bg-white';
+  // トップページのボタンにそろえたピル型（円形）。今のページは塗りつぶしのオレンジで目立たせ、
+  // 押せないボタン（先頭ページでの「前へ」など）は灰色で塗らずに薄く表示する
+  const bgClass = isActive ? 'bg-[var(--ogangetext)]' : 'bg-white';
 
-  const textClass = isActive ? 'text-[var(--ogangetext)]' : 'text-[var(--lighttext)]';
+  const textClass = isActive ? 'text-white' : 'text-[var(--lighttext)]';
 
   return (
     <button
@@ -49,10 +51,14 @@ export default function PageSelectButton({
       disabled={isDisabled}
       className={
         className ??
-        `size-5 shrink-0 flex items-center justify-center overflow-hidden border-[0.2px] border-[var(--border)] rounded-md p-1.5 transition-colors ${bgClass} ${textClass} ${
+        `size-7 shrink-0 flex items-center justify-center overflow-hidden rounded-full p-1 transition-colors ${bgClass} ${textClass} ${
+          isActive ? '' : 'border border-[var(--softborder)]'
+        } ${
           isDisabled
-            ? 'cursor-default'
-            : 'cursor-pointer hover:bg-[var(--onmouseorange)] active:bg-[var(--clickingorange)] active:text-[var(--ogangetext)]'
+            ? 'cursor-default opacity-40'
+            : isActive
+              ? 'cursor-default'
+              : 'cursor-pointer hover:bg-[var(--enableorange)] hover:text-[var(--ogangetext)] active:bg-[var(--onmouseorange)]'
         }`
       }
     >

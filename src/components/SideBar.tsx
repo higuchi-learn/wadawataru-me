@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import RoundButton from '@/components/RoundButton';
-import { NAV_ITEMS, type NavItem } from '@/components/SelectBar';
+import { NAV_ITEMS, isNavActive, type NavItem } from '@/components/SelectBar';
 
 type SideBarProps = {
   isOpen: boolean;
@@ -50,7 +50,12 @@ export default function SideBar({ isOpen, onClose, items = NAV_ITEMS }: SideBarP
         {/* ナビゲーション */}
         <nav className="flex flex-col items-center gap-1 py-1">
           {items.map(({ label, href }) => (
-            <RoundButton key={label} href={href} state={pathname === href ? 'Enabled' : 'Disabled'} onClick={onClose}>
+            <RoundButton
+              key={label}
+              href={href}
+              state={isNavActive(pathname, href) ? 'Enabled' : 'Disabled'}
+              onClick={onClose}
+            >
               {label}
             </RoundButton>
           ))}

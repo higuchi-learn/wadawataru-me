@@ -5,6 +5,8 @@ import {
   CARD_BODY_CLASS,
   CARD_TEXT_CLASS,
   CARD_DESCRIPTION_CLASS,
+  CARD_FOOTER_CLASS,
+  CARD_SIDE_CLASS,
   CARD_THUMBNAIL_CLASS,
 } from '@/components/Card';
 import { CARD_LIST_CLASS, CARD_WIDTH_CLASS } from '@/components/CardList';
@@ -32,9 +34,9 @@ export default function PostListSkeleton({ genre }: { genre: Genre }) {
         <p role="status" className="sr-only">
           読み込み中です
         </p>
-        {/* 検索バー（本物の SearchBar は w-[365px] max-w-full h-8） */}
+        {/* 検索バー（本物の SearchBar は w-[365px] max-w-full h-9 のピル型） */}
         <div className="flex flex-col items-center pt-8 pb-2 px-4 w-full shrink-0">
-          <SkeletonBox className="w-[365px] max-w-full h-8 rounded-sm" />
+          <SkeletonBox className="w-[365px] max-w-full h-9 rounded-full" />
         </div>
         {/* ここから下は PostListPage の main と同じ構造・クラス */}
         <main className="flex-1 flex flex-col items-center gap-2.5 pb-16">
@@ -53,10 +55,10 @@ export default function PostListSkeleton({ genre }: { genre: Genre }) {
   );
 }
 
-// ページ送り（SelectPageBar）。本物は 20px 角のボタン（先頭・前・ページ番号・次・末尾）が 2px 間隔で並ぶ
-// ページ数は読み込むまで分からないので、1 ページのとき（ボタン 5 個 = 20px * 5 + 2px * 4 = 108px）の幅にしている
+// ページ送り（SelectPageBar）。本物は 28px の円形ボタン（先頭・前・ページ番号・次・末尾）が 4px 間隔で並ぶ
+// ページ数は読み込むまで分からないので、1 ページのとき（ボタン 5 個 = 28px * 5 + 4px * 4 = 156px）の幅にしている
 function PageBarSkeleton() {
-  return <SkeletonBox className="w-[108px] h-5 rounded-md" />;
+  return <SkeletonBox className="w-[156px] h-7 rounded-full" />;
 }
 
 // 本物の Card と同じ構造・同じクラス（Card.tsx の定数）で組み、中身だけを灰色の箱にしたもの
@@ -90,19 +92,26 @@ function CardSkeleton() {
             <SkeletonBox className="h-3 sm:h-3.5 w-4/5 rounded" />
           </div>
 
-          {/* タグ（TagsList は h-[26px]、TagLabel 1 個は高さ 18px） */}
+          {/* タグ（TagsList は h-[26px]、ピル型の TagLabel 1 個は高さ 22px） */}
           <div className="h-[26px] flex items-center">
-            <SkeletonBox className="h-[18px] w-24 rounded-md" />
+            <SkeletonBox className="h-[22px] w-24 rounded-full" />
           </div>
 
-          {/* 公開日・最終更新日（text-xs leading-4 = 16px） */}
-          <div className="h-4 flex items-center">
-            <SkeletonBox className="h-3 w-56 max-w-full rounded" />
+          {/* 公開日・最終更新日（text-xs leading-4 = 16px）。sm 以上は本物と同じ区切り線つきの行（CARD_FOOTER_CLASS） */}
+          <div className={CARD_FOOTER_CLASS}>
+            <div className="h-4 flex items-center flex-1">
+              <SkeletonBox className="h-3 w-56 max-w-full rounded" />
+            </div>
+            {/* 2xl: 「記事を読む ›」（ReadMore は高さ 24px のピル） */}
+            <SkeletonBox className="hidden 2xl:block h-6 w-20 rounded-full" />
           </div>
         </div>
 
-        {/* sm-xl: 右サムネイル */}
-        <SkeletonBox className={CARD_THUMBNAIL_CLASS.side} />
+        {/* sm-xl: 右列（サムネイル + 「記事を読む ›」） */}
+        <div className={CARD_SIDE_CLASS}>
+          <SkeletonBox className={CARD_THUMBNAIL_CLASS.side} />
+          <SkeletonBox className="mt-auto self-end h-6 w-20 rounded-full" />
+        </div>
       </div>
 
       {/* 2xl: 右サムネイル */}

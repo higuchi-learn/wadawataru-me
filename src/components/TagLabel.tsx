@@ -10,7 +10,9 @@ type TagLabelProps = {
 export default function TagLabel({ label, imageUrl, isSelected, onRemove }: TagLabelProps) {
   return (
     <div
-      className={`flex items-center gap-1 px-1 py-px rounded-md bg-[var(--tag)] ${isSelected ? 'ring-1 ring-[var(--ogangetext)]' : ''}`}
+      // 受賞歴ページの技術ラベルと同じピル型（クリーム色＋薄い枠線＋丸い角）にして、サイト全体でタグの見た目をそろえる
+      // 画像があるときは左の余白を小さくし、画像の左端とピルの丸みの間が空きすぎないようにする
+      className={`flex items-center gap-1 py-0.5 pr-2.5 ${imageUrl ? 'pl-1' : 'pl-2.5'} rounded-full bg-[var(--cream)] border border-[var(--softborder)] ${isSelected ? 'ring-1 ring-[var(--ogangetext)]' : ''}`}
     >
       {/* 画像があるタグだけ画像の枠を表示する（画像のないタグに空の四角を出しても意味がないため）
           背景は白: タグ画像はアップロード時に透明の余白で正方形にしている（padImageToSquare）ため、

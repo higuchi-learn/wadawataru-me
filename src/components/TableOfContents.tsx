@@ -14,7 +14,9 @@ export default function TableOfContents({ headings }: Props) {
   const minLevel = Math.min(...headings.map((h) => h.level));
 
   return (
-    <nav className="border border-[var(--border)] rounded-md p-3">
+    // 元のデザインの「枠線の箱」のまま、枠線の色と角丸・影を記事一覧のカードと同じ控えめなものにそろえる
+    // （濃い灰色の枠線だと、ほかの暖色の部品の中で浮いて見えるため）
+    <nav className="border border-[var(--softborder)] rounded-2xl p-3 shadow-[0_1px_2px_0_rgba(255,105,0,0.1)]">
       <p className="text-sm font-bold text-black mb-2">あらすじ</p>
       <ul className="space-y-1">
         {headings.map((h, i) => (
