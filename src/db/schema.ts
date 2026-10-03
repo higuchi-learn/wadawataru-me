@@ -1,5 +1,16 @@
 // src/db/schema.ts
-import { pgTable, uuid, varchar, text, timestamp, pgEnum, primaryKey, integer, date, boolean } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  varchar,
+  text,
+  timestamp,
+  pgEnum,
+  primaryKey,
+  integer,
+  date,
+  boolean,
+} from 'drizzle-orm/pg-core';
 
 // pgEnum で PostgreSQL の ENUM 型を定義する
 // DB レベルで値を制限できるため、想定外の文字列が入るのを防げる

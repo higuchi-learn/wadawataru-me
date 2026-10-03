@@ -128,9 +128,7 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
       for (const [field, messages] of Object.entries(messagesMap) as [keyof FieldErrors, string[]][]) {
         // 必須エラーがある場合はそれだけ表示、それ以外は「・」で結合
         // 空欄のときに「文字数超過」も一緒に出ると混乱するため優先度で絞る
-        errors[field] = messages.includes('この要素は必須です。')
-          ? 'この要素は必須です。'
-          : messages.join('・ ');
+        errors[field] = messages.includes('この要素は必須です。') ? 'この要素は必須です。' : messages.join('・ ');
       }
       return errors;
     }
@@ -212,12 +210,21 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
       />
 
       {serverError && (
-        <div className="px-2 py-1 text-sm text-[var(--error)] bg-[var(--error-bg)] rounded-sm shrink-0">{serverError}</div>
+        <div className="px-2 py-1 text-sm text-[var(--error)] bg-[var(--error-bg)] rounded-sm shrink-0">
+          {serverError}
+        </div>
       )}
 
       <div className="flex gap-1 items-start w-full shrink-0 bg-white pb-1">
         <div className="flex flex-col flex-1 min-w-0 py-1">
-          <InputField label="タイトル" required hint="必須・最大27字" value={title} onChange={setTitle} error={fieldErrors.title} />
+          <InputField
+            label="タイトル"
+            required
+            hint="必須・最大27字"
+            value={title}
+            onChange={setTitle}
+            error={fieldErrors.title}
+          />
           <InputField
             label="説明"
             required
@@ -290,7 +297,14 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
         </div>
 
         <div className="flex flex-col flex-1 min-w-0 py-1">
-          <InputField label="URLパス" required hint="必須・最大20字" value={slug} onChange={setSlug} error={fieldErrors.slug} />
+          <InputField
+            label="URLパス"
+            required
+            hint="必須・最大20字"
+            value={slug}
+            onChange={setSlug}
+            error={fieldErrors.slug}
+          />
           <div className="p-1">
             <p className="text-xs leading-4 text-black mb-0.5">カードプレビュー</p>
             <div className="pointer-events-none">
@@ -312,7 +326,9 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
       <div className="flex flex-1 min-h-0 gap-3 pb-1 bg-white">
         <div className="w-1/2 pl-1 flex flex-col h-full overflow-hidden">
           <FormLabel name="本文" required hint="必須" error={fieldErrors.content} />
-          <div className={`flex-1 min-h-0 overflow-hidden border rounded-sm ${fieldErrors.content ? 'border-[var(--error)]' : 'border-transparent'}`}>
+          <div
+            className={`flex-1 min-h-0 overflow-hidden border rounded-sm ${fieldErrors.content ? 'border-[var(--error)]' : 'border-transparent'}`}
+          >
             <SimpleMdeReact
               value={content}
               onChange={handleContentChange}

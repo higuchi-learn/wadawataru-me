@@ -25,8 +25,7 @@ export default async function PostEditPage({ id, genre }: { id: string; genre: G
 
   // 他ジャンルに存在しつつこのジャンルに未登録のタグを導出する（PostCreatePage と同じロジック）
   // ① 他ジャンルを展開 → ② 重複除去 → ③ 現ジャンル登録済みを除外
-  const otherGenreTags = ALL_GENRES
-    .filter((g) => g !== genre)
+  const otherGenreTags = ALL_GENRES.filter((g) => g !== genre)
     .flatMap((g) => byGenre[g])
     .filter((tag, idx, arr) => arr.findIndex((t) => t.id === tag.id) === idx)
     .filter((tag) => !currentTags.some((t) => t.id === tag.id));

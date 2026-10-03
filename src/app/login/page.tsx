@@ -14,9 +14,7 @@ export default async function LoginPage({ searchParams }: Props) {
 
   return (
     <div className="flex flex-col items-center justify-center gap-3 h-screen bg-white">
-      {isAccessDenied && (
-        <p className="text-sm text-[var(--error)]">このアカウントはアクセスできません。</p>
-      )}
+      {isAccessDenied && <p className="text-sm text-[var(--error)]">このアカウントはアクセスできません。</p>}
       {/*
         form の action に async 関数を渡すと Server Action になる
         ボタンを押したとき（form の submit）にサーバー側で signIn() が実行される

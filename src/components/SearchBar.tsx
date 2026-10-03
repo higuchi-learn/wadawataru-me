@@ -49,12 +49,7 @@ export default function SearchBar({ availableTags = [], className }: SearchBarPr
         <div className="flex items-center gap-0.5 overflow-hidden flex-1 pr-1">
           {selectedItems.length > 0 ? (
             selectedItems.map((tag) => (
-              <TagLabel
-                key={tag.id}
-                label={tag.name}
-                imageUrl={tag.imageUrl}
-                onRemove={() => removeTag(tag.name)}
-              />
+              <TagLabel key={tag.id} label={tag.name} imageUrl={tag.imageUrl} onRemove={() => removeTag(tag.name)} />
             ))
           ) : (
             <span className="text-xs text-[var(--lighttext)] pl-1">タグで絞り込む</span>

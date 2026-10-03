@@ -1,20 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  SortableContext,
-  rectSortingStrategy,
-  useSortable,
-  arrayMove,
-} from '@dnd-kit/sortable';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, rectSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import SquareButton from '@/components/SquareButton';
 import { InputField } from '@/components/InputField';
@@ -71,9 +59,7 @@ function SortableTagCard({ tag, onEdit }: SortableTagCardProps) {
         {...attributes}
         {...listeners}
       >
-        {tag.imageUrl ? (
-          <img src={tag.imageUrl} alt={tag.name} className="w-full h-full object-cover" />
-        ) : null}
+        {tag.imageUrl ? <img src={tag.imageUrl} alt={tag.name} className="w-full h-full object-cover" /> : null}
       </div>
       {/* タグ名クリックで編集モーダルを開く */}
       <button
@@ -109,7 +95,10 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
     setError(null);
     const result = await updateTagAction(tag.id, name, imageUrl || null);
     setIsLoading(false);
-    if ('error' in result) { setError(result.error); return; }
+    if ('error' in result) {
+      setError(result.error);
+      return;
+    }
     onSaved(result);
     onClose();
   };
@@ -119,7 +108,10 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
     setError(null);
     const result = await removeTagFromGenreAction(tag.id, genre);
     setIsLoading(false);
-    if (result?.error) { setError(result.error); return; }
+    if (result?.error) {
+      setError(result.error);
+      return;
+    }
     onRemovedFromGenre(tag.id);
     onClose();
   };
@@ -129,7 +121,10 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
     setError(null);
     const result = await deleteTagAction(tag.id);
     setIsLoading(false);
-    if (result?.error) { setError(result.error); return; }
+    if (result?.error) {
+      setError(result.error);
+      return;
+    }
     onDeleted(tag.id);
     onClose();
   };
@@ -138,10 +133,15 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
       <div className="bg-white rounded-xl shadow-lg p-4 w-80 flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
         <p className="text-sm font-medium text-black">タグを編集</p>
-        {error && (
-          <p className="text-sm text-[var(--error)] bg-[var(--error-bg)] px-2 py-1 rounded-sm">{error}</p>
-        )}
-        <InputField label="タグ名" required hint="必須・最大20字" value={name} onChange={setName} placeholder="例: React" />
+        {error && <p className="text-sm text-[var(--error)] bg-[var(--error-bg)] px-2 py-1 rounded-sm">{error}</p>}
+        <InputField
+          label="タグ名"
+          required
+          hint="必須・最大20字"
+          value={name}
+          onChange={setName}
+          placeholder="例: React"
+        />
         <InputField
           label="画像"
           hint="任意・ペーストで追加"
@@ -169,7 +169,9 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
           <SquareButton state={!isLoading && name.trim() ? 'Enabled' : 'Disabled'} onClick={handleSave}>
             {isLoading ? '保存中…' : '保存'}
           </SquareButton>
-          <SquareButton state="Disabled" onClick={onClose}>キャンセル</SquareButton>
+          <SquareButton state="Disabled" onClick={onClose}>
+            キャンセル
+          </SquareButton>
         </div>
         {/* 破壊的操作は下段に分ける */}
         <div className="flex items-center gap-2 flex-wrap border-t border-neutral-100 pt-2">
@@ -188,7 +190,7 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
 // ---- 他ジャンルのタグを追加するピッカー ----
 
 type OtherGenreTagPickerProps = {
-  tags: TagItem[];         // 他ジャンルにあってこのジャンルにまだないタグ一覧
+  tags: TagItem[]; // 他ジャンルにあってこのジャンルにまだないタグ一覧
   genre: GenreTab;
   onAdded: (tag: TagItem) => void;
   onClose: () => void;
@@ -203,7 +205,10 @@ function OtherGenreTagPicker({ tags, genre, onAdded, onClose }: OtherGenreTagPic
     setError(null);
     const result = await addExistingTagToGenreAction(tag, genre);
     setLoadingId(null);
-    if ('error' in result) { setError(result.error); return; }
+    if ('error' in result) {
+      setError(result.error);
+      return;
+    }
     onAdded(result);
   };
 
@@ -214,9 +219,7 @@ function OtherGenreTagPicker({ tags, genre, onAdded, onClose }: OtherGenreTagPic
         onClick={(e) => e.stopPropagation()}
       >
         <p className="text-sm font-medium text-black">他ジャンルのタグを追加</p>
-        {error && (
-          <p className="text-sm text-[var(--error)] bg-[var(--error-bg)] px-2 py-1 rounded-sm">{error}</p>
-        )}
+        {error && <p className="text-sm text-[var(--error)] bg-[var(--error-bg)] px-2 py-1 rounded-sm">{error}</p>}
         {tags.length === 0 ? (
           <p className="text-sm text-[var(--lighttext)]">追加できるタグがありません</p>
         ) : (
@@ -242,7 +245,9 @@ function OtherGenreTagPicker({ tags, genre, onAdded, onClose }: OtherGenreTagPic
           </div>
         )}
         <div>
-          <SquareButton state="Disabled" onClick={onClose}>閉じる</SquareButton>
+          <SquareButton state="Disabled" onClick={onClose}>
+            閉じる
+          </SquareButton>
         </div>
       </div>
     </div>
@@ -268,7 +273,10 @@ function TagCreateForm({ genre, onCreated }: TagCreateFormProps) {
     // 同名タグが既存の場合はそのタグをジャンルに追加する（tag-actions 内で処理）
     const result = await createTagAction(name, imageUrl || null, genre);
     setIsLoading(false);
-    if ('error' in result) { setError(result.error); return; }
+    if ('error' in result) {
+      setError(result.error);
+      return;
+    }
     setName('');
     setImageUrl('');
     onCreated(result);
@@ -277,10 +285,15 @@ function TagCreateForm({ genre, onCreated }: TagCreateFormProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm p-3 flex flex-col gap-2">
       <p className="text-sm font-medium text-black">タグを追加</p>
-      {error && (
-        <p className="text-sm text-[var(--error)] bg-[var(--error-bg)] px-2 py-1 rounded-sm">{error}</p>
-      )}
-      <InputField label="タグ名" required hint="必須・最大20字" value={name} onChange={setName} placeholder="例: TypeScript" />
+      {error && <p className="text-sm text-[var(--error)] bg-[var(--error-bg)] px-2 py-1 rounded-sm">{error}</p>}
+      <InputField
+        label="タグ名"
+        required
+        hint="必須・最大20字"
+        value={name}
+        onChange={setName}
+        placeholder="例: TypeScript"
+      />
       <InputField
         label="画像"
         hint="任意・ペーストで追加（既存タグの場合は無視されます）"
@@ -338,7 +351,7 @@ export default function TagManagementPage({ initialTagsByGenre }: Props) {
     .filter((g) => g !== selectedGenre)
     .flatMap((g) => tagsByGenre[g])
     .filter((tag, idx, arr) => arr.findIndex((t) => t.id === tag.id) === idx) // 重複除去
-    .filter((tag) => !currentTags.some((t) => t.id === tag.id));             // 現ジャンル未登録のみ
+    .filter((tag) => !currentTags.some((t) => t.id === tag.id)); // 現ジャンル未登録のみ
 
   // 現在選択中のジャンルのタグリストだけを更新するヘルパー
   // setTagsByGenre を直接呼ぶと毎回全ジャンルを書き直す必要があるため、
@@ -362,7 +375,10 @@ export default function TagManagementPage({ initialTagsByGenre }: Props) {
 
     // ドラッグ完了後にジャンル固有の並び順を自動保存する
     // selectedGenre を渡すことで他ジャンルの sortOrder には影響を与えない
-    const result = await updateTagsSortOrderAction(selectedGenre, newTags.map((t) => t.id));
+    const result = await updateTagsSortOrderAction(
+      selectedGenre,
+      newTags.map((t) => t.id),
+    );
     setStatusMessage(result?.error ?? '並び順を保存しました');
   };
 
@@ -430,7 +446,10 @@ export default function TagManagementPage({ initialTagsByGenre }: Props) {
           <SquareButton
             key={value}
             state={selectedGenre === value ? 'Enabled' : 'Disabled'}
-            onClick={() => { setSelectedGenre(value); setStatusMessage(null); }}
+            onClick={() => {
+              setSelectedGenre(value);
+              setStatusMessage(null);
+            }}
           >
             {label}
           </SquareButton>
@@ -446,9 +465,7 @@ export default function TagManagementPage({ initialTagsByGenre }: Props) {
         />
       )}
 
-      {statusMessage && (
-        <span className="text-sm text-[var(--successtext,#497d00)]">{statusMessage}</span>
-      )}
+      {statusMessage && <span className="text-sm text-[var(--successtext,#497d00)]">{statusMessage}</span>}
 
       {/* 他ジャンルのタグを追加するボタン */}
       <div>

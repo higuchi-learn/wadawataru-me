@@ -52,7 +52,11 @@ export async function addExistingTagToGenreAction(tag: TagItem, genre: GenreTab)
 // タグをジャンルに追加する Server Action
 // 同名タグが tags_table にすでに存在する場合は新規作成せずそのタグを再利用する
 // （同名のタグが複数作られてIDが分かれるのを防ぐため）
-export async function createTagAction(name: string, imageUrl: string | null, genre: GenreTab): Promise<TagActionResult> {
+export async function createTagAction(
+  name: string,
+  imageUrl: string | null,
+  genre: GenreTab,
+): Promise<TagActionResult> {
   if (!(await isAuthenticated())) {
     return { error: '認証が必要です。' };
   }
@@ -149,7 +153,10 @@ export async function deleteTagAction(id: string): Promise<{ error: string } | u
 
 // 指定ジャンルのタグ並び順を保存する
 // ドラッグ完了後に自動で呼ばれる。tagIds の配列順がそのまま sortOrder になる
-export async function updateTagsSortOrderAction(genre: GenreTab, tagIds: string[]): Promise<{ error: string } | undefined> {
+export async function updateTagsSortOrderAction(
+  genre: GenreTab,
+  tagIds: string[],
+): Promise<{ error: string } | undefined> {
   if (!(await isAuthenticated())) {
     return { error: '認証が必要です。' };
   }

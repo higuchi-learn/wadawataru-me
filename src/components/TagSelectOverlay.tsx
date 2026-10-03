@@ -39,7 +39,7 @@ export default function TagSelectOverlay({
   // エラーは操作種別ごとに分離する
   // 共有してしまうと、「他ジャンル追加エラー」が「新規作成フォーム」の下に表示されるなどの
   // 表示位置のズレや、一方の操作が他方のエラーを消してしまう問題が起きる
-  const [createError, setCreateError] = useState<string | null>(null);   // 新規作成フォームのエラー
+  const [createError, setCreateError] = useState<string | null>(null); // 新規作成フォームのエラー
   const [otherGenreError, setOtherGenreError] = useState<string | null>(null); // 他ジャンル追加のエラー
   const [isCreating, setIsCreating] = useState(false);
   const [addingId, setAddingId] = useState<string | null>(null);
@@ -57,11 +57,14 @@ export default function TagSelectOverlay({
     setCreateError(null);
     const result = await createTagAction(newTagName.trim(), null, genre);
     setIsCreating(false);
-    if ('error' in result) { setCreateError(result.error); return; }
+    if ('error' in result) {
+      setCreateError(result.error);
+      return;
+    }
     // availableTags にすでに同じ id があれば追加しない（べき等性の担保）
-    setAvailableTags((prev) => prev.some((t) => t.id === result.id) ? prev : [...prev, result]);
+    setAvailableTags((prev) => (prev.some((t) => t.id === result.id) ? prev : [...prev, result]));
     // 作成直後に自動選択することで、タグを作って即決定できる UX にする
-    setSelected((prev) => prev.includes(result.name) ? prev : [...prev, result.name]);
+    setSelected((prev) => (prev.includes(result.name) ? prev : [...prev, result.name]));
     setNewTagName('');
   };
 
@@ -74,12 +77,15 @@ export default function TagSelectOverlay({
     setOtherGenreError(null);
     const result = await addExistingTagToGenreAction(tag, genre);
     setAddingId(null);
-    if ('error' in result) { setOtherGenreError(result.error); return; }
+    if ('error' in result) {
+      setOtherGenreError(result.error);
+      return;
+    }
     // 他ジャンルリストから除去してメインリストに追加する
     setOtherGenreTags((prev) => prev.filter((t) => t.id !== tag.id));
-    setAvailableTags((prev) => prev.some((t) => t.id === result.id) ? prev : [...prev, result]);
+    setAvailableTags((prev) => (prev.some((t) => t.id === result.id) ? prev : [...prev, result]));
     // 追加したタグを自動選択して即使える状態にする
-    setSelected((prev) => prev.includes(result.name) ? prev : [...prev, result.name]);
+    setSelected((prev) => (prev.includes(result.name) ? prev : [...prev, result.name]));
   };
 
   return (
@@ -91,7 +97,9 @@ export default function TagSelectOverlay({
         {/* 上部ボタン行 */}
         <div className="flex items-center justify-between p-3 shrink-0">
           <RoundButton onClick={onClose}>戻る</RoundButton>
-          <RoundButton state="Enabled" onClick={() => onConfirm(selected)}>決定</RoundButton>
+          <RoundButton state="Enabled" onClick={() => onConfirm(selected)}>
+            決定
+          </RoundButton>
         </div>
 
         <div className="flex-1 overflow-auto flex flex-col">
@@ -106,15 +114,14 @@ export default function TagSelectOverlay({
                     type="button"
                     onClick={() => toggleTag(tag.name)}
                     className={`flex flex-col items-center gap-1 p-1 rounded-xl w-full transition-colors
-                      ${isSelected
-                        ? 'bg-[var(--enableorange)] ring-2 ring-[var(--ogangetext)]'
-                        : 'bg-white hover:bg-[var(--onmouseorange)]'
+                      ${
+                        isSelected
+                          ? 'bg-[var(--enableorange)] ring-2 ring-[var(--ogangetext)]'
+                          : 'bg-white hover:bg-[var(--onmouseorange)]'
                       }`}
                   >
                     <div className="w-full aspect-square rounded-lg overflow-hidden bg-neutral-200 shrink-0">
-                      {tag.imageUrl && (
-                        <img src={tag.imageUrl} alt={tag.name} className="w-full h-full object-cover" />
-                      )}
+                      {tag.imageUrl && <img src={tag.imageUrl} alt={tag.name} className="w-full h-full object-cover" />}
                     </div>
                     <span className="text-xs leading-4 text-black text-center w-full truncate">{tag.name}</span>
                   </button>
@@ -164,15 +171,14 @@ export default function TagSelectOverlay({
                 type="text"
                 value={newTagName}
                 onChange={(e) => setNewTagName(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleCreate();
+                }}
                 placeholder="タグ名（最大20字）"
                 maxLength={20}
                 className="bg-[var(--inputcontainer)] border border-[var(--inputborder,#9f9fa9)] rounded-sm shadow-sm px-2 h-7 text-sm leading-5 flex-1 focus:outline-none focus:ring-1 focus:ring-[var(--ogangetext)]"
               />
-              <RoundButton
-                state={!isCreating && newTagName.trim() ? 'Enabled' : 'Disabled'}
-                onClick={handleCreate}
-              >
+              <RoundButton state={!isCreating && newTagName.trim() ? 'Enabled' : 'Disabled'} onClick={handleCreate}>
                 {isCreating ? '作成中…' : '作成'}
               </RoundButton>
             </div>

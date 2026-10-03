@@ -20,8 +20,7 @@ export default async function PostCreatePage({ genre }: { genre: Genre }) {
   // ① このジャンル以外のタグを1次元配列に展開
   // ② 同じタグが複数ジャンルにあっても重複して渡さないよう id で一意に絞る
   // ③ このジャンルにすでに登録済みのタグはオーバーレイに不要なので除外する
-  const otherGenreTags = ALL_GENRES
-    .filter((g) => g !== genre)
+  const otherGenreTags = ALL_GENRES.filter((g) => g !== genre)
     .flatMap((g) => byGenre[g])
     .filter((tag, idx, arr) => arr.findIndex((t) => t.id === tag.id) === idx)
     .filter((tag) => !currentTags.some((t) => t.id === tag.id));

@@ -22,8 +22,14 @@ export function PageHero({
   return (
     // relative + overflow-hidden で、背景のぼかし円がはみ出してもスクロールが出ないようにする
     <div className={`relative overflow-hidden bg-[var(--cream)] ${PX} py-14 sm:py-20`}>
-      <div aria-hidden="true" className="pointer-events-none absolute -top-32 -right-24 size-96 rounded-full bg-[var(--onmouseorange)] opacity-50 blur-3xl" />
-      <div aria-hidden="true" className="pointer-events-none absolute -bottom-40 left-1/3 size-80 rounded-full bg-[var(--tag)] opacity-15 blur-3xl" />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-32 -right-24 size-96 rounded-full bg-[var(--onmouseorange)] opacity-50 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-40 left-1/3 size-80 rounded-full bg-[var(--tag)] opacity-15 blur-3xl"
+      />
       <div className="relative">
         <p className="text-sm font-bold text-[var(--ogangetext)] tracking-wider">{en}</p>
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-black tracking-tight mt-2">{ja}</h1>
@@ -67,7 +73,8 @@ export function Section({
 export const CARD_SHADOW = 'shadow-[0_1px_2px_rgba(0,0,0,0.04),0_14px_32px_-18px_rgba(255,105,0,0.45)]';
 
 // カード下端の帯（「くわしく」やリンクを置く場所）。mt-auto で常にカードの一番下に揃う
-export const CARD_FOOTER = 'mt-auto pt-4 border-t border-[var(--softborder)] flex flex-wrap items-center justify-between gap-3';
+export const CARD_FOOTER =
+  'mt-auto pt-4 border-t border-[var(--softborder)] flex flex-wrap items-center justify-between gap-3';
 
 // カードの右上に薄く大きく置く通し番号（透かし）。padStart で 1 → "01" のように2桁に揃える
 export function Watermark({ index }: { index: number }) {

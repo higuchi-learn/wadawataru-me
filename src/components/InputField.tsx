@@ -33,7 +33,17 @@ type InputFieldProps = {
   error?: string;
 };
 
-export function InputField({ label, required, hint, value, onChange, placeholder, multiline, onPaste, error }: InputFieldProps) {
+export function InputField({
+  label,
+  required,
+  hint,
+  value,
+  onChange,
+  placeholder,
+  multiline,
+  onPaste,
+  error,
+}: InputFieldProps) {
   const borderClass = error ? 'border-[var(--error)]' : 'border-[var(--inputborder,#9f9fa9)]';
   const inputClass = `bg-[var(--inputcontainer)] border ${borderClass} rounded-sm shadow-sm px-2 text-sm leading-5 w-full focus:outline-none focus:ring-1 focus:ring-[var(--ogangetext)]`;
   return (

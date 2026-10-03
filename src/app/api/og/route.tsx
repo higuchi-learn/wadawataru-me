@@ -45,34 +45,32 @@ export async function GET(request: Request) {
   const fontData = await loadNotoSansJP(title + SITE_NAME);
 
   const response = new ImageResponse(
-    (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        padding: '64px',
+        backgroundColor: '#ffffff',
+        fontFamily: 'Noto Sans JP',
+      }}
+    >
       <div
         style={{
-          width: '100%',
-          height: '100%',
           display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          padding: '64px',
-          backgroundColor: '#ffffff',
-          fontFamily: 'Noto Sans JP',
+          width: '100%',
+          fontSize: 54,
+          fontWeight: 700,
+          color: '#171717',
+          lineHeight: 1.4,
         }}
       >
-        <div
-          style={{
-            display: 'flex',
-            width: '100%',
-            fontSize: 54,
-            fontWeight: 700,
-            color: '#171717',
-            lineHeight: 1.4,
-          }}
-        >
-          {title}
-        </div>
-        <div style={{ display: 'flex', fontSize: 32, fontWeight: 700, color: '#ff6900' }}>{SITE_NAME}</div>
+        {title}
       </div>
-    ),
+      <div style={{ display: 'flex', fontSize: 32, fontWeight: 700, color: '#ff6900' }}>{SITE_NAME}</div>
+    </div>,
     {
       width: 1200,
       height: 630,

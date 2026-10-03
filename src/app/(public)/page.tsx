@@ -14,10 +14,10 @@ import MoreDetails from '@/components/MoreDetails';
 const heroImage: string | undefined = undefined;
 
 const stats = [
-  { value: "15", label: "取得資格数", note: "すべて高校在学中" },
-  { value: "270pt", label: "ジュニアマイスター顕彰", note: "経済産業大臣賞・歴代最高得点" },
-  { value: "3.5", label: "大学 GPA", note: "専門科目はほぼ「秀」" },
-  { value: "5+", label: "ハッカソン受賞", note: "最優秀賞・優秀賞ほか" },
+  { value: '15', label: '取得資格数', note: 'すべて高校在学中' },
+  { value: '270pt', label: 'ジュニアマイスター顕彰', note: '経済産業大臣賞・歴代最高得点' },
+  { value: '3.5', label: '大学 GPA', note: '専門科目はほぼ「秀」' },
+  { value: '5+', label: 'ハッカソン受賞', note: '最優秀賞・優秀賞ほか' },
 ];
 
 // icon は Simple Icons（https://simpleicons.org）のスラッグ。
@@ -38,51 +38,49 @@ type Work = {
 
 const works: Work[] = [
   {
-    title: "Gesture Audio",
-    catchcopy: "腕を振るだけで音楽を操作できる、腕に着けるコントローラー",
-    award: "最優秀賞",
-    imageHint: "腕に着けたコントローラーの写真、またはデモの様子（16:9）",
-    tech: [
-      { name: "C++", icon: "cplusplus" },
-    ],
-    href: "/products/gesture-audio",
+    title: 'Gesture Audio',
+    catchcopy: '腕を振るだけで音楽を操作できる、腕に着けるコントローラー',
+    award: '最優秀賞',
+    imageHint: '腕に着けたコントローラーの写真、またはデモの様子（16:9）',
+    tech: [{ name: 'C++', icon: 'cplusplus' }],
+    href: '/products/gesture-audio',
   },
   {
-    title: "ステキなステッキ",
-    catchcopy: "魔法の杖を振って MP を溜め、攻撃・防御する体感型の対戦ゲーム",
-    award: "優秀賞 ＋ ゆめみ企業賞",
-    imageHint: "杖を振って遊んでいる様子、または杖の実物（16:9）",
+    title: 'ステキなステッキ',
+    catchcopy: '魔法の杖を振って MP を溜め、攻撃・防御する体感型の対戦ゲーム',
+    award: '優秀賞 ＋ ゆめみ企業賞',
+    imageHint: '杖を振って遊んでいる様子、または杖の実物（16:9）',
     tech: [
-      { name: "MicroPython", icon: "micropython" },
-      { name: "Raspberry Pi Pico W", icon: "raspberrypi" },
+      { name: 'MicroPython', icon: 'micropython' },
+      { name: 'Raspberry Pi Pico W', icon: 'raspberrypi' },
     ],
-    href: "/products/lovely-stick",
+    href: '/products/lovely-stick',
   },
   {
-    title: "Bingo!2",
-    catchcopy: "PC 1台と参加者のスマホだけで、大人数のビンゴ大会ができるアプリ",
-    award: "STECH 協賛賞",
-    imageHint: "ビンゴカードやランキング画面のスクリーンショット（16:9）",
+    title: 'Bingo!2',
+    catchcopy: 'PC 1台と参加者のスマホだけで、大人数のビンゴ大会ができるアプリ',
+    award: 'STECH 協賛賞',
+    imageHint: 'ビンゴカードやランキング画面のスクリーンショット（16:9）',
     tech: [
-      { name: "Next.js", icon: "nextdotjs" },
-      { name: "TypeScript", icon: "typescript" },
-      { name: "Firebase", icon: "firebase" },
-      { name: "Tailwind CSS", icon: "tailwindcss" },
+      { name: 'Next.js', icon: 'nextdotjs' },
+      { name: 'TypeScript', icon: 'typescript' },
+      { name: 'Firebase', icon: 'firebase' },
+      { name: 'Tailwind CSS', icon: 'tailwindcss' },
     ],
-    href: "/products/bingo2",
+    href: '/products/bingo2',
   },
   {
-    title: "SysPay",
-    catchcopy: "大学祭の模擬店で使う、スマホから注文できるオンライン注文システム",
-    award: "優秀賞",
-    imageHint: "メニュー画面やカート画面のスクリーンショット（16:9）",
+    title: 'SysPay',
+    catchcopy: '大学祭の模擬店で使う、スマホから注文できるオンライン注文システム',
+    award: '優秀賞',
+    imageHint: 'メニュー画面やカート画面のスクリーンショット（16:9）',
     tech: [
-      { name: "React", icon: "react" },
-      { name: "TypeScript", icon: "typescript" },
-      { name: "Firebase", icon: "firebase" },
-      { name: "MUI", icon: "mui" },
+      { name: 'React', icon: 'react' },
+      { name: 'TypeScript', icon: 'typescript' },
+      { name: 'Firebase', icon: 'firebase' },
+      { name: 'MUI', icon: 'mui' },
     ],
-    href: "/products/syspay",
+    href: '/products/syspay',
   },
 ];
 
@@ -101,72 +99,76 @@ type StoryStep = {
 
 const story: StoryStep[] = [
   {
-    period: "小学校",
-    title: "人前に立つ役に挑戦",
-    body: "学級委員・委員長・応援団長・生徒会長に、自分から手を挙げて挑戦した",
-    imageHint: "小学校時代の写真（運動会の応援団など）",
+    period: '小学校',
+    title: '人前に立つ役に挑戦',
+    body: '学級委員・委員長・応援団長・生徒会長に、自分から手を挙げて挑戦した',
+    imageHint: '小学校時代の写真（運動会の応援団など）',
   },
   {
-    period: "中学",
-    title: "卓球とフォートナイトの日々",
-    body: "卓球に打ち込み、フォートナイトを楽しみながら、学級委員や生徒会にも進んで取り組んだ",
-    imageHint: "中学時代の写真（卓球・生徒会など）",
+    period: '中学',
+    title: '卓球とフォートナイトの日々',
+    body: '卓球に打ち込み、フォートナイトを楽しみながら、学級委員や生徒会にも進んで取り組んだ',
+    imageHint: '中学時代の写真（卓球・生徒会など）',
   },
   {
-    period: "高校受験",
-    title: "岐阜高専に不合格",
-    body: "苦手な英語から逃げた結果、英語の点数が足りずに不合格。この失敗から、高校では何事にも全力で取り組むようになった",
-    imageHint: "（任意）当時の写真",
+    period: '高校受験',
+    title: '岐阜高専に不合格',
+    body: '苦手な英語から逃げた結果、英語の点数が足りずに不合格。この失敗から、高校では何事にも全力で取り組むようになった',
+    imageHint: '（任意）当時の写真',
     setback: true,
   },
   {
-    period: "高校入学前",
-    title: "初めての PC 自作",
-    body: "中学時代のプレゼントをすべてあきらめ、13万円分のパーツで組み立てた",
-    imageHint: "初めて組んだ PC の写真",
+    period: '高校入学前',
+    title: '初めての PC 自作',
+    body: '中学時代のプレゼントをすべてあきらめ、13万円分のパーツで組み立てた',
+    imageHint: '初めて組んだ PC の写真',
   },
   {
-    period: "高校",
-    title: "岐阜工業高校 電子工学科",
-    body: "電気電子・通信を基礎から学び、生徒会長も務めた",
-    imageHint: "高校・生徒会活動の写真",
+    period: '高校',
+    title: '岐阜工業高校 電子工学科',
+    body: '電気電子・通信を基礎から学び、生徒会長も務めた',
+    imageHint: '高校・生徒会活動の写真',
   },
   {
-    period: "高3",
-    title: "経済産業大臣賞",
-    body: "15の資格を取り、歴代最高の 270pt で全国1名の賞を受賞",
-    imageHint: "表彰式や賞状の写真",
+    period: '高3',
+    title: '経済産業大臣賞',
+    body: '15の資格を取り、歴代最高の 270pt で全国1名の賞を受賞',
+    imageHint: '表彰式や賞状の写真',
   },
   {
-    period: "大学受験",
-    title: "信州大学に不合格",
-    body: "信州大学を受験したが不合格となり、愛知工業大学に進んだ",
-    imageHint: "（任意）当時の写真",
+    period: '大学受験',
+    title: '信州大学に不合格',
+    body: '信州大学を受験したが不合格となり、愛知工業大学に進んだ',
+    imageHint: '（任意）当時の写真',
     setback: true,
   },
   {
-    period: "大学",
-    title: "愛知工業大学",
-    body: "サークルのチーム開発やハッカソンで、7つのプロダクトを開発",
-    imageHint: "ハッカソンでの発表やチームの写真",
+    period: '大学',
+    title: '愛知工業大学',
+    body: 'サークルのチーム開発やハッカソンで、7つのプロダクトを開発',
+    imageHint: 'ハッカソンでの発表やチームの写真',
   },
   {
-    period: "これから",
-    title: "フルスタック × セキュリティ",
-    body: "安心して長く使ってもらえるものを作れるエンジニアへ",
-    imageHint: "（任意）CTF や勉強会の写真",
+    period: 'これから',
+    title: 'フルスタック × セキュリティ',
+    body: '安心して長く使ってもらえるものを作れるエンジニアへ',
+    imageHint: '（任意）CTF や勉強会の写真',
     future: true,
   },
 ];
 
 function StoryCard({ step }: { step: StoryStep }) {
   return (
-    <div className={`bg-white rounded-2xl overflow-hidden ${CARD_SHADOW} ${step.future ? "border-2 border-dashed border-[var(--onmouseorange)]" : ""}`}>
+    <div
+      className={`bg-white rounded-2xl overflow-hidden ${CARD_SHADOW} ${step.future ? 'border-2 border-dashed border-[var(--onmouseorange)]' : ''}`}
+    >
       <ImageSlot src={step.image} alt={step.title} hint={step.imageHint} className="w-full aspect-video" />
       <div className="p-4">
         <span
           className={`inline-block text-xs font-bold rounded-full px-2.5 py-0.5 ${
-            step.setback ? "text-[var(--lighttext)] bg-[var(--unclickable)]" : "text-[var(--ogangetext)] bg-[var(--enableorange)]"
+            step.setback
+              ? 'text-[var(--lighttext)] bg-[var(--unclickable)]'
+              : 'text-[var(--ogangetext)] bg-[var(--enableorange)]'
           }`}
         >
           {step.period}
@@ -181,10 +183,10 @@ function StoryCard({ step }: { step: StoryStep }) {
 // 線の上の丸。future は中抜き、setback は灰色にして見分ける
 function StoryDot({ step }: { step: StoryStep }) {
   const color = step.future
-    ? "bg-[var(--cream)] border-2 border-[var(--ogangetext)]"
+    ? 'bg-[var(--cream)] border-2 border-[var(--ogangetext)]'
     : step.setback
-      ? "bg-[var(--inputborder)]"
-      : "bg-[var(--ogangetext)]";
+      ? 'bg-[var(--inputborder)]'
+      : 'bg-[var(--ogangetext)]';
   return <span className={`block size-4 rounded-full ring-4 ring-[var(--cream)] ${color}`} />;
 }
 
@@ -204,7 +206,7 @@ function StoryTimelineWide({ steps }: { steps: StoryStep[] }) {
         return (
           <div
             key={step.title}
-            className={`flex flex-col ${above ? "justify-end" : ""}`}
+            className={`flex flex-col ${above ? 'justify-end' : ''}`}
             style={{ gridColumn: `${i + 1} / span 2`, gridRow: above ? 1 : 3 }}
           >
             {!above && <span aria-hidden="true" className="mx-auto h-6 w-0.5 bg-[var(--onmouseorange)]" />}
@@ -215,7 +217,7 @@ function StoryTimelineWide({ steps }: { steps: StoryStep[] }) {
       })}
 
       {/* 線と丸の行 */}
-      <div aria-hidden="true" className="relative h-4" style={{ gridColumn: "1 / -1", gridRow: 2 }}>
+      <div aria-hidden="true" className="relative h-4" style={{ gridColumn: '1 / -1', gridRow: 2 }}>
         <span
           className="absolute top-1/2 -translate-y-1/2 h-1 rounded-full bg-[var(--ogangetext)]"
           style={{ left: `${first}%`, width: `${lastSolid - first}%` }}
@@ -243,7 +245,10 @@ function StoryTimelineNarrow({ steps }: { steps: StoryStep[] }) {
   return (
     <ol className="relative flex flex-col gap-6 pl-8 max-w-xl mx-auto">
       {/* 縦線。最初と最後の丸の中心のあいだに引く */}
-      <span aria-hidden="true" className="absolute left-[7px] top-2 bottom-2 w-1 rounded-full bg-gradient-to-b from-[var(--ogangetext)] from-80% to-[var(--onmouseorange)]" />
+      <span
+        aria-hidden="true"
+        className="absolute left-[7px] top-2 bottom-2 w-1 rounded-full bg-gradient-to-b from-[var(--ogangetext)] from-80% to-[var(--onmouseorange)]"
+      />
       {steps.map((step) => (
         <li key={step.title} className="relative">
           <span aria-hidden="true" className="absolute -left-8 top-1">
@@ -259,102 +264,99 @@ function StoryTimelineNarrow({ steps }: { steps: StoryStep[] }) {
 // catchcopy で一言だけ見せ、本文は「くわしく」を開いた人だけが読む
 const traits = [
   {
-    title: "仕組みで解決したい",
-    catchcopy: "頑張りでカバーするより、同じ問題が起きない仕組みを作る",
-    body: "人の頑張りでカバーするより、同じ問題が起きない仕組みを作るほうが好きです。生徒会では紙の意見箱をWebフォームに切り替えたり、作業環境をNASでデジタル化したりしました。開発でも、WebSocket が使えなかったときに HTTP ポーリングで擬似的なリアルタイム通信を実装しました。",
+    title: '仕組みで解決したい',
+    catchcopy: '頑張りでカバーするより、同じ問題が起きない仕組みを作る',
+    body: '人の頑張りでカバーするより、同じ問題が起きない仕組みを作るほうが好きです。生徒会では紙の意見箱をWebフォームに切り替えたり、作業環境をNASでデジタル化したりしました。開発でも、WebSocket が使えなかったときに HTTP ポーリングで擬似的なリアルタイム通信を実装しました。',
   },
   {
-    title: "わかるまで調べる",
-    catchcopy: "わかったつもりにしない。仕組みまで理解して使う",
-    body: "わかったつもりのままにしておくのが苦手です。大学の課題はAIを使わずに自分で解くようにしています。ライブラリの中身を理解しないまま使って認識精度で苦労したこともあり、使う技術の仕組みはできるだけ理解しておきたいと思っています。",
+    title: 'わかるまで調べる',
+    catchcopy: 'わかったつもりにしない。仕組みまで理解して使う',
+    body: 'わかったつもりのままにしておくのが苦手です。大学の課題はAIを使わずに自分で解くようにしています。ライブラリの中身を理解しないまま使って認識精度で苦労したこともあり、使う技術の仕組みはできるだけ理解しておきたいと思っています。',
   },
   {
-    title: "目標を決めてから動く",
-    catchcopy: "ゴールから逆算して、3年かけて大臣賞へ",
-    body: "高1のときにジュニアマイスター顕彰の経済産業大臣賞を目標にし、高3では歴代最高得点の更新に目標を引き上げて、270pt で受賞しました。生徒会でも、会長になる前に会計と書記を経験して、実際の業務を知ってから改革に取り組みました。",
+    title: '目標を決めてから動く',
+    catchcopy: 'ゴールから逆算して、3年かけて大臣賞へ',
+    body: '高1のときにジュニアマイスター顕彰の経済産業大臣賞を目標にし、高3では歴代最高得点の更新に目標を引き上げて、270pt で受賞しました。生徒会でも、会長になる前に会計と書記を経験して、実際の業務を知ってから改革に取り組みました。',
   },
   {
-    title: "失敗から学ぶ",
-    catchcopy: "ミスの原因を探り、手順書で再発を防ぐ",
-    body: "生徒会で放送の操作ミスをしたときは「わかっているつもり」だったことが原因だと考え、すべての業務に手順書を作りました。技育CAMPでは遊び感覚で作ったものが最優秀賞をもらい、苦労の量と評価は必ずしも比例しないことを知りました。",
+    title: '失敗から学ぶ',
+    catchcopy: 'ミスの原因を探り、手順書で再発を防ぐ',
+    body: '生徒会で放送の操作ミスをしたときは「わかっているつもり」だったことが原因だと考え、すべての業務に手順書を作りました。技育CAMPでは遊び感覚で作ったものが最優秀賞をもらい、苦労の量と評価は必ずしも比例しないことを知りました。',
   },
   {
-    title: "人に教えること",
-    catchcopy: "答えではなく、コツをつかむ手助けをする",
-    body: "ピアサポートでは、解き方をそのまま教えるのではなく、本人がコツをつかめるように一緒に考えることを意識していました。エクステンションセンターでは、小学生に加算器の面白さを伝えるために 23ビット加算器表示器を自作しました。",
+    title: '人に教えること',
+    catchcopy: '答えではなく、コツをつかむ手助けをする',
+    body: 'ピアサポートでは、解き方をそのまま教えるのではなく、本人がコツをつかめるように一緒に考えることを意識していました。エクステンションセンターでは、小学生に加算器の面白さを伝えるために 23ビット加算器表示器を自作しました。',
   },
   {
-    title: "コツコツ続ける",
-    catchcopy: "1年で1,000時間。積み重ねで信頼をつくる",
-    body: "セブンイレブンでは約1年で1,000時間ほど働き、発注業務を任せてもらえるようになりました。生徒会長としての改革を受け入れてもらえたのも、会計・書記の頃から地道に仕事をしてきたからだと思っています。",
+    title: 'コツコツ続ける',
+    catchcopy: '1年で1,000時間。積み重ねで信頼をつくる',
+    body: 'セブンイレブンでは約1年で1,000時間ほど働き、発注業務を任せてもらえるようになりました。生徒会長としての改革を受け入れてもらえたのも、会計・書記の頃から地道に仕事をしてきたからだと思っています。',
   },
 ];
 
 const skillGroups: { category: string; items: Skill[] }[] = [
   {
-    category: "フロントエンド",
+    category: 'フロントエンド',
     items: [
-      { name: "TypeScript", icon: "typescript" },
-      { name: "React", icon: "react" },
-      { name: "Next.js", icon: "nextdotjs" },
-      { name: "Tailwind CSS", icon: "tailwindcss" },
-      { name: "Shadcn", icon: "shadcnui" },
-      { name: "MUI", icon: "mui" },
+      { name: 'TypeScript', icon: 'typescript' },
+      { name: 'React', icon: 'react' },
+      { name: 'Next.js', icon: 'nextdotjs' },
+      { name: 'Tailwind CSS', icon: 'tailwindcss' },
+      { name: 'Shadcn', icon: 'shadcnui' },
+      { name: 'MUI', icon: 'mui' },
     ],
   },
   {
-    category: "バックエンド",
+    category: 'バックエンド',
     items: [
-      { name: "Python", icon: "python" },
-      { name: "FastAPI", icon: "fastapi" },
-      { name: "C / C++", icon: "cplusplus" },
-      { name: "Rails", icon: "rubyonrails" },
-      { name: "Laravel", icon: "laravel" },
+      { name: 'Python', icon: 'python' },
+      { name: 'FastAPI', icon: 'fastapi' },
+      { name: 'C / C++', icon: 'cplusplus' },
+      { name: 'Rails', icon: 'rubyonrails' },
+      { name: 'Laravel', icon: 'laravel' },
     ],
   },
   {
-    category: "データベース",
+    category: 'データベース',
     items: [
-      { name: "Firebase / Firestore", icon: "firebase" },
-      { name: "PostgreSQL", icon: "postgresql" },
-      { name: "MariaDB", icon: "mariadb" },
-      { name: "MySQL", icon: "mysql" },
-      { name: "SQLite", icon: "sqlite" },
-      { name: "Drizzle", icon: "drizzle" },
+      { name: 'Firebase / Firestore', icon: 'firebase' },
+      { name: 'PostgreSQL', icon: 'postgresql' },
+      { name: 'MariaDB', icon: 'mariadb' },
+      { name: 'MySQL', icon: 'mysql' },
+      { name: 'SQLite', icon: 'sqlite' },
+      { name: 'Drizzle', icon: 'drizzle' },
     ],
   },
   {
-    category: "組み込み / ハードウェア",
+    category: '組み込み / ハードウェア',
     items: [
-      { name: "Arduino", icon: "arduino" },
-      { name: "Raspberry Pi", icon: "raspberrypi" },
-      { name: "XIAO BLE" },
-      { name: "MicroPython", icon: "micropython" },
-      { name: "C++ (マイコン)", icon: "cplusplus" },
-      { name: "VHDL / FPGA" },
-      { name: "回路設計" },
-      { name: "JW_CAD" },
-      { name: "TINA-TI" },
+      { name: 'Arduino', icon: 'arduino' },
+      { name: 'Raspberry Pi', icon: 'raspberrypi' },
+      { name: 'XIAO BLE' },
+      { name: 'MicroPython', icon: 'micropython' },
+      { name: 'C++ (マイコン)', icon: 'cplusplus' },
+      { name: 'VHDL / FPGA' },
+      { name: '回路設計' },
+      { name: 'JW_CAD' },
+      { name: 'TINA-TI' },
     ],
   },
   {
-    category: "AI・機械学習",
-    items: [
-      { name: "YOLO (物体検出)", icon: "yolo" },
-      { name: "CVAT (アノテーション)" },
-    ],
+    category: 'AI・機械学習',
+    items: [{ name: 'YOLO (物体検出)', icon: 'yolo' }, { name: 'CVAT (アノテーション)' }],
   },
   {
-    category: "インフラ / ツール",
+    category: 'インフラ / ツール',
     items: [
-      { name: "Vercel", icon: "vercel" },
-      { name: "Cloudflare Workers", icon: "cloudflareworkers" },
-      { name: "Neon", icon: "neon" },
+      { name: 'Vercel', icon: 'vercel' },
+      { name: 'Cloudflare Workers', icon: 'cloudflareworkers' },
+      { name: 'Neon', icon: 'neon' },
       // AWS は商標の都合で Simple Icons から削除されているため頭文字で代用
-      { name: "AWS (学習中)" },
-      { name: "Figma", icon: "figma" },
-      { name: "Typst", icon: "typst" },
-      { name: "Marp" },
+      { name: 'AWS (学習中)' },
+      { name: 'Figma', icon: 'figma' },
+      { name: 'Typst', icon: 'typst' },
+      { name: 'Marp' },
     ],
   },
 ];
@@ -362,37 +364,37 @@ const skillGroups: { category: string; items: Skill[] }[] = [
 // headline を大きく見せ、detail は補足として小さく添える
 const nowItems = [
   {
-    label: "インターン",
-    headline: "コムスクエアで Web エンジニア",
-    detail: "フルリモートで勤務。2026年は SmartHR・kubell・ディップなど計9社の短期インターンにも参加しました",
+    label: 'インターン',
+    headline: 'コムスクエアで Web エンジニア',
+    detail: 'フルリモートで勤務。2026年は SmartHR・kubell・ディップなど計9社の短期インターンにも参加しました',
   },
   {
-    label: "セキュリティ学習",
-    headline: "CTF と、毎月1冊の技術書",
-    detail: "防衛省サイバーコンテスト 2026 などに参加しています",
+    label: 'セキュリティ学習',
+    headline: 'CTF と、毎月1冊の技術書',
+    detail: '防衛省サイバーコンテスト 2026 などに参加しています',
   },
   {
-    label: "自企画講座",
-    headline: "小学生に「1+1＝10」を教える",
-    detail: "2026年8月、愛知工業大学「まるごと体験ワールド」で小学生向けの講座を開催しました",
+    label: '自企画講座',
+    headline: '小学生に「1+1＝10」を教える',
+    detail: '2026年8月、愛知工業大学「まるごと体験ワールド」で小学生向けの講座を開催しました',
   },
   {
-    label: "技術発信",
-    headline: "Qiita で記事を公開中",
-    detail: "Next.js + Neon + Cloudflare Workers の構築記事など",
+    label: '技術発信',
+    headline: 'Qiita で記事を公開中',
+    detail: 'Next.js + Neon + Cloudflare Workers の構築記事など',
   },
   {
-    label: "所属",
-    headline: "システム工学研究会 / MatsuribaTech",
-    detail: "愛知工業大学のサークルと、東海エンジニア学生コミュニティ",
+    label: '所属',
+    headline: 'システム工学研究会 / MatsuribaTech',
+    detail: '愛知工業大学のサークルと、東海エンジニア学生コミュニティ',
   },
 ];
 
 const links = [
-  { label: "GitHub", icon: "github", href: "https://github.com/higuchi-learn" },
-  { label: "X", icon: "x", href: "https://x.com/hig270" },
-  { label: "Wantedly", icon: "wantedly", href: "https://www.wantedly.com/id/haruki_higuchi_000" },
-  { label: "Qiita", icon: "qiita", href: "https://qiita.com/wada_wataru" },
+  { label: 'GitHub', icon: 'github', href: 'https://github.com/higuchi-learn' },
+  { label: 'X', icon: 'x', href: 'https://x.com/hig270' },
+  { label: 'Wantedly', icon: 'wantedly', href: 'https://www.wantedly.com/id/haruki_higuchi_000' },
+  { label: 'Qiita', icon: 'qiita', href: 'https://qiita.com/wada_wataru' },
 ];
 
 // ─────────────────────────────────────────────────────────────
@@ -417,16 +419,20 @@ function TechLogo({ icon, name, size = 16 }: { icon: string; name: string; size?
 export default function HomePage() {
   return (
     <div className="flex-1 flex flex-col">
-
       {/* ── Hero ─────────────────────────────────────────────── */}
       {/* relative + overflow-hidden で、背景のぼかし円がはみ出してもスクロールが出ないようにする */}
       <section className={`relative overflow-hidden bg-[var(--cream)] ${PX} pt-14 pb-12 sm:pt-20 lg:pt-24 lg:pb-16`}>
         {/* 背景の装飾。blur で輪郭を消し、柔らかい光のように見せている */}
-        <div aria-hidden="true" className="pointer-events-none absolute -top-32 -right-24 size-[28rem] rounded-full bg-[var(--onmouseorange)] opacity-60 blur-3xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-40 -left-24 size-96 rounded-full bg-[var(--tag)] opacity-20 blur-3xl" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-32 -right-24 size-[28rem] rounded-full bg-[var(--onmouseorange)] opacity-60 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-40 -left-24 size-96 rounded-full bg-[var(--tag)] opacity-20 blur-3xl"
+        />
 
         <div className="relative grid lg:grid-cols-[1.15fr_0.85fr] items-center gap-12 lg:gap-16">
-
           {/* テキスト */}
           <div className="text-center lg:text-left">
             <p className="inline-block text-sm font-bold text-[var(--ogangetext)] bg-white rounded-full px-4 py-1.5 shadow-sm">
@@ -438,9 +444,7 @@ export default function HomePage() {
             <p className="text-xl sm:text-2xl font-bold text-black mt-5 leading-snug">
               ハードもソフトも、<span className="text-[var(--ogangetext)]">手を動かして</span>つくる。
             </p>
-            <p className="text-sm text-[var(--lighttext)] mt-4">
-              樋口 陽輝 ／ 愛知工業大学 電子情報工学専攻 3年
-            </p>
+            <p className="text-sm text-[var(--lighttext)] mt-4">樋口 陽輝 ／ 愛知工業大学 電子情報工学専攻 3年</p>
 
             {/* 行動を促すボタン。読む前に「作品を見る」へ誘導する */}
             <div className="flex flex-wrap justify-center lg:justify-start gap-3 mt-8">
@@ -487,7 +491,9 @@ export default function HomePage() {
               className="bg-white/80 backdrop-blur rounded-2xl shadow-sm flex flex-col items-center justify-center px-3 py-6 text-center"
             >
               {/* 数値は途中で折り返さないよう nowrap */}
-              <p className="text-3xl sm:text-4xl font-bold text-[var(--ogangetext)] whitespace-nowrap leading-none">{stat.value}</p>
+              <p className="text-3xl sm:text-4xl font-bold text-[var(--ogangetext)] whitespace-nowrap leading-none">
+                {stat.value}
+              </p>
               {/* text-balance で折り返し時に行の長さを揃え、1文字だけ次行に残るのを防ぐ */}
               <p className="text-xs text-black mt-3 font-bold leading-5 text-balance">{stat.label}</p>
               <p className="text-xs text-[var(--lighttext)] mt-0.5 leading-5 text-balance">{stat.note}</p>
@@ -536,10 +542,16 @@ export default function HomePage() {
           ))}
         </div>
         <div className="flex flex-wrap justify-center gap-3 mt-10">
-          <Link href="/products" className="text-sm font-bold text-[var(--ogangetext)] bg-[var(--enableorange)] rounded-full px-6 py-3 hover:bg-[var(--onmouseorange)] transition-colors">
+          <Link
+            href="/products"
+            className="text-sm font-bold text-[var(--ogangetext)] bg-[var(--enableorange)] rounded-full px-6 py-3 hover:bg-[var(--onmouseorange)] transition-colors"
+          >
             プロダクト一覧へ →
           </Link>
-          <Link href="/awards" className="text-sm font-bold text-[var(--ogangetext)] bg-[var(--enableorange)] rounded-full px-6 py-3 hover:bg-[var(--onmouseorange)] transition-colors">
+          <Link
+            href="/awards"
+            className="text-sm font-bold text-[var(--ogangetext)] bg-[var(--enableorange)] rounded-full px-6 py-3 hover:bg-[var(--onmouseorange)] transition-colors"
+          >
             受賞歴へ →
           </Link>
         </div>
@@ -609,7 +621,10 @@ export default function HomePage() {
                       <TechLogo icon={item.icon} name="" size={24} />
                     ) : (
                       // ロゴがない技術は頭文字を丸に入れて、ロゴと同じ大きさで揃える
-                      <span aria-hidden="true" className="flex items-center justify-center size-6 rounded-full bg-[var(--onmouseorange)] text-[11px] font-bold text-[var(--ogangetext)]">
+                      <span
+                        aria-hidden="true"
+                        className="flex items-center justify-center size-6 rounded-full bg-[var(--onmouseorange)] text-[11px] font-bold text-[var(--ogangetext)]"
+                      >
                         {item.name.charAt(0)}
                       </span>
                     )}
@@ -639,7 +654,9 @@ export default function HomePage() {
 
       {/* ── Links ────────────────────────────────────────────── */}
       {/* 最後はオレンジの帯で締める。ページの終わりがはっきりして、SNS へ誘導しやすい */}
-      <section className={`bg-gradient-to-br from-[var(--ogangetext)] to-[var(--clickingorange)] ${PX} py-16 sm:py-20 text-center`}>
+      <section
+        className={`bg-gradient-to-br from-[var(--ogangetext)] to-[var(--clickingorange)] ${PX} py-16 sm:py-20 text-center`}
+      >
         {/* 見出しは小さな「Links」だけにして、主役はボタンにする。h2 にしておくとセクションの見出しとして読み上げられる */}
         <h2 className="text-sm font-bold text-white/80 tracking-wider">Links</h2>
         <div className="flex flex-wrap justify-center gap-3 mt-6">
@@ -657,7 +674,6 @@ export default function HomePage() {
           ))}
         </div>
       </section>
-
     </div>
   );
 }

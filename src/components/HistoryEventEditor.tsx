@@ -384,7 +384,8 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
             />
           </div>
           <p className="px-1 text-xs leading-4 text-[var(--lighttext)]">
-            制作物に関する出来事なら、その記事の slug を入れます。年表のカードは本文の詳細ページではなく、/products/slug の記事にリンクします。
+            制作物に関する出来事なら、その記事の slug を入れます。年表のカードは本文の詳細ページではなく、/products/slug
+            の記事にリンクします。
           </p>
           <div className="p-1">
             <p className="text-xs leading-4 text-black mb-1">年表での表示プレビュー</p>

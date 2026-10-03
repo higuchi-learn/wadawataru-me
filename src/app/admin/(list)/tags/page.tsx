@@ -10,9 +10,5 @@ export default async function AdminTagsPage() {
     getTagsForGenre('books'),
   ]);
 
-  return (
-    <TagManagementPage
-      initialTagsByGenre={{ products, blogs, books }}
-    />
-  );
+  return <TagManagementPage initialTagsByGenre={{ products, blogs, books }} />;
 }

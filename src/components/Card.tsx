@@ -38,7 +38,16 @@ function Thumbnail({ url, title, className }: { url?: string; title: string; cla
   return <img src={src} alt={title} className={`${className} object-cover`} />;
 }
 
-export default function Card({ title, description, tags, publishedAt, updatedAt, thumbnailUrl, href = '#', className }: CardProps) {
+export default function Card({
+  title,
+  description,
+  tags,
+  publishedAt,
+  updatedAt,
+  thumbnailUrl,
+  href = '#',
+  className,
+}: CardProps) {
   return (
     <Link
       href={href}
@@ -76,11 +85,19 @@ export default function Card({ title, description, tags, publishedAt, updatedAt,
         </div>
 
         {/* sm-xl: 右サムネイル */}
-        <Thumbnail url={thumbnailUrl} title={title} className="hidden sm:block 2xl:hidden aspect-video flex-1 min-w-px min-h-px rounded-lg shrink-0" />
+        <Thumbnail
+          url={thumbnailUrl}
+          title={title}
+          className="hidden sm:block 2xl:hidden aspect-video flex-1 min-w-px min-h-px rounded-lg shrink-0"
+        />
       </div>
 
       {/* 2xl: 右サムネイル (card の直接 flex 子) */}
-      <Thumbnail url={thumbnailUrl} title={title} className="hidden 2xl:block aspect-video flex-1 min-w-px min-h-px rounded-lg shrink-0" />
+      <Thumbnail
+        url={thumbnailUrl}
+        title={title}
+        className="hidden 2xl:block aspect-video flex-1 min-w-px min-h-px rounded-lg shrink-0"
+      />
     </Link>
   );
 }
