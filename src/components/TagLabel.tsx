@@ -1,7 +1,6 @@
 type TagLabelProps = {
   label: string;
-  // imageUrl が渡された場合（null 含む）は左端に画像スペースを表示する
-  // undefined のとき（旧来の呼び出し）は画像スペース自体を表示しない
+  // 画像の URL がある場合だけ左端に画像を表示する。null・undefined（画像なし）のときは画像の枠ごと出さない
   imageUrl?: string | null;
   isSelected?: boolean;
   // 渡された場合のみ右端に × ボタンを表示する
@@ -13,12 +12,12 @@ export default function TagLabel({ label, imageUrl, isSelected, onRemove }: TagL
     <div
       className={`flex items-center gap-1 px-1 py-px rounded-md bg-[var(--tag)] ${isSelected ? 'ring-1 ring-[var(--ogangetext)]' : ''}`}
     >
-      {/* imageUrl が明示的に渡されたときだけ画像スペースを表示する
+      {/* 画像があるタグだけ画像の枠を表示する（画像のないタグに空の四角を出しても意味がないため）
           背景は白: タグ画像はアップロード時に透明の余白で正方形にしている（padImageToSquare）ため、
           背景が灰色だと余白部分が灰色の帯になって見づらい。白ならロゴの周りが自然になじむ */}
-      {imageUrl !== undefined && (
+      {imageUrl && (
         <div className="w-4 h-4 rounded-sm overflow-hidden shrink-0 bg-white">
-          {imageUrl && <img src={imageUrl} alt="" className="w-full h-full object-cover" />}
+          <img src={imageUrl} alt="" className="w-full h-full object-cover" />
         </div>
       )}
       <span className="text-xs leading-4 font-normal text-black whitespace-nowrap">{label}</span>

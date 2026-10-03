@@ -44,7 +44,8 @@ function SortableTagCard({ tag, onEdit }: SortableTagCardProps) {
 
   return (
     <div ref={setNodeRef} style={style} className="flex flex-col items-center gap-1 bg-white rounded-xl p-1 shadow-sm">
-      {/* 画像エリアがドラッグハンドル。PointerSensor の distance:8 制約により単なるクリックではドラッグが起動しない */}
+      {/* 画像エリアがドラッグハンドル。PointerSensor の distance:8 制約により単なるクリックではドラッグが起動しない
+          画像のないタグでもこの枠は残す（消すと、つかむ場所がなくなり並べ替えられなくなるため） */}
       <div
         className="w-full aspect-square rounded-lg overflow-hidden bg-white cursor-grab active:cursor-grabbing"
         {...attributes}
@@ -253,11 +254,12 @@ function OtherGenreTagPicker({ tags, genre, onAdded, onClose }: OtherGenreTagPic
                   onClick={() => void handleAdd(tag)}
                   className="flex flex-col items-center gap-1 bg-[var(--inputcontainer)] hover:bg-[var(--onmouseorange)] active:bg-[var(--clickingorange)] rounded-xl p-1 transition-colors disabled:opacity-50"
                 >
-                  <div className="w-full aspect-square rounded-lg overflow-hidden bg-white">
-                    {tag.imageUrl ? (
+                  {/* 画像があるタグだけ画像の枠を表示する */}
+                  {tag.imageUrl && (
+                    <div className="w-full aspect-square rounded-lg overflow-hidden bg-white">
                       <img src={tag.imageUrl} alt={tag.name} className="w-full h-full object-cover" />
-                    ) : null}
-                  </div>
+                    </div>
+                  )}
                   <span className="text-xs leading-4 text-black text-center w-full truncate">{tag.name}</span>
                 </button>
               ))}
