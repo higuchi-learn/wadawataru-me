@@ -1,9 +1,8 @@
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
-import type { SelectPost, SelectTag, SelectHistoryEvent } from '../schema';
+import type { SelectPost, SelectHistoryEvent } from '../schema';
 import {
   getPostsList,
-  getPostsCount,
   getTagsForGenre,
   getPublishedPostSlugs,
   getHistoryEventsList,
@@ -25,7 +24,7 @@ import {
 
 // 作り置きを捨てるときの目印（タグ）。どの関数の結果を捨てるかをまとめて指定する
 export const CACHE_TAGS = {
-  // 記事一覧・件数・ジャンルのタグ一覧（記事・タグの保存で捨てる）
+  // 記事一覧（全記事）・ジャンルのタグ一覧・公開中の slug 一覧（記事・タグの保存で捨てる）
   posts: 'public-posts',
   // 年表の出来事（年表・ラベルの保存で捨てる）
   history: 'public-history',
@@ -41,25 +40,22 @@ function toDate(value: Date | string | null): Date | null {
 
 // unstable_cache の第2引数（keyParts）は、作り置きを区別する名前。引数の値は自動で名前に足される
 // revalidate を指定しないので、時間では古くならず、updateTag で捨てるまで使い続ける
-const cachedPostsList = unstable_cache(
-  (genre: SelectPost['genre'], tagIds: SelectTag['id'][], page: number) =>
-    getPostsList(genre, 'published', tagIds, page),
-  ['public-posts-list'],
+
+// 一覧に載せる記事の上限。公開ページの一覧は、そのジャンルの公開中の記事をすべてページに入れておき、
+// 絞り込み・ページ送りはブラウザ側で行う（PublicPostList）。記事が増えてこの数に近づいたら、ページの大きさを見直す
+const MAX_LISTED_POSTS = 1000;
+
+const cachedAllPublishedPosts = unstable_cache(
+  (genre: SelectPost['genre']) => getPostsList(genre, 'published', [], 1, MAX_LISTED_POSTS),
+  ['public-all-posts'],
   { tags: [CACHE_TAGS.posts] },
 );
 
-// 公開中の記事一覧（1ページ分）
-export async function getPublishedPostsList(genre: SelectPost['genre'], tagIds: SelectTag['id'][], page: number) {
-  const posts = await cachedPostsList(genre, tagIds, page);
+// 公開中の記事すべて（新しい順。タグつき）
+export async function getAllPublishedPosts(genre: SelectPost['genre']) {
+  const posts = await cachedAllPublishedPosts(genre);
   return posts.map((post) => ({ ...post, publishedAt: toDate(post.publishedAt), updatedAt: toDate(post.updatedAt) }));
 }
-
-// 公開中の記事の件数（ページ送りの総ページ数に使う）
-export const getPublishedPostsCount = unstable_cache(
-  (genre: SelectPost['genre'], tagIds: SelectTag['id'][]) => getPostsCount(genre, 'published', tagIds),
-  ['public-posts-count'],
-  { tags: [CACHE_TAGS.posts] },
-);
 
 // ジャンルに登録されたタグ（検索バーの選択肢）。Date を含まないのでそのまま返す
 export const getPublicTagsForGenre = unstable_cache(

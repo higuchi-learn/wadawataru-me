@@ -14,10 +14,11 @@ type SearchBarProps = {
   className?: string;
 };
 
+// 管理画面の一覧で使う検索バー。タグを選ぶと URL の ?tags= を変え、サーバー側で絞り込み直した一覧を受け取る
+// 公開ページの一覧は、全記事を持ったままブラウザ側で絞り込むので、こちらではなく SearchBarView を直接使う（PublicPostList）
 export default function SearchBar({ availableTags = [], className }: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   // 絞り込みの読み込み中かどうか
   // router.push を startTransition で包むと、サーバーから新しい一覧が届くまでの間 isPending が true になる
   // 絞り込み（URL の ?tags= だけが変わる移動）では loading.tsx の骨組みが出ないため、これを使って
@@ -30,7 +31,6 @@ export default function SearchBar({ availableTags = [], className }: SearchBarPr
 
   const applySelection = (names: string[]) => {
     setSelectedNames(names);
-    setIsOverlayOpen(false);
     // URL を更新することで Next.js がサーバー側でタグ絞り込みを再実行する
     const params = new URLSearchParams(searchParams.toString());
     if (names.length > 0) {
@@ -42,6 +42,42 @@ export default function SearchBar({ availableTags = [], className }: SearchBarPr
     startTransition(() => {
       router.push(`?${params.toString()}`);
     });
+  };
+
+  return (
+    <SearchBarView
+      availableTags={availableTags}
+      className={className}
+      selectedNames={selectedNames}
+      onChange={applySelection}
+      isPending={isPending}
+    />
+  );
+}
+
+type SearchBarViewProps = SearchBarProps & {
+  // 選択中のタグ名
+  selectedNames: string[];
+  // タグの選択を変えたとき（選択画面で決定したとき・選択中タグの「×」を押したとき）に呼ばれる
+  onChange: (names: string[]) => void;
+  // サーバーから絞り込み結果を待っている間 true にすると、虫眼鏡を回転する輪に変え、カード一覧を薄くする
+  isPending?: boolean;
+};
+
+// 検索バーの見た目と操作。URL の読み書きはしない（呼び出し側が selectedNames と onChange で行う）
+// URL を読む部品（useSearchParams）を含まないので、作り置きのページでもサーバー側で HTML にできる
+export function SearchBarView({
+  availableTags = [],
+  className,
+  selectedNames,
+  onChange,
+  isPending = false,
+}: SearchBarViewProps) {
+  const [isOverlayOpen, setIsOverlayOpen] = useState(false);
+
+  const applySelection = (names: string[]) => {
+    setIsOverlayOpen(false);
+    onChange(names);
   };
 
   const removeTag = (name: string) => applySelection(selectedNames.filter((n) => n !== name));

@@ -12,10 +12,16 @@ import type { Genre } from '@/components/GenreAbout';
 // updateTag / revalidatePath はどちらも「すぐ古いとみなす」。Server Action の中でしか使えない（updateTag）
 // 操作ごとに何を捨てるかの一覧は documents/2026-10-04-static-like-caching.md にまとめている
 
+// 記事一覧のページ（ページごと作り置きにしている。絞り込み・ページ送りはブラウザ側）
+const LIST_PATHS = ['/blogs', '/products', '/books'] as const;
+
 // 記事1件を保存・公開・アーカイブしたとき
 export function revalidatePostPages(genre: Genre, slug: string) {
-  // 記事一覧・件数（公開・非公開が変わると件数も変わる）
+  // 記事一覧のデータ（全記事・タグ・公開中の slug 一覧）
   updateTag(CACHE_TAGS.posts);
+  // そのジャンルの記事一覧のページ
+  // データを捨てるだけでは、それを使って組み立てた一覧のページの作り置きが残ることがあるので、ページも捨てる
+  revalidatePath(`/${genre}`);
   // その記事のページ
   revalidatePath(`/${genre}/${slug}`);
   // サイトマップ（公開中の記事の URL と更新日時を載せている）
@@ -25,6 +31,8 @@ export function revalidatePostPages(genre: Genre, slug: string) {
 // タグの並び順・ジャンルへの追加/除外など、一覧の検索バーだけが変わるとき
 export function revalidatePostLists() {
   updateTag(CACHE_TAGS.posts);
+  // 一覧のページも作り置きなので捨てる（どのジャンルのタグかを呼び出し側で区別しないので、3つとも）
+  for (const path of LIST_PATHS) revalidatePath(path);
 }
 
 // タグの名前・画像の変更や削除など、どの記事ページに出ているタグも変わりうるとき

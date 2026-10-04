@@ -1,9 +1,6 @@
 import PostListPage from '@/components/PostListPage';
 
-export default async function ProductsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string; tags?: string }>;
-}) {
-  return <PostListPage genre="products" searchParams={await searchParams} />;
+// 一覧はページごと作り置きにする。絞り込み（?tags=）とページ送り（?page=）は、PostListPage の中でブラウザ側で行う
+export default function ProductsPage() {
+  return <PostListPage genre="products" />;
 }

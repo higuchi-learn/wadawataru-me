@@ -9,6 +9,8 @@ type SelectPageBarProps = {
   className?: string;
 };
 
+// 管理画面の一覧で使うページ送り。ページを選ぶと URL の ?page= を変え、サーバー側で作り直した一覧を受け取る
+// 公開ページの一覧は、全記事を持ったままブラウザ側でページを切り替えるので、PageBar を直接使う（PublicPostList）
 export default function SelectPageBar({ totalPages, className }: SelectPageBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -24,6 +26,29 @@ export default function SelectPageBar({ totalPages, className }: SelectPageBarPr
       router.push(`?${params.toString()}`);
     });
   };
+
+  return (
+    <PageBar
+      totalPages={totalPages}
+      currentPage={currentPage}
+      onChange={setPage}
+      isPending={isPending}
+      className={className}
+    />
+  );
+}
+
+type PageBarProps = SelectPageBarProps & {
+  currentPage: number;
+  onChange: (page: number) => void;
+  // サーバーから次のページを待っている間 true にすると、data-list-pending でカード一覧を薄くする
+  isPending?: boolean;
+};
+
+// ページ送りの見た目と操作。URL の読み書きはしない（呼び出し側が currentPage と onChange で行う）
+// URL を読む部品（useSearchParams）を含まないので、作り置きのページでもサーバー側で HTML にできる
+export function PageBar({ totalPages, currentPage, onChange, isPending = false, className }: PageBarProps) {
+  const setPage = onChange;
 
   const isFirst = currentPage === 1;
   const isLast = currentPage === totalPages;
