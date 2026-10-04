@@ -1,22 +1,21 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { getPublicHistoryEvent } from '@/db/queries/cached';
-import { historyArticleHref, historyEraLabel, historyKindColor } from '@/lib/history';
+import { HISTORY_EVENT_ID_PATTERN, historyEraLabel, historyKindColor } from '@/lib/history';
 
 // 出来事のデータは作り置き（getPublicHistoryEvent）を使い、アクセスのたびに Neon へ問い合わせないようにする
 // 管理画面で保存すると作り置きを捨て、次のアクセスで最新になる
 
-// id は uuid なので、形式が違う値で DB に問い合わせると型エラーになる。先に弾いて 404 にする
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// 出来事がない id の 404 と、記事にリンクしている出来事の移動は、ローディング画面より手前の layout.tsx で済ませている
 
 type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  if (!UUID_PATTERN.test(id)) return {};
+  if (!HISTORY_EVENT_ID_PATTERN.test(id)) return {};
   const event = await getPublicHistoryEvent(id);
   if (!event) return {};
   return {
@@ -28,11 +27,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function HistoryEventPage({ params }: Props) {
   const { id } = await params;
-  if (!UUID_PATTERN.test(id)) notFound();
+  // Next.js は layout.tsx の確認と並行してページ本体も動かし始めるので、形式が違う id はここでも DB に問い合わせる前に止める
+  if (!HISTORY_EVENT_ID_PATTERN.test(id)) notFound();
   const event = await getPublicHistoryEvent(id);
+  // 出来事がない id は layout.tsx で 404 にしている（ここは、確認とこの間に削除された場合のため）
   if (!event) notFound();
-  // 記事にリンクしている出来事は詳細を記事に一本化しているので、URL を直接開いた場合もその記事（種類により制作物かブログ）へ移す
-  if (event.productSlug) redirect(historyArticleHref(event.kind, event.productSlug));
 
   const color = historyKindColor(event.kind);
 

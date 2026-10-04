@@ -21,6 +21,9 @@ export function historyKindColor(kind: HistoryKind): string {
   return HISTORY_KINDS.find((k) => k.value === kind)?.color ?? 'var(--ogangetext)';
 }
 
+// 年表の出来事の id（uuid）の形式。形式が違う値で DB に問い合わせると型エラーになるので、先にこれで弾く
+export const HISTORY_EVENT_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 // 年表の出来事からリンクする記事のジャンル
 // 「技術・開発・資格」の出来事は制作物の記事、「学校・活動・仕事」の出来事はブログの記事にリンクする
 // DB の product_slug 列は「リンクする記事の slug」として使い、どのジャンルの記事かは種類（kind）から決める

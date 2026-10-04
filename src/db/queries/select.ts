@@ -19,7 +19,9 @@ export const PAGE_SIZE = 20;
 
 // generateMetadata とページ本体（PostDetailPage）の両方から同じ slug で呼ばれるため
 // cache() でリクエスト単位にメモ化し、1リクエストにつきDB問い合わせが1回で済むようにする
-export const getPostById = cache(async (slug: SelectPost['slug']) => {
+// genre も条件に入れるのは、/blogs/<制作物の slug> のように違うジャンルの URL で記事が表示されないようにするため
+// （slug は全ジャンルで重複しないので、絞らないと同じ記事が別ジャンルの URL でも見えてしまう）
+export const getPostById = cache(async (genre: SelectPost['genre'], slug: SelectPost['slug']) => {
   // .select({ ... }) で取得したいカラムだけを指定する（不要なカラムを取得しない）
   // select() を引数なしで呼ぶと全カラムが返ってくるが、必要なものだけに絞ることで
   // ネットワーク転送量とレスポンスオブジェクトのサイズを小さくできる
@@ -35,9 +37,9 @@ export const getPostById = cache(async (slug: SelectPost['slug']) => {
     })
     .from(postsTable)
     // and() で複数の WHERE 条件を AND 結合する
-    // slug が一致 かつ status が published の記事だけを取得する
+    // ジャンルと slug が一致 かつ status が published の記事だけを取得する
     // 未公開・アーカイブ済みの記事は公開 URL からアクセスできないようにする
-    .where(and(eq(postsTable.slug, slug), eq(postsTable.status, 'published')));
+    .where(and(eq(postsTable.genre, genre), eq(postsTable.slug, slug), eq(postsTable.status, 'published')));
   // .select() は常に配列を返す（0件の場合は空配列）
   // rows[0] ?? null で「見つかった最初の1件」か「null」を返す
   return rows[0] ?? null;
@@ -61,6 +63,16 @@ export async function getPostByIdForAdmin(id: SelectPost['id']) {
     .from(postsTable)
     .where(eq(postsTable.id, id));
   return rows[0] ?? null;
+}
+
+// 指定ジャンルの公開中の記事の slug をすべて取得する
+// 記事ページの layout で「その URL の記事があるか」を確かめるために使う（作り置きして使う。cached.ts）
+export async function getPublishedPostSlugs(genre: SelectPost['genre']): Promise<string[]> {
+  const rows = await db
+    .select({ slug: postsTable.slug })
+    .from(postsTable)
+    .where(and(eq(postsTable.genre, genre), eq(postsTable.status, 'published')));
+  return rows.map((row) => row.slug);
 }
 
 // 記事の保存済みの slug を取得する（記事がなければ null）

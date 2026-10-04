@@ -1,11 +1,16 @@
 import type { Metadata } from 'next';
+import type { Genre } from '@/components/GenreAbout';
 import { getPostById } from '@/db/queries/select';
+import { isPublishedPostSlug } from '@/db/queries/cached';
 
-// blogs/products/books の各 [slug]/page.tsx から generateMetadata として re-export して使う
-// 記事が見つからない場合は空を返す（ページ本体側の notFound() で 404 になる）
-export async function generatePostMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
-  const post = await getPostById(slug);
+// blogs/products/books の各 [slug]/page.tsx の generateMetadata から呼ぶ
+// ジャンルで絞って記事を探すため、genre を受け取る（違うジャンルの URL では記事を見つけない）
+// 記事が見つからない場合は空を返す（記事がない URL は、先に [slug]/layout.tsx で 404 になる）
+export async function generatePostMetadata(genre: Genre, slug: string): Promise<Metadata> {
+  // Next.js は layout.tsx の確認と並行して generateMetadata も動かすので、記事がない URL では
+  // ここで Neon を読む前に、作り置きの slug 一覧で確かめて止める（でたらめな URL のたびに Neon を起こさない）
+  if (!(await isPublishedPostSlug(genre, slug))) return {};
+  const post = await getPostById(genre, slug);
   if (!post) return {};
 
   // 手動サムネイルが設定されていればそれを、無ければタイトルから自動生成した画像をOGP画像として使う

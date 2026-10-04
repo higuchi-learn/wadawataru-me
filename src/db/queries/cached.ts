@@ -1,7 +1,14 @@
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import type { SelectPost, SelectTag, SelectHistoryEvent } from '../schema';
-import { getPostsList, getPostsCount, getTagsForGenre, getHistoryEventsList, getHistoryEventById } from './select';
+import {
+  getPostsList,
+  getPostsCount,
+  getTagsForGenre,
+  getPublishedPostSlugs,
+  getHistoryEventsList,
+  getHistoryEventById,
+} from './select';
 
 // 公開ページ用の「作り置き」つきの DB 参照
 //
@@ -60,6 +67,19 @@ export const getPublicTagsForGenre = unstable_cache(
   ['public-tags-for-genre'],
   { tags: [CACHE_TAGS.posts] },
 );
+
+const cachedPublishedPostSlugs = unstable_cache(
+  (genre: SelectPost['genre']) => getPublishedPostSlugs(genre),
+  ['public-post-slugs'],
+  { tags: [CACHE_TAGS.posts] },
+);
+
+// そのジャンルに、公開中の記事として slug があるか
+// 記事ページの layout で、ローディング画面を出し始める前に「記事があるか」を確かめるために使う（src/lib/publicRouteGuards.ts）
+// slug ごとではなくジャンルごとの一覧で作り置きするのは、存在しない URL へのアクセスのたびに作り置きが増えないようにするため
+export async function isPublishedPostSlug(genre: SelectPost['genre'], slug: string): Promise<boolean> {
+  return (await cachedPublishedPostSlugs(genre)).includes(slug);
+}
 
 type HistoryEventRow = Awaited<ReturnType<typeof getHistoryEventsList>>[number];
 const reviveHistoryEvent = (event: HistoryEventRow): HistoryEventRow => ({
