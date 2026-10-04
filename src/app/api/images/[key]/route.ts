@@ -11,6 +11,17 @@ const app = new Hono<{ Bindings: Bindings }>().basePath('/api');
 // Next.js のファイルシステムルーティングで [key] というフォルダ名がそのまま対応している
 app.get('/images/:key', async (c) => {
   try {
+    // Cloudflare の拠点ごとのキャッシュ（Cache API）を先に見る
+    // Cache-Control を付けるだけでは、Workers のレスポンスは拠点にキャッシュされない
+    // （Workers のレスポンスは Cache API を明示的に使わない限りエッジキャッシュされない。/api/og と同じ理由）。
+    // そのため、初めて見る人には毎回 Worker と R2 が動いていた。拠点に保存しておけば、
+    // 同じ拠点からの2回目以降は R2 を読まずに返せる（Worker は動くが、R2 の読み取り回数と待ち時間が減る）
+    // キーは中身が書き換わらない（{タイムスタンプ}-{ランダム}.{拡張子}）ので、期限まで保存し続けてよい
+    const cache = (caches as unknown as { default: Cache }).default;
+    const cacheKey = new Request(new URL(c.req.url).toString(), { method: 'GET' });
+    const cached = await cache.match(cacheKey);
+    if (cached) return cached;
+
     // c.req.param('key') でパスパラメータを取得する
     const key = c.req.param('key');
 
@@ -31,7 +42,7 @@ app.get('/images/:key', async (c) => {
     const contentType = storedType?.startsWith('image/') ? storedType : 'application/octet-stream';
 
     // image.body は ReadableStream なので c.body() でそのままストリームとして返せる
-    return c.body(image.body, 200, {
+    const response = c.body(image.body, 200, {
       'Content-Type': contentType,
       // ブラウザは Content-Type と中身が食い違うと、中身から種類を推測（MIME スニッフィング）することがある
       // nosniff を付けると推測をやめ、宣言した Content-Type 通りにしか扱わなくなる
@@ -52,6 +63,10 @@ app.get('/images/:key', async (c) => {
       // ETag は中身の識別子。キャッシュ期限が切れた後も、変化がなければ 304 で済ませる再検証に使われる
       ETag: image.httpEtag,
     });
+    // 拠点のキャッシュへの保存は、レスポンスを返した後に行う（waitUntil）。保存を待たずに画像を返せる
+    // 本文（ストリーム）は1回しか読めないので、clone() した方を保存に使う
+    getCloudflareContext().ctx.waitUntil(cache.put(cacheKey, response.clone()));
+    return response;
   } catch {
     return c.json({ error: 'Failed to fetch image' }, 500);
   }
