@@ -52,11 +52,15 @@ pnpm lint:fix  # 自動修正できる lint エラー・整形を直す
 | `src/components/TagSelectOverlay.tsx` | 記事エディタ内のタグ選択・新規作成オーバーレイ |
 | `src/app/admin/diary-actions.ts` | 日記の Server Action（保存）|
 | `src/components/DiaryEditor.tsx` / `DiaryBook.tsx` | 日記の編集（`/admin/diary/[date]`）と本のような表示 |
-| `src/db/queries/select.ts` | DB 参照クエリ |
+| `src/db/queries/select.ts` | DB 参照クエリ（管理画面はこちらを直接使う）|
+| `src/db/queries/cached.ts` | 公開ページ用の、DB の結果を R2 に作り置きする参照（`unstable_cache`）|
+| `src/lib/publicRouteGuards.ts` | 記事・年表の出来事があるかを `[slug]` / `[id]` の `layout.tsx` で確かめる（ローディング画面より手前で 404 を決めるため）|
+| `src/lib/revalidatePublic.ts` | 保存・公開したときに公開ページの作り置きを捨てる関数（`revalidatePath` / `updateTag`）|
+| `open-next.config.ts` | 作り置きの保存先（R2 `wadawataru-me-cache`）と「古くなった」記録（D1 `wadawataru-me-tag-cache`）|
 | `src/app/globals.css` | グローバルスタイル（CSS変数含む）|
 | `wrangler.jsonc` | Cloudflare Workers 設定 |
 | `src/components/PostListPage.tsx` / `PostListSkeleton.tsx` | 公開側の一覧ページと、その読み込み中の骨組み（`(public)/{products,blogs,books}/(list)/loading.tsx` から使う）|
-| `src/app/(public)/history/` | 年表（一覧・詳細ページ）。データは `history_events_table` |
+| `src/app/(public)/history/` | 年表（一覧は `(list)/`、詳細は `[id]/`）。データは `history_events_table` |
 | `src/components/HistoryEventEditor.tsx` | 年表の出来事の作成・編集エディタ（`/admin/history`）|
 | `scripts/seed-history.mjs` | 年表の初期データ投入スクリプト（テーブルが空のときだけ投入）|
 | `src/lib/history.ts` | 年表の時代・種類の定義と、期間（`end_date` / `ongoing`）をブランチ状の線に並べる `buildHistoryGraph` |
@@ -77,11 +81,12 @@ pnpm lint:fix  # 自動修正できる lint エラー・整形を直す
 - 公開ページの見た目は `src/components/PageSection.tsx` の部品・定数にそろえる（見出し帯 `PageHero`、見出しつきセクション `Section`、カードの影 `CARD_SHADOW`、カード下端 `CARD_FOOTER`、「〇〇 ›」の `ReadMore`、横余白 `PX`）。ボタン・タグ・ページ送りは丸いピル型、アクセントはオレンジ
 - モーダルは `src/lib/useDialog.ts` を使い、`role="dialog"`・`aria-modal`・見出し（`aria-labelledby`）を付ける（フォーカス移動・トラップ・復帰、Esc、背後のスクロール停止はフックが行う）
 - `SquareButton` / `RoundButton` の `state` は色だけ。押せなくするのは `disabled`、選択中のタブは `pressed`（aria-pressed）。入力欄は `InputField` か、`FormLabel` の `htmlFor` と入力欄の `id` で結び付ける
-- サーバーで描画するページへの移動は、`loading.tsx`（`PageLoading` か専用の骨組み）を置く。URL の検索パラメータだけ変える移動（絞り込み・ページ送り・状態タブ）は `startTransition` の `isPending` で `data-list-pending` を付ける
+- サーバーで描画するページへの移動は、`loading.tsx`（`PageLoading` か専用の骨組み）を置く。`loading.tsx` の内側で `notFound()` を呼ぶとステータスが 200 のままになるので、「ページがあるか」の確認は同じフォルダの `layout.tsx` で作り置きを使って行う（`publicRouteGuards.ts`）。URL の検索パラメータだけ変える移動（絞り込み・ページ送り・状態タブ）は `startTransition` の `isPending` で `data-list-pending` を付ける
 - 例外: 記事一覧のカードは、何枚も並ぶので影を控えめにする（薄い暖色の枠線＋オレンジ 10% の小さな影）。記事ページは読みやすさを優先し、中央寄せ・白地の元のデザインを保つ（見出し帯 `PageHero` は使わない）
 - `<img>` を使ってよい（next/image は IMAGES バインディング経由で Cloudflare Images の変換料金が発生しうるため、意図的に `<img>` を使う方針。`@next/next/no-img-element` は無効化済み）
 - バリデーションエラーはフィールド別にインライン表示（Zod + BlogEditor の `fieldErrors` state）
 - エラーメッセージは `この要素は必須です。` / `文字数が超過しています。最大文字数は〇〇字です。` / `使用できない文字が含まれています。`
-- slug は英数字・ハイフン・アンダースコアのみ許可（`/^[a-zA-Z0-9_-]+$/`）
+- slug は英数字・ハイフン・アンダースコアのみ許可（`/^[a-zA-Z0-9_-]+$/`）。**作成後は変更できない**（画面は読み取り専用、`actions.ts` も保存済みの slug を使う）
+- 公開ページは作り置き（R2）を返し、アクセスのたびに Neon を読まない。公開ページが DB を読むときは `cached.ts` を使う（記事ページはページごと作り置き）。公開ページの見た目が変わる Server Action では、必ず `revalidatePublic.ts` の関数で作り置きを捨てる（捨て忘れると、非公開にした記事が見え続ける）。管理画面は `admin/layout.tsx` の `force-dynamic` で毎回作る（詳細: `documents/2026-10-04-static-like-caching.md`）
 - `Genre` 型は `'blogs' | 'products' | 'books'`（DB の enum と統一。`'blog'` ではない）
 - ブログの URL は `/blogs/`、管理画面は `/admin/blogs/`
