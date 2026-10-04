@@ -63,6 +63,13 @@ export async function getPostByIdForAdmin(id: SelectPost['id']) {
   return rows[0] ?? null;
 }
 
+// 記事の保存済みの slug を取得する（記事がなければ null）
+// slug は作成後に変更できないので、保存・公開・アーカイブでは画面から送られた値ではなく、この値を使う
+export async function getPostSlugById(id: SelectPost['id']): Promise<string | null> {
+  const rows = await db.select({ slug: postsTable.slug }).from(postsTable).where(eq(postsTable.id, id));
+  return rows[0]?.slug ?? null;
+}
+
 export async function getTagsByPostId(postId: SelectPost['id']) {
   // post_tags_table（中間テーブル）を起点に tags_table を JOIN して
   // postId に紐づくタグ名・画像を取得する

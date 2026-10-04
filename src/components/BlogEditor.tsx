@@ -329,13 +329,16 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
         </div>
 
         <div className="flex flex-col flex-1 min-w-0 py-1">
+          {/* URL パスは作成後に変更できない（公開済みの記事の URL が変わると、トップページ・年表・外部からのリンクが切れるため）
+              作成済みの記事（initialData.id がある）では読み取り専用にする。サーバー側（actions.ts）でも保存済みの値を使う */}
           <InputField
             label="URLパス"
             required
-            hint="必須・最大20字"
+            hint={initialData?.id ? '作成後は変更できません' : '必須・最大20字・作成後は変更できません'}
             value={slug}
             onChange={setSlug}
             error={fieldErrors.slug}
+            readOnly={Boolean(initialData?.id)}
           />
           <div className="p-1">
             <p className="text-xs leading-4 text-black mb-0.5">カードプレビュー</p>

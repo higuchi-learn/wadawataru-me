@@ -48,6 +48,9 @@ type InputFieldProps = {
   // 画像の貼り付けをサポートするため、onPasteイベントハンドラーを受け取る
   onPaste?: React.ClipboardEventHandler<HTMLInputElement>;
   error?: string;
+  // 値は見せるが変更させない欄（作成後の記事の URL パスなど）。1行の入力欄のときだけ使える
+  // disabled ではなく readOnly にするのは、値を選択・コピーでき、読み上げソフトにも欄として伝わるため
+  readOnly?: boolean;
 };
 
 export function InputField({
@@ -60,6 +63,7 @@ export function InputField({
   multiline,
   onPaste,
   error,
+  readOnly,
 }: InputFieldProps) {
   // useId: ラベルと入力欄、入力欄とエラー文を結び付けるための、ページ内で重複しない id
   const id = useId();
@@ -96,7 +100,9 @@ export function InputField({
           // 画像の貼り付けをサポートするため、onPasteイベントハンドラーをinput要素に渡す
           onPaste={onPaste}
           placeholder={placeholder}
-          className={`${inputClass} h-7`}
+          readOnly={readOnly}
+          // 読み取り専用のときは文字を薄くし、変更できないことを見た目でも示す
+          className={`${inputClass} h-7 ${readOnly ? 'text-[var(--lighttext)] cursor-default' : ''}`}
         />
       )}
     </div>

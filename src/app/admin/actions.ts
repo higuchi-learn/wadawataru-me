@@ -6,7 +6,7 @@
 import { redirect } from 'next/navigation';
 import { createPost } from '@/db/queries/insert';
 import { updatePostById, syncPostTags } from '@/db/queries/update';
-import { isSlugTaken } from '@/db/queries/select';
+import { isSlugTaken, getPostSlugById } from '@/db/queries/select';
 import { articleSchema } from '@/lib/schemas';
 import { isAuthenticated } from '@/lib/authGuard';
 import type { Genre } from '@/components/GenreAbout';
@@ -41,10 +41,10 @@ export async function saveAsDraftAction(payload: SavePayload): Promise<ActionRes
     return { error: parsed.error.issues[0].message };
   }
 
-  // slug の重複チェック。id を渡すことで自分自身の slug は除外してチェックできる（更新時の重複チェックに必要）
-  if (await isSlugTaken(slug, id)) {
-    return { error: 'このURLパスはすでに使われています' };
-  }
+  // slug は作成後に変更できない（公開済みの記事の URL が変わると、トップページ・年表・外部からのリンクが切れるため）
+  // 新規作成のときだけ重複を確認し、更新のときは画面から送られた値ではなく保存済みの slug を使う
+  const savedSlug = await resolveSlug(id, slug);
+  if ('error' in savedSlug) return savedSlug;
 
   try {
     // id がない場合は新規作成、ある場合は更新する。
@@ -93,9 +93,9 @@ export async function publishAction(payload: SavePayload & { wasAlreadyPublished
     return { error: parsed.error.issues[0].message };
   }
 
-  if (await isSlugTaken(slug, id)) {
-    return { error: 'このURLパスはすでに使われています' };
-  }
+  // slug の扱いは saveAsDraftAction と同じ（作成後は変更できない）
+  const savedSlug = await resolveSlug(id, slug);
+  if ('error' in savedSlug) return savedSlug;
 
   try {
     if (!id) {
@@ -133,7 +133,7 @@ export async function publishAction(payload: SavePayload & { wasAlreadyPublished
 
   // try/catch の外に書く理由は saveAsDraftAction と同じ
   // redirect() が throw する例外を catch に捕まえさせないため
-  redirect(`/${genre}/${slug}`);
+  redirect(`/${genre}/${savedSlug.slug}`);
 }
 
 // 記事をアーカイブする機能（公開状態を「archived」にするだけで、DB からは削除しない）
@@ -159,4 +159,18 @@ export async function archiveAction(payload: {
 
   // try/catch の外に書く理由は saveAsDraftAction と同じ
   redirect(`/admin/${genre}`);
+}
+
+// 保存に使う slug を決める
+// 新規作成: 画面で入力した slug を使う（ほかの記事と重複していないか確認する）
+// 更新: 保存済みの slug を使う。slug は作成後に変更できないので、画面から送られた値は使わない
+//      （画面では入力欄を読み取り専用にしているが、Server Action は画面を通さずにも呼べるため、ここでも守る）
+async function resolveSlug(id: string | undefined, slug: string): Promise<{ slug: string } | { error: string }> {
+  if (!id) {
+    if (await isSlugTaken(slug)) return { error: 'このURLパスはすでに使われています' };
+    return { slug };
+  }
+  const savedSlug = await getPostSlugById(id);
+  if (savedSlug === null) return { error: '記事が見つかりませんでした。' };
+  return { slug: savedSlug };
 }
