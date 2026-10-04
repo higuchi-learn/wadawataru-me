@@ -76,6 +76,7 @@ pnpm lint:fix  # 自動修正できる lint エラー・整形を直す
 
 - CSS import（`easymde/dist/easymde.min.css`）は `src/global.d.ts` で型宣言済み
 - 画像は外部（GitHub など）を参照せず、必ず管理画面から R2 にアップロードする（GitHub の添付画像は遅く、キャッシュも効かないため）
+- トップ・経歴・受賞・資格ページの固定の写真は `public/images/` に WebP（長い辺 1920px・品質 85）で置き、各ページのデータの `image` にパスを書く。元の写真は `picture/`（git 管理外）。用意できない写真は `imageHint` を省いて枠ごと出さない
 - 画像アップロードのキーは `{timestamp}-{6文字ランダム}.{ext}` 形式。拡張子と Content-Type はファイル名・申告値ではなく中身の判定結果から決める
 - Client Component で async 関数をイベントに渡すときは `onClick={() => void handleX()}` とし、ハンドラー内は try/catch/finally で例外とローディング解除を処理する（Server Action を catch する場合は `unstable_rethrow` で redirect を投げ直す）
 - スマホは画面幅 360px 以上を対応範囲とする（360px 以上でレイアウトが崩れないことを保証する。360px 未満は内容が読めて操作できれば十分とし、細かな見た目の崩れは許容する）

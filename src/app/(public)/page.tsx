@@ -11,7 +11,7 @@ import MoreDetails from '@/components/MoreDetails';
 // ─────────────────────────────────────────────────────────────
 
 // ヒーローの写真。アバターやイラストでもよい（正方形推奨）
-const heroImage: string | undefined = undefined;
+const heroImage: string | undefined = '/images/profile.webp';
 
 const stats = [
   { value: '15', label: '取得資格数', note: 'すべて高校在学中' },
@@ -41,6 +41,7 @@ const works: Work[] = [
     title: 'Gesture Audio',
     catchcopy: '腕を振るだけで音楽を操作できる、腕に着けるコントローラー',
     award: '最優秀賞',
+    image: '/images/gesture-audio-demo.webp',
     imageHint: '腕に着けたコントローラーの写真、またはデモの様子（16:9）',
     tech: [{ name: 'C++', icon: 'cplusplus' }],
     href: '/products/gesture-audio',
@@ -49,6 +50,7 @@ const works: Work[] = [
     title: 'ステキなステッキ',
     catchcopy: '魔法の杖を振って MP を溜め、攻撃・防御する体感型の対戦ゲーム',
     award: '優秀賞 ＋ ゆめみ企業賞',
+    image: '/images/lovely-stick-1.webp',
     imageHint: '杖を振って遊んでいる様子、または杖の実物（16:9）',
     tech: [
       { name: 'MicroPython', icon: 'micropython' },
@@ -60,6 +62,7 @@ const works: Work[] = [
     title: 'Bingo!2',
     catchcopy: 'PC 1台と参加者のスマホだけで、大人数のビンゴ大会ができるアプリ',
     award: 'STECH 協賛賞',
+    image: '/images/bingo2-1.webp',
     imageHint: 'ビンゴカードやランキング画面のスクリーンショット（16:9）',
     tech: [
       { name: 'Next.js', icon: 'nextdotjs' },
@@ -70,17 +73,20 @@ const works: Work[] = [
     href: '/products/bingo2',
   },
   {
-    title: 'SysPay',
-    catchcopy: '大学祭の模擬店で使う、スマホから注文できるオンライン注文システム',
-    award: '優秀賞',
-    imageHint: 'メニュー画面やカート画面のスクリーンショット（16:9）',
+    title: 'わだわたる（このサイト）',
+    catchcopy: 'ブログとポートフォリオを兼ねた、記事の管理画面まで自作した個人サイト',
+    // 受賞作ではないので、バッジには個人開発であることを出す
+    award: '個人開発',
+    // スクリーンショットを用意するまでの仮。サイトのロゴ（背景が白）を白地の中央に置いた画像
+    image: '/images/wadawataru-me.webp',
+    imageHint: 'このサイトのトップページや管理画面のスクリーンショット（16:9）',
     tech: [
-      { name: 'React', icon: 'react' },
+      { name: 'Next.js', icon: 'nextdotjs' },
       { name: 'TypeScript', icon: 'typescript' },
-      { name: 'Firebase', icon: 'firebase' },
-      { name: 'MUI', icon: 'mui' },
+      { name: 'Cloudflare Workers', icon: 'cloudflare' },
+      { name: 'Tailwind CSS', icon: 'tailwindcss' },
     ],
-    href: '/products/syspay',
+    href: '/products/wadawataru-me',
   },
 ];
 
@@ -90,7 +96,8 @@ type StoryStep = {
   title: string;
   body: string;
   image?: string;
-  imageHint: string;
+  // 写真が見つからなかった出来事は省略し、カードを文字だけにする
+  imageHint?: string;
   // まだ来ていない先の話。線を破線にして、丸を中抜きにする
   future?: boolean;
   // 受験の失敗など、うまくいかなかった出来事。丸と期間のタグを灰色にして見分ける
@@ -102,18 +109,19 @@ const story: StoryStep[] = [
     period: '小学校',
     title: '人前に立つ役に挑戦',
     body: '学級委員・委員長・応援団長・生徒会長に、自分から手を挙げて挑戦した',
-    imageHint: '小学校時代の写真（運動会の応援団など）',
   },
   {
     period: '中学',
     title: '卓球とフォートナイトの日々',
     body: '卓球に打ち込み、フォートナイトを楽しみながら、学級委員や生徒会にも進んで取り組んだ',
+    image: '/images/junior-high.webp',
     imageHint: '中学時代の写真（卓球・生徒会など）',
   },
   {
     period: '高校受験',
     title: '岐阜高専に不合格',
     body: '苦手な英語から逃げた結果、英語の点数が足りずに不合格。この失敗から、高校では何事にも全力で取り組むようになった',
+    image: '/images/kosen-exam.webp',
     imageHint: '（任意）当時の写真',
     setback: true,
   },
@@ -121,38 +129,40 @@ const story: StoryStep[] = [
     period: '高校入学前',
     title: '初めての PC 自作',
     body: '中学時代のプレゼントをすべてあきらめ、13万円分のパーツで組み立てた',
+    image: '/images/first-pc.webp',
     imageHint: '初めて組んだ PC の写真',
   },
   {
     period: '高校',
     title: '岐阜工業高校 電子工学科',
     body: '電気電子・通信を基礎から学び、生徒会長も務めた',
+    image: '/images/student-council.webp',
     imageHint: '高校・生徒会活動の写真',
   },
   {
     period: '高3',
     title: '経済産業大臣賞',
     body: '15の資格を取り、歴代最高の 270pt で全国1名の賞を受賞',
+    image: '/images/meti-award.webp',
     imageHint: '表彰式や賞状の写真',
   },
   {
     period: '大学受験',
     title: '信州大学に不合格',
     body: '信州大学を受験したが不合格となり、愛知工業大学に進んだ',
-    imageHint: '（任意）当時の写真',
     setback: true,
   },
   {
     period: '大学',
     title: '愛知工業大学',
     body: 'サークルのチーム開発やハッカソンで、7つのプロダクトを開発',
+    image: '/images/university.webp',
     imageHint: 'ハッカソンでの発表やチームの写真',
   },
   {
     period: 'これから',
     title: 'フルスタック × セキュリティ',
     body: '安心して長く使ってもらえるものを作れるエンジニアへ',
-    imageHint: '（任意）CTF や勉強会の写真',
     future: true,
   },
 ];
@@ -162,7 +172,9 @@ function StoryCard({ step }: { step: StoryStep }) {
     <div
       className={`bg-white rounded-2xl overflow-hidden ${CARD_SHADOW} ${step.future ? 'border-2 border-dashed border-[var(--onmouseorange)]' : ''}`}
     >
-      <ImageSlot src={step.image} alt={step.title} hint={step.imageHint} className="w-full aspect-video" />
+      {step.imageHint && (
+        <ImageSlot src={step.image} alt={step.title} hint={step.imageHint} className="w-full aspect-video" />
+      )}
       <div className="p-4">
         <span
           className={`inline-block text-xs font-bold rounded-full px-2.5 py-0.5 ${

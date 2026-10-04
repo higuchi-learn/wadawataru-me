@@ -2,7 +2,7 @@ import ImageSlot from '@/components/ImageSlot';
 import { PageHero, Section } from '@/components/PageSection';
 
 // 賞状や表彰式の写真を用意したら public/ 以下のパスを書く
-const awardImage: string | undefined = undefined;
+const awardImage: string | undefined = '/images/meti-award.webp';
 
 type Cert = {
   name: string;

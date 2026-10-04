@@ -20,6 +20,7 @@ const education: TimelineItem[] = [
     period: '2018 〜 2021',
     title: '中学時代',
     summary: '卓球に打ち込み、学級委員や生徒会にも進んで取り組んだ',
+    image: '/images/junior-high-2.webp',
     imageHint: '中学時代の写真（卓球・生徒会など）',
     items: [
       '卓球に打ち込んでいました。当時の趣味はフォートナイトでした',
@@ -35,6 +36,7 @@ const education: TimelineItem[] = [
     title: '岐阜県立岐阜工業高等学校 電子工学科',
     subtitle: '専門科目の評定は全科目 5 / 5',
     summary: '電気電子・通信を学び、15の資格と経済産業大臣賞。生徒会長も務めた',
+    image: '/images/high-school.webp',
     imageHint: '高校での実習や生徒会活動の写真',
     items: [
       '高校入学の直前、中学時代のプレゼントをすべてあきらめる代わりに13万円分のパーツを買い、初めてのPCを自作しました',
@@ -54,6 +56,7 @@ const education: TimelineItem[] = [
     title: '愛知工業大学 工学部 電気学科 電子情報工学専攻',
     subtitle: 'GPA 3.5 / 4（1〜2年次）・専門科目はほぼ「秀」',
     summary: '回路から組み込みまで学びつつ、サークルでチーム開発とハッカソンに参加',
+    image: '/images/university.webp',
     imageHint: '大学やサークルでの活動の写真',
     items: [
       '信州大学を受験しましたが不合格となり、愛知工業大学に進みました',
@@ -81,6 +84,7 @@ const activities: Activity[] = [
     title: '生徒会長',
     period: '2021.10 〜 2023.09（4期連続）',
     summary: '4期連続で役員を務め、意見箱の Web 化や全業務のマニュアル化に取り組んだ',
+    image: '/images/student-council.webp',
     imageHint: '生徒会活動や卒業式の写真',
     tags: ['生徒会', '業務改善', 'マニュアル作成'],
     body: [
@@ -96,6 +100,7 @@ const activities: Activity[] = [
     title: '第48回全国高等学校総合文化祭 広報イベント委員長',
     period: '2022.07 〜 2023.09（清流の国ぎふ総文2024）',
     summary: 'PR イベントの企画・SNS 運用・グッズのデザインを担当し、委員会をまとめた',
+    image: '/images/soubun.webp',
     imageHint: 'PR イベントや大会グッズの写真',
     tags: ['イベント企画', '広報', 'チーム運営'],
     body: [
@@ -111,6 +116,7 @@ const activities: Activity[] = [
     title: 'システム工学研究会（サークル）',
     period: '2024年4月〜（部員270名）',
     summary: 'ハードウェア担当としてチーム開発に参加し、勉強会も開いている',
+    image: '/images/syskenkyu.webp',
     imageHint: '工科展の展示や勉強会の写真',
     tags: ['Web開発', '勉強会', 'ハッカソン'],
     body: [
@@ -125,6 +131,7 @@ const activities: Activity[] = [
     title: 'MatsuribaTech / 技育プロジェクト参加',
     period: '2024年〜',
     summary: '東海の学生エンジニアコミュニティに通い、LT にも登壇',
+    image: '/images/geekten.webp',
     imageHint: 'LT 登壇やイベントの写真',
     tags: ['コミュニティ', '登壇', 'ハッカソン'],
     body: [
@@ -136,6 +143,7 @@ const activities: Activity[] = [
     title: '高校時代：青春18きっぷ一人旅',
     period: '高1〜高3（毎年夏）',
     summary: '時刻表と路線図を片手に、毎年夏に全国を一人旅',
+    image: '/images/seishun18-trip.webp',
     imageHint: '旅先で撮った写真',
     tags: ['旅行', '青春18きっぷ'],
     body: [
@@ -172,7 +180,6 @@ const work: TimelineItem[] = [
     period: '2024.06 〜',
     title: '愛知工業大学 エクステンションセンター（地域連携スタッフ）',
     summary: '小中学生向けイベントを運営し、自分で企画した講座も開いた',
-    imageHint: '講座の様子や、自作した加算器表示器の写真',
     items: [
       '小中学生向けイベント「まるごと体験ワールド」の運営や、イオンなどでの出張講義のお手伝いをしています',
       '2026年8月には、自分で企画した講座「コンピューターに『1+1＝10』って言わせてみよう！」を開きました。2進数と論理ゲートを説明したあと、半加算器・全加算器をブレッドボードで組み立てて、電気で計算ができることを体験してもらいました',
@@ -245,7 +252,7 @@ function EducationMedia({ item }: { item: TimelineItem }) {
   if (!item.imageHint) return null;
   return (
     <div className="relative">
-      <ImageSlot src={item.image} alt={item.title} hint={item.imageHint} className="w-full aspect-[4/3]" />
+      <ImageSlot src={item.image} alt={item.title} hint={item.imageHint} className="w-full aspect-video" />
       <div className="absolute left-4 bottom-4">
         <PeriodPill period={item.period} onImage />
       </div>
