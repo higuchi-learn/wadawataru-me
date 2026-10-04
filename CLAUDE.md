@@ -60,8 +60,9 @@ pnpm lint:fix  # 自動修正できる lint エラー・整形を直す
 | `scripts/warm-cache.mjs` | デプロイ直後に公開ページを開いて作り置きを作っておくスクリプト（`pnpm run deploy` の最後に実行）|
 | `src/app/globals.css` | グローバルスタイル（CSS変数含む）|
 | `wrangler.jsonc` | Cloudflare Workers 設定 |
-| `src/components/PostListPage.tsx` / `PostListSkeleton.tsx` | 公開側の一覧ページと、その読み込み中の骨組み（`(public)/{products,blogs,books}/(list)/loading.tsx` から使う）|
-| `src/app/(public)/history/` | 年表（一覧は `(list)/`、詳細は `[id]/`）。データは `history_events_table` |
+| `src/components/PostListPage.tsx` / `PostListSkeleton.tsx` | 公開側の一覧ページ（ページごと作り置き）と、その読み込み中の骨組み（`(public)/{products,blogs,books}/(list)/loading.tsx` から使う）|
+| `src/components/PublicPostList.tsx` | 公開側の一覧の絞り込み・ページ送り。全記事を受け取り、URL の `?tags=` `?page=` に合うものをブラウザ側で表示する（`history.pushState` で URL だけ変える）|
+| `src/app/(public)/history/` | 年表（古い順は `(list)/page.tsx`、新しい順は `(list)/newest/page.tsx`、詳細は `[id]/`）。本体は `src/components/HistoryTimelinePage.tsx`。データは `history_events_table` |
 | `src/components/HistoryEventEditor.tsx` | 年表の出来事の作成・編集エディタ（`/admin/history`）|
 | `scripts/seed-history.mjs` | 年表の初期データ投入スクリプト（テーブルが空のときだけ投入）|
 | `src/lib/history.ts` | 年表の時代・種類の定義と、期間（`end_date` / `ongoing`）をブランチ状の線に並べる `buildHistoryGraph` |
@@ -82,7 +83,7 @@ pnpm lint:fix  # 自動修正できる lint エラー・整形を直す
 - 公開ページの見た目は `src/components/PageSection.tsx` の部品・定数にそろえる（見出し帯 `PageHero`、見出しつきセクション `Section`、カードの影 `CARD_SHADOW`、カード下端 `CARD_FOOTER`、「〇〇 ›」の `ReadMore`、横余白 `PX`）。ボタン・タグ・ページ送りは丸いピル型、アクセントはオレンジ
 - モーダルは `src/lib/useDialog.ts` を使い、`role="dialog"`・`aria-modal`・見出し（`aria-labelledby`）を付ける（フォーカス移動・トラップ・復帰、Esc、背後のスクロール停止はフックが行う）
 - `SquareButton` / `RoundButton` の `state` は色だけ。押せなくするのは `disabled`、選択中のタブは `pressed`（aria-pressed）。入力欄は `InputField` か、`FormLabel` の `htmlFor` と入力欄の `id` で結び付ける
-- サーバーで描画するページへの移動は、`loading.tsx`（`PageLoading` か専用の骨組み）を置く。`loading.tsx` の内側で `notFound()` を呼ぶとステータスが 200 のままになるので、「ページがあるか」の確認は同じフォルダの `layout.tsx` で作り置きを使って行う（`publicRouteGuards.ts`）。URL の検索パラメータだけ変える移動（絞り込み・ページ送り・状態タブ）は `startTransition` の `isPending` で `data-list-pending` を付ける
+- サーバーで描画するページへの移動は、`loading.tsx`（`PageLoading` か専用の骨組み）を置く。`loading.tsx` の内側で `notFound()` を呼ぶとステータスが 200 のままになるので、「ページがあるか」の確認は同じフォルダの `layout.tsx` で作り置きを使って行う（`publicRouteGuards.ts`）。公開ページは URL の検索パラメータをサーバーで読まない（読むとページごとの作り置きができなくなる）。一覧の絞り込み・ページ送りはブラウザ側（`PublicPostList`）、年表の並び順は別のページ（`/history/newest`）。管理画面の一覧で検索パラメータだけ変える移動（絞り込み・ページ送り・状態タブ）は `startTransition` の `isPending` で `data-list-pending` を付ける
 - 例外: 記事一覧のカードは、何枚も並ぶので影を控えめにする（薄い暖色の枠線＋オレンジ 10% の小さな影）。記事ページは読みやすさを優先し、中央寄せ・白地の元のデザインを保つ（見出し帯 `PageHero` は使わない）
 - `<img>` を使ってよい（next/image は IMAGES バインディング経由で Cloudflare Images の変換料金が発生しうるため、意図的に `<img>` を使う方針。`@next/next/no-img-element` は無効化済み）
 - バリデーションエラーはフィールド別にインライン表示（Zod + BlogEditor の `fieldErrors` state）
