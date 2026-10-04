@@ -341,6 +341,8 @@ wrangler の手元の環境は、Worker が外部へ送った通信を記録で�
 
 作り直しのエラー（Dummy queue）も出なくなった。
 
+その後、管理画面の保存・公開の失敗と Error 1102（無料プランの CPU 時間の上限超過）が見つかった。調査と対処は[こちら](./2026-10-04-workers-cpu-limit-and-paid-plan.md)。
+
 ## 元に戻すとき
 
 `open-next.config.ts` の `incrementalCache` と `tagCache` を外して（`wrangler.jsonc` のバインディングも外して）デプロイすれば、作り置きのない元の動きに戻る。R2 バケットと D1 は、不要なら Cloudflare のダッシュボードか `wrangler r2 bucket delete` / `wrangler d1 delete` で消せる。
