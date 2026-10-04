@@ -7,14 +7,13 @@ import { unstable_rethrow } from 'next/navigation';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { FormLabel, InputField } from '@/components/InputField';
-import HistoryEventCard from '@/components/HistoryEventCard';
 import {
   saveHistoryEventAction,
   deleteHistoryEventAction,
   createHistoryBadgeAction,
 } from '@/app/admin/history-actions';
 import { historyEventSchema, type HistoryEventInput } from '@/lib/schemas';
-import { HISTORY_ERAS, HISTORY_KINDS, HISTORY_BRANCH_COLORS, historyPeriodLabel } from '@/lib/history';
+import { HISTORY_ERAS, HISTORY_KINDS } from '@/lib/history';
 import { uploadImage, attachImageUpload } from '@/lib/uploadImage';
 import 'easymde/dist/easymde.min.css';
 
@@ -231,17 +230,22 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
             multiline
             error={fieldErrors.summary}
           />
+          {/* 「表示用の日付」と「ラベル」を同じ幅で並べる
+              InputField は shrink-0 なので、そのまま横に並べると「表示用の日付」が行の幅を取りきり、
+              ラベルの欄が縮めずに右の列へはみ出して「制作物の記事」に重なっていた。各要素を flex-1 min-w-0 の枠に入れて半分ずつにする */}
           <div className="flex">
-            <InputField
-              label="表示用の日付"
-              required
-              hint="必須・最大20字"
-              value={form.dateLabel}
-              onChange={set('dateLabel')}
-              placeholder="例: 2021年4月 / 中学時代 / 2025年夏"
-              error={fieldErrors.dateLabel}
-            />
-            <div className="flex flex-col gap-0 p-1 w-full">
+            <div className="flex-1 min-w-0">
+              <InputField
+                label="表示用の日付"
+                required
+                hint="必須・最大20字"
+                value={form.dateLabel}
+                onChange={set('dateLabel')}
+                placeholder="例: 2021年4月 / 中学時代 / 2025年夏"
+                error={fieldErrors.dateLabel}
+              />
+            </div>
+            <div className="flex flex-col gap-0 p-1 flex-1 min-w-0">
               <FormLabel name="ラベル" error={badgeError ?? fieldErrors.badgeId} htmlFor={`${fid}-badge`} />
               {newBadgeName === null ? (
                 <div className="flex items-center gap-1">
@@ -386,9 +390,6 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
               />
             </div>
           </div>
-          <p className="px-1 text-xs leading-4 text-[var(--lighttext)]">
-            年表は「並び順の基準日」の古い順に並びます。同じ日の出来事は登録順です。
-          </p>
           <div className="flex">
             <div className="flex flex-col gap-0 p-1 w-full">
               <FormLabel name="期間" error={fieldErrors.period} htmlFor={`${fid}-period`} />
@@ -415,9 +416,6 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
               />
             </div>
           </div>
-          <p className="px-1 text-xs leading-4 text-[var(--lighttext)]">
-            期間のある出来事は、年表で本線から分かれた線として、始まりから終わりまでの長さが表示されます。
-          </p>
           <div className="flex flex-col gap-0 p-1 w-full">
             <FormLabel name="制作物の記事（slug）" error={fieldErrors.productSlug} htmlFor={`${fid}-productSlug`} />
             <input
@@ -428,35 +426,6 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
               placeholder="例: gesture-audio"
               className={selectClass}
             />
-          </div>
-          <p className="px-1 text-xs leading-4 text-[var(--lighttext)]">
-            制作物に関する出来事なら、その記事の slug を入れます。年表のカードは本文の詳細ページではなく、/products/slug
-            の記事にリンクします。
-          </p>
-          <div className="p-1">
-            <p className="text-xs leading-4 text-black mb-1">年表での表示プレビュー</p>
-            <div className="pointer-events-none border border-[var(--unclickable)] rounded-sm p-3">
-              <HistoryEventCard
-                align="right"
-                event={{
-                  dateLabel: form.dateLabel || '日付',
-                  title: form.title || 'タイトル',
-                  summary: form.summary || null,
-                  kind: form.kind,
-                  badge: badges.find((b) => b.id === form.badgeId)?.name ?? null,
-                  thumbnail: form.thumbnail || null,
-                  hasDetail: form.content.trim() !== '',
-                  productSlug: form.productSlug || null,
-                  period:
-                    form.period === 'none'
-                      ? null
-                      : {
-                          label: historyPeriodLabel(form.period === 'ongoing' ? null : form.endDate),
-                          color: HISTORY_BRANCH_COLORS[0],
-                        },
-                }}
-              />
-            </div>
           </div>
         </div>
       </div>
