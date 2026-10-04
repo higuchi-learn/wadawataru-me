@@ -11,7 +11,8 @@ import {
   createHistoryBadgeAction,
 } from '@/app/admin/history-actions';
 import { historyEventSchema, type HistoryEventInput } from '@/lib/schemas';
-import { HISTORY_ERAS, HISTORY_KINDS, historyEraLabel, historyKindColor } from '@/lib/history';
+import { HISTORY_ERAS, HISTORY_KINDS, historyArticleGenre, historyEraLabel, historyKindColor } from '@/lib/history';
+import HistoryArticlePicker, { type PickerArticle } from '@/components/HistoryArticlePicker';
 import { historyDetailParts } from '@/components/HistoryEventDetailDialog';
 import { MoreDetailsBody, MORE_DETAILS_PANEL_CLASS } from '@/components/MoreDetails';
 import { uploadImage, attachImageUpload } from '@/lib/uploadImage';
@@ -28,6 +29,8 @@ type Props = {
   savedAt?: string;
   // 登録済みのラベル一覧（プルダウンの選択肢）
   badges: HistoryBadgeOption[];
+  // リンクする記事の候補（公開中の記事）。種類が tech なら制作物、life ならブログから選ぶ
+  articles: { products: PickerArticle[]; blogs: PickerArticle[] };
 };
 
 type FieldErrors = Partial<Record<keyof HistoryEventInput, string>>;
@@ -53,7 +56,7 @@ const selectClass =
 const buttonClass =
   'flex items-center justify-center px-2 rounded-md bg-white shadow-sm text-[var(--lighttext)] text-sm leading-7 whitespace-nowrap hover:bg-[var(--onmouseorange)] hover:text-[var(--ogangetext)] transition-colors disabled:opacity-40 disabled:pointer-events-none';
 
-export default function HistoryEventEditor({ id, initialData, savedAt, badges: initialBadges }: Props) {
+export default function HistoryEventEditor({ id, initialData, savedAt, badges: initialBadges, articles }: Props) {
   const [form, setForm] = useState<HistoryEventInput>(initialData ?? EMPTY);
   // ラベル（FormLabel）と入力欄・選択欄を htmlFor / id で結び付けるための、ページ内で重複しない id の元
   // 結び付けると、ラベルを押せば入力欄に移り、読み上げソフトでも欄の名前が読み上げられる
@@ -363,7 +366,12 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
               <select
                 id={`${fid}-kind`}
                 value={form.kind}
-                onChange={(e) => set('kind')(e.target.value as HistoryEventInput['kind'])}
+                onChange={(e) => {
+                  const kind = e.target.value as HistoryEventInput['kind'];
+                  // 種類が変わるとリンク先のジャンル（制作物 / ブログ）も変わるので、選んでいた記事は外す
+                  // （残すと、制作物の slug のままブログの記事へリンクしてしまう）
+                  setForm((prev) => ({ ...prev, kind, productSlug: prev.kind === kind ? prev.productSlug : '' }));
+                }}
                 className={selectClass}
               >
                 {HISTORY_KINDS.map((kind) => (
@@ -416,17 +424,15 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
               />
             </div>
           </div>
-          <div className="flex flex-col gap-0 p-1 w-full">
-            <FormLabel name="制作物の記事（slug）" error={fieldErrors.productSlug} htmlFor={`${fid}-productSlug`} />
-            <input
-              id={`${fid}-productSlug`}
-              type="text"
-              value={form.productSlug}
-              onChange={(e) => set('productSlug')(e.target.value)}
-              placeholder="例: gesture-audio"
-              className={selectClass}
-            />
-          </div>
+          {/* リンクする記事は、slug の直接入力ではなく記事のカードの一覧から選ぶ
+              種類が「技術・開発・資格」なら制作物、「学校・活動・仕事」ならブログの記事が候補になる */}
+          <HistoryArticlePicker
+            genreLabel={historyArticleGenre(form.kind) === 'products' ? '制作物' : 'ブログ'}
+            articles={articles[historyArticleGenre(form.kind)]}
+            value={form.productSlug}
+            onChange={set('productSlug')}
+            error={fieldErrors.productSlug}
+          />
         </div>
       </div>
 

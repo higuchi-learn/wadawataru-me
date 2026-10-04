@@ -149,8 +149,8 @@ export const historyEventsTable = pgTable('history_events_table', {
   content: text('content').notNull().default(''),
   // 年表上に表示する画像の R2 URL。未設定の場合は null
   thumbnail: text('thumbnail'),
-  // 制作物に関する出来事なら、その制作物の記事（posts_table.slug）。年表のカードから記事へリンクする
-  // 制作物の詳細は記事に一本化し、年表・受賞歴・トップページのどこから押しても同じ記事に行くようにするため
+  // 年表のカードからリンクする記事（posts_table.slug）。種類が tech なら制作物、それ以外ならブログの記事（src/lib/history.ts の historyArticleGenre）
+  // 列名は制作物だけを紐づけていたころのまま。詳細は記事に一本化し、年表・受賞歴・トップページのどこから押しても同じ記事に行くようにするため
   // 外部キーにしないのは、記事の slug を変えたり記事を消したりしても年表の出来事は残せるようにするため（リンク切れは 404 になるだけ）
   // 長さは posts_table.slug と揃えている
   productSlug: varchar('product_slug', { length: 20 }),

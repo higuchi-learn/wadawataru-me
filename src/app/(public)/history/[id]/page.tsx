@@ -4,7 +4,7 @@ import { notFound, redirect } from 'next/navigation';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { getHistoryEventById } from '@/db/queries/select';
-import { historyEraLabel, historyKindColor } from '@/lib/history';
+import { historyArticleHref, historyEraLabel, historyKindColor } from '@/lib/history';
 
 // 管理画面での編集をすぐ反映するため、リクエストごとにレンダリングする
 export const dynamic = 'force-dynamic';
@@ -31,8 +31,8 @@ export default async function HistoryEventPage({ params }: Props) {
   if (!UUID_PATTERN.test(id)) notFound();
   const event = await getHistoryEventById(id);
   if (!event) notFound();
-  // 制作物の出来事は記事に一本化しているので、URL を直接開いた場合も記事へ移す
-  if (event.productSlug) redirect(`/products/${event.productSlug}`);
+  // 記事にリンクしている出来事は詳細を記事に一本化しているので、URL を直接開いた場合もその記事（種類により制作物かブログ）へ移す
+  if (event.productSlug) redirect(historyArticleHref(event.kind, event.productSlug));
 
   const color = historyKindColor(event.kind);
 

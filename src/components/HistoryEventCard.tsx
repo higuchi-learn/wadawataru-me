@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { historyKindColor, type HistoryKind } from '@/lib/history';
+import { historyArticleGenre, historyArticleHref, historyKindColor, type HistoryKind } from '@/lib/history';
 import HistoryEventDetailDialog, { type HistoryEventDetail } from '@/components/HistoryEventDetailDialog';
 
 export type HistoryEventCardData = {
@@ -12,7 +12,7 @@ export type HistoryEventCardData = {
   thumbnail: string | null;
   // 詳細本文があるときだけ詳細ページへのリンクを出す
   hasDetail: boolean;
-  // 制作物の記事の slug。あれば詳細ページではなく記事（/products/slug）へリンクする
+  // リンクする記事の slug。あれば詳細ではなく記事へリンクする（種類により /products/slug か /blogs/slug）
   productSlug: string | null;
   // 期間のある出来事のとき、終わりの文言（「2023年9月まで」など）と年表上の線の色。期間がなければ null
   period: { label: string; color: string } | null;
@@ -24,10 +24,15 @@ export type HistoryEventCardData = {
 // align: 'left' は md 以上で中央線の左側に置くときの右寄せ表示
 export default function HistoryEventCard({ event, align }: { event: HistoryEventCardData; align: 'left' | 'right' }) {
   const color = historyKindColor(event.kind);
-  // 制作物の出来事は、受賞歴やトップページと同じ記事へ飛ばし、どこから押しても行き先が揃うようにする
-  const detailHref = event.productSlug ? `/products/${event.productSlug}` : event.id ? `/history/${event.id}` : '#';
+  // 記事にリンクしている出来事は、受賞歴やトップページと同じ記事へ飛ばし、どこから押しても行き先が揃うようにする
+  // リンクする記事は、種類によって制作物（/products）かブログ（/blogs）になる（historyArticleHref）
+  const detailHref = event.productSlug
+    ? historyArticleHref(event.kind, event.productSlug)
+    : event.id
+      ? `/history/${event.id}`
+      : '#';
   const hasLink = event.productSlug !== null || event.hasDetail;
-  // 制作物の記事がない出来事で、詳細のデータがあるときは、リンクではなくダイアログを開くボタンにする
+  // 記事にリンクしていない出来事で、詳細のデータがあるときは、リンクではなくダイアログを開くボタンにする
   const dialogDetail: HistoryEventDetail | null =
     !event.productSlug && event.hasDetail && event.detail ? { ...event.detail, color } : null;
   return (
@@ -84,7 +89,11 @@ export default function HistoryEventCard({ event, align }: { event: HistoryEvent
             href={detailHref}
             className="inline-block mt-2 text-xs font-bold text-[var(--lighttext)] hover:text-[var(--ogangetext)] transition-colors border-b border-[var(--border)] pb-0.5"
           >
-            {event.productSlug ? '制作物の記事を読む →' : '詳しく見る →'}
+            {event.productSlug
+              ? historyArticleGenre(event.kind) === 'products'
+                ? '制作物の記事を読む →'
+                : 'ブログの記事を読む →'
+              : '詳しく見る →'}
           </Link>
         )
       )}

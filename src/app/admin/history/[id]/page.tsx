@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import HistoryEventEditor from '@/components/HistoryEventEditor';
-import { getHistoryEventById, getHistoryBadgesList } from '@/db/queries/select';
+import { getHistoryEventById, getHistoryBadgesList, getHistoryArticleCandidates } from '@/db/queries/select';
 import { formatSavedAt } from '@/lib/formatDate';
 
 // id は uuid なので、形式が違う値で DB に問い合わせると型エラーになる。先に弾いて 404 にする
@@ -10,7 +10,11 @@ export default async function HistoryEventEditPage({ params }: { params: Promise
   const { id } = await params;
   if (!UUID_PATTERN.test(id)) notFound();
 
-  const [event, badges] = await Promise.all([getHistoryEventById(id), getHistoryBadgesList()]);
+  const [event, badges, articles] = await Promise.all([
+    getHistoryEventById(id),
+    getHistoryBadgesList(),
+    getHistoryArticleCandidates(),
+  ]);
   if (!event) notFound();
 
   return (
@@ -18,6 +22,7 @@ export default async function HistoryEventEditPage({ params }: { params: Promise
       id={event.id}
       savedAt={formatSavedAt(event.updatedAt)}
       badges={badges.map(({ id: badgeId, name }) => ({ id: badgeId, name }))}
+      articles={articles}
       initialData={{
         era: event.era,
         sortDate: event.sortDate,

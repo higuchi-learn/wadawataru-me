@@ -184,7 +184,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
                 thumbnail: event.thumbnail,
                 hasDetail: event.content.trim() !== '',
                 productSlug: event.productSlug,
-                // 詳細はダイアログで表示するので、本文などをカードに渡しておく（制作物の記事がある出来事は記事へのリンクのまま）
+                // 詳細はダイアログで表示するので、本文などをカードに渡しておく（記事にリンクしている出来事は記事へのリンクのまま）
                 detail: {
                   dateLabel: event.dateLabel,
                   eraLabel: historyEraLabel(event.era),

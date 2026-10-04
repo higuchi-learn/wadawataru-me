@@ -329,3 +329,27 @@ export async function getHistoryBadgesList() {
     .groupBy(historyBadgesTable.id)
     .orderBy(asc(historyBadgesTable.name));
 }
+
+// 年表の出来事にリンクする記事の候補（公開中の記事）を取得する。管理画面の年表エディタで、カードの一覧から選ぶために使う
+// 種類が tech なら制作物、life ならブログの記事から選ぶので、両方をまとめて返す
+// getPostsList をジャンルごとに呼ぶと、問い合わせが2回になるうえ、使わないタグの結合・集計まで行う
+// そのため、カードに出す列だけを1回の問い合わせで取り、ジャンルごとに振り分ける
+// 記事数は多くないので、ページ分けせずに全件を返す
+export async function getHistoryArticleCandidates() {
+  const rows = await db
+    .select({
+      genre: postsTable.genre,
+      slug: postsTable.slug,
+      title: postsTable.title,
+      description: postsTable.description,
+      thumbnail: postsTable.thumbnail,
+    })
+    .from(postsTable)
+    .where(and(eq(postsTable.status, 'published'), inArray(postsTable.genre, ['products', 'blogs'])))
+    .orderBy(desc(postsTable.publishedAt));
+  const pick = (genre: 'products' | 'blogs') =>
+    rows
+      .filter((row) => row.genre === genre)
+      .map(({ slug, title, description, thumbnail }) => ({ slug, title, description, thumbnail }));
+  return { products: pick('products'), blogs: pick('blogs') };
+}

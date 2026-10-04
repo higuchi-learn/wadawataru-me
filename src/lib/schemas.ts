@@ -38,7 +38,7 @@ export const historyEventSchema = z
     summary: z.string().max(120, '文字数が超過しています。最大文字数は120字です。'),
     content: z.string(),
     thumbnail: z.string(),
-    // 制作物の記事の slug。空文字は「紐づけなし」。記事の slug と同じ形式・長さに制限する
+    // リンクする記事の slug（種類が tech なら制作物、life ならブログの記事）。空文字は「紐づけなし」。記事の slug と同じ形式・長さに制限する
     productSlug: z.union([
       z.literal(''),
       z

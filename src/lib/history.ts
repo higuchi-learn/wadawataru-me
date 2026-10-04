@@ -21,6 +21,19 @@ export function historyKindColor(kind: HistoryKind): string {
   return HISTORY_KINDS.find((k) => k.value === kind)?.color ?? 'var(--ogangetext)';
 }
 
+// 年表の出来事からリンクする記事のジャンル
+// 「技術・開発・資格」の出来事は制作物の記事、「学校・活動・仕事」の出来事はブログの記事にリンクする
+// DB の product_slug 列は「リンクする記事の slug」として使い、どのジャンルの記事かは種類（kind）から決める
+// （列を増やさずに済み、既存のリンクはすべて tech → 制作物なので、そのまま動く）
+export function historyArticleGenre(kind: HistoryKind): 'products' | 'blogs' {
+  return kind === 'tech' ? 'products' : 'blogs';
+}
+
+// リンクする記事の URL（/products/slug または /blogs/slug）
+export function historyArticleHref(kind: HistoryKind, slug: string): string {
+  return `/${historyArticleGenre(kind)}/${slug}`;
+}
+
 export function historyEraLabel(era: HistoryEra): string {
   return HISTORY_ERAS.find((e) => e.value === era)?.label ?? era;
 }
