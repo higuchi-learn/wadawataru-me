@@ -164,7 +164,7 @@ R2 の無料枠はアカウント全体で共有（画像の配信と合算）�
 
 | ファイル | 変更 |
 |---|---|
-| `open-next.config.ts` | 作り置きの保存先を R2（`r2IncrementalCache`）、記録先を D1（`d1NextTagCache`）にした。Queue は使わない |
+| `open-next.config.ts` | 作り置きの保存先を R2（`r2IncrementalCache`）、記録先を D1（`d1NextTagCache`）にした。Queue は使わない。デプロイ後に `enableCacheInterception` も追加した（8 章）|
 | `wrangler.jsonc` | `NEXT_INC_CACHE_R2_BUCKET`（R2）と `NEXT_TAG_CACHE_D1`（D1）のバインディングを追加。名前は OpenNext が決めている |
 | `src/lib/generatePostMetadata.ts`・各 `[slug]/page.tsx` | `generateStaticParams`（空の配列）を追加。記事ページが「最初のアクセスで作って保存」になる（ビルド時には作らないので、ビルドが DB に依存しない） |
 | `src/db/queries/cached.ts`（新規） | 公開ページ用の、DB の結果を作り置きする関数（`unstable_cache`）。一覧・件数・ジャンルのタグ・年表。作り置きは JSON で保存され Date が文字列になって戻るので、Date に戻している |
@@ -301,6 +301,45 @@ wrangler の手元の環境は、Worker が外部へ送った通信を記録で�
 | 年表の詳細・記事にリンクしている出来事 | **307** → `/products/lovely-stick` | 307 | — |
 
 ローディング画面が残っていることも確かめた。作り置きのない記事ページを初めて開いたとき（`/products/entry-system`）と年表の一覧の HTML に「読み込み中です」が含まれていた。
+
+---
+
+## 8. デプロイ後の確認と、見つかった問題（記事ページが新しい Worker で作り直されていた）
+
+### 8-1. デプロイ
+
+`pnpm run deploy` で、R2 へのビルド済みページの書き込み（24 件）と D1 の表（`revalidations`）の作成が行われ、デプロイが完了した。
+
+### 8-2. 本番で見つかった問題
+
+本番で記事ページを何度か開くと、応答ヘッダーが `x-nextjs-cache: HIT` のときと `STALE`（古い）のときがあった。手元で「作り置きを作る → サーバーを再起動して新しい Worker で受ける」を再現すると、次のことが分かった。
+
+- 新しい Worker が作り置き済みの記事ページを受けると `STALE` と判定し、**その場でページを作り直して Neon を2回読んでいた**
+- 裏での作り直しの依頼は、queue を設定していないので「Dummy queue is not implemented」のエラーで捨てられていた
+
+**原因**: 記事ページは最初のアクセスで作るページ（ビルド時には作らない）。Next.js はこうしたページの「有効期限なし」を、作った Worker のメモリにしか持たない。ほかの Worker では期限が分からず、既定の「1秒」とみなして古いと判定していた（Next.js の `SharedCacheControls` / `calculateRevalidate`）。Cloudflare の Worker は短い間隔で入れ替わり、拠点も多いので、このままでは記事ページで Neon への問い合わせがかなり残る。
+
+### 8-3. 対処
+
+`open-next.config.ts` に `enableCacheInterception: true` を追加した。作り置きのあるページは Next.js に渡す前に OpenNext が返す。OpenNext は作り置きに保存された期限（なし）で判定するので、古いと判定されない。Next.js を動かさずに返せるので、Worker の処理も軽くなる。PPR を使う場合は使えない設定だが、このサイトでは使っていない。
+
+検討したほかの案:
+
+| 案 | 判断 |
+|---|---|
+| queue を設定して、裏での作り直しを動かす | 不採用。古いと誤判定されるたびに作り直して Neon を読むことになり、問題が悪化する |
+| ビルド時に全記事を作る（`generateStaticParams` で全 slug を返す） | 不採用。ビルド後に公開した記事は同じ問題が残り、ビルドが DB に依存する |
+
+### 8-4. 確かめたこと（手元の Worker 環境）
+
+| 状況 | 記事ページ | 一覧 | 年表 | サイトマップ | 存在しない記事 |
+|---|---|---|---|---|---|
+| 作り置き済み・同じ Worker | Neon 0回 | 0回 | 0回 | 0回 | 404・0回 |
+| 作り置き済み・**新しい Worker**（再起動後） | **Neon 0回**（以前は2回）| 0回 | 0回 | 0回 | 404・0回 |
+| 記事ページ・一覧・サイトマップを「古くなった」と記録した後 | 1回だけ作り直し、次から 0回 | 同左 | 記録していないので 0回 | 同左 | — |
+| すべてのページを「古くなった」と記録した後（`revalidatePath('/', 'layout')` と同じ） | 1回だけ作り直し、次から 0回 | — | — | — | — |
+
+作り直しのエラー（Dummy queue）も出なくなった。
 
 ## 元に戻すとき
 
