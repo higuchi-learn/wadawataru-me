@@ -18,7 +18,7 @@
 
 ```bash
 pnpm preview   # ローカル開発（Cloudflare Workers, port 8787）
-pnpm run deploy    # 本番デプロイ
+pnpm run deploy    # 本番デプロイ（最後に scripts/warm-cache.mjs で作り置きを温める）
 pnpm lint      # ESLint（src 配下。整形ルール Prettier も含む）
 pnpm lint:fix  # 自動修正できる lint エラー・整形を直す
 ```
@@ -40,7 +40,7 @@ pnpm lint:fix  # 自動修正できる lint エラー・整形を直す
 | `src/auth.ts` | Auth.js 設定（GitHub OAuth）|
 | `src/middleware.ts` | 認証ミドルウェア（`/admin/**`, `/api/upload` を保護）。`/api/upload` はルート内でも `isAuthenticated()` で確認する（多層防御）|
 | `src/app/api/upload/route.ts` | 画像アップロード API（R2）。形式は `src/lib/imageType.ts` でファイルの中身から判定 |
-| `src/app/api/images/[key]/route.ts` | 画像配信 API（R2）。nosniff・CSP sandbox・1年キャッシュのヘッダーを付ける |
+| `src/app/api/images/[key]/route.ts` | 画像配信 API（R2）。nosniff・CSP sandbox・1年キャッシュのヘッダーを付け、Cloudflare の拠点にも Cache API で保存する |
 | `src/lib/imageType.ts` | マジックナンバーによる画像形式判定（PNG / JPEG / GIF / WebP / SVG の許可リスト）|
 | `src/lib/uploadImage.ts` | クライアント側のアップロード関数と、EasyMDE への貼り付け・ドロップのアップロード処理。送信前に `convertToWebp` を通す |
 | `src/lib/convertToWebp.ts` | アップロード前にブラウザで WebP（長い辺 1920px・比率維持・品質 0.85）へ変換する。SVG・GIF・WebP は変換しない |
@@ -56,7 +56,8 @@ pnpm lint:fix  # 自動修正できる lint エラー・整形を直す
 | `src/db/queries/cached.ts` | 公開ページ用の、DB の結果を R2 に作り置きする参照（`unstable_cache`）|
 | `src/lib/publicRouteGuards.ts` | 記事・年表の出来事があるかを `[slug]` / `[id]` の `layout.tsx` で確かめる（ローディング画面より手前で 404 を決めるため）|
 | `src/lib/revalidatePublic.ts` | 保存・公開したときに公開ページの作り置きを捨てる関数（`revalidatePath` / `updateTag`）|
-| `open-next.config.ts` | 作り置きの保存先（R2 `wadawataru-me-cache`）と「古くなった」記録（D1 `wadawataru-me-tag-cache`）|
+| `open-next.config.ts` | 作り置きの保存先（R2 `wadawataru-me-cache`。404 のページは保存しない。30日で自動削除のライフサイクルルールあり）と「古くなった」記録（D1 `wadawataru-me-tag-cache`）|
+| `scripts/warm-cache.mjs` | デプロイ直後に公開ページを開いて作り置きを作っておくスクリプト（`pnpm run deploy` の最後に実行）|
 | `src/app/globals.css` | グローバルスタイル（CSS変数含む）|
 | `wrangler.jsonc` | Cloudflare Workers 設定 |
 | `src/components/PostListPage.tsx` / `PostListSkeleton.tsx` | 公開側の一覧ページと、その読み込み中の骨組み（`(public)/{products,blogs,books}/(list)/loading.tsx` から使う）|
