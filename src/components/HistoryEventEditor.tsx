@@ -4,8 +4,6 @@ import { useState, useCallback, useMemo, useRef, useId } from 'react';
 import EasyMDE from 'easymde';
 import dynamic from 'next/dynamic';
 import { unstable_rethrow } from 'next/navigation';
-import Markdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { FormLabel, InputField } from '@/components/InputField';
 import {
   saveHistoryEventAction,
@@ -13,7 +11,9 @@ import {
   createHistoryBadgeAction,
 } from '@/app/admin/history-actions';
 import { historyEventSchema, type HistoryEventInput } from '@/lib/schemas';
-import { HISTORY_ERAS, HISTORY_KINDS } from '@/lib/history';
+import { HISTORY_ERAS, HISTORY_KINDS, historyEraLabel, historyKindColor } from '@/lib/history';
+import { historyDetailParts } from '@/components/HistoryEventDetailDialog';
+import { MoreDetailsBody, MORE_DETAILS_PANEL_CLASS } from '@/components/MoreDetails';
 import { uploadImage, attachImageUpload } from '@/lib/uploadImage';
 import 'easymde/dist/easymde.min.css';
 
@@ -431,8 +431,10 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
       </div>
 
       <div className="flex flex-1 min-h-0 gap-3 pb-1 bg-white">
-        <div className="w-1/2 pl-1 flex flex-col h-full overflow-hidden">
-          <FormLabel name="詳細（Markdown・任意。書くと詳細ページへのリンクが表示されます）" />
+        {/* 記事にリンクする出来事は、年表のカードが記事へ移動するので、ポップアップのプレビューは出さない
+            そのときは詳細の入力欄を全幅にする */}
+        <div className={`${form.productSlug ? 'w-full px-1' : 'w-1/2 pl-1'} flex flex-col h-full overflow-hidden`}>
+          <FormLabel name="詳細（Markdown・任意。書くと年表から詳細を開けるようになります）" />
           <div className="flex-1 min-h-0 overflow-hidden">
             <SimpleMdeReact
               value={form.content}
@@ -444,12 +446,38 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
           </div>
         </div>
 
-        <div className="w-1/2 pr-1 overflow-auto border border-[var(--inputborder,#9f9fa9)] rounded-sm">
-          <div className="markdown-preview max-w-3xl mx-auto px-4 py-6">
-            <Markdown remarkPlugins={[remarkGfm]}>{form.content || '*詳細ページの本文がここに表示されます*'}</Markdown>
+        {/* 年表で「くわしく ›」を押したときに開くポップアップのプレビュー
+            実物（MoreDetails）と同じ外枠のクラス・同じ中身の部品（MoreDetailsBody + historyDetailParts）を使うので、
+            プレビューと実物の表示が常に一致する。背景も実物と同じ黒 50%＋ぼかし。閉じるボタンは押せない見本 */}
+        {!form.productSlug && (
+          <div className="w-1/2 pr-1 overflow-auto rounded-sm bg-black/50 backdrop-blur-sm py-4 flex justify-center items-start">
+            <div className={MORE_DETAILS_PANEL_CLASS}>
+              <PreviewBody
+                detail={{
+                  dateLabel: form.dateLabel || '日付',
+                  eraLabel: historyEraLabel(form.era),
+                  title: form.title || 'タイトル',
+                  summary: form.summary || null,
+                  badge: badges.find((b) => b.id === form.badgeId)?.name ?? null,
+                  color: historyKindColor(form.kind),
+                  thumbnail: form.thumbnail || null,
+                  content: form.content || '*詳細の本文がここに表示されます*',
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
+  );
+}
+
+// プレビューの中身。実物のポップアップと同じ部品を組み合わせる
+function PreviewBody({ detail }: { detail: Parameters<typeof historyDetailParts>[0] }) {
+  const parts = historyDetailParts(detail);
+  return (
+    <MoreDetailsBody title={detail.title} media={parts.media} header={parts.header}>
+      {parts.body}
+    </MoreDetailsBody>
   );
 }

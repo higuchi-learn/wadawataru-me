@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { historyKindColor, type HistoryKind } from '@/lib/history';
+import HistoryEventDetailDialog, { type HistoryEventDetail } from '@/components/HistoryEventDetailDialog';
 
 export type HistoryEventCardData = {
   id?: string;
@@ -15,6 +16,8 @@ export type HistoryEventCardData = {
   productSlug: string | null;
   // 期間のある出来事のとき、終わりの文言（「2023年9月まで」など）と年表上の線の色。期間がなければ null
   period: { label: string; color: string } | null;
+  // 詳細（Markdown）をダイアログで表示するためのデータ。渡されたときは、別ページへ移動せずダイアログで開く
+  detail?: Omit<HistoryEventDetail, 'color'>;
 };
 
 // 年表（/history）の1件分の表示。公開ページと管理画面のプレビューで共有する
@@ -24,6 +27,9 @@ export default function HistoryEventCard({ event, align }: { event: HistoryEvent
   // 制作物の出来事は、受賞歴やトップページと同じ記事へ飛ばし、どこから押しても行き先が揃うようにする
   const detailHref = event.productSlug ? `/products/${event.productSlug}` : event.id ? `/history/${event.id}` : '#';
   const hasLink = event.productSlug !== null || event.hasDetail;
+  // 制作物の記事がない出来事で、詳細のデータがあるときは、リンクではなくダイアログを開くボタンにする
+  const dialogDetail: HistoryEventDetail | null =
+    !event.productSlug && event.hasDetail && event.detail ? { ...event.detail, color } : null;
   return (
     <div className={align === 'left' ? 'md:text-right' : ''}>
       <div className={`flex flex-wrap items-baseline gap-x-3 gap-y-1 ${align === 'left' ? 'md:justify-end' : ''}`}>
@@ -46,7 +52,10 @@ export default function HistoryEventCard({ event, align }: { event: HistoryEvent
         </p>
       )}
       <h3 className="text-sm font-bold text-black mt-1.5 leading-6">
-        {hasLink ? (
+        {/* 詳細をポップアップで開く出来事は、ほかのページのカードと同じく、タイトルは文字のままにして下の「くわしく ›」から開く */}
+        {dialogDetail ? (
+          event.title
+        ) : hasLink ? (
           <Link href={detailHref} className="hover:text-[var(--ogangetext)] transition-colors">
             {event.title}
           </Link>
@@ -62,13 +71,22 @@ export default function HistoryEventCard({ event, align }: { event: HistoryEvent
           className={`mt-3 w-full max-w-sm aspect-video object-cover rounded-lg border border-[var(--unclickable)] ${align === 'left' ? 'md:ml-auto' : ''}`}
         />
       )}
-      {hasLink && (
-        <Link
-          href={detailHref}
-          className="inline-block mt-2 text-xs font-bold text-[var(--lighttext)] hover:text-[var(--ogangetext)] transition-colors border-b border-[var(--border)] pb-0.5"
-        >
-          {event.productSlug ? '制作物の記事を読む →' : '詳しく見る →'}
-        </Link>
+      {dialogDetail ? (
+        // 経歴ページなどのカードと同じ「くわしく ›」（MoreDetails）で開く
+        // md 以上で中央線の左側に置くカード（右寄せ）では、ボタンも右端にそろえる
+        // （ボタンはピルの内側に左右 12px の余白があるので、-mr-3 で文字の右端をカードの文字の右端に合わせる）
+        <div className={`mt-2 ${align === 'left' ? 'md:flex md:justify-end md:-mr-3' : ''}`}>
+          <HistoryEventDetailDialog detail={dialogDetail} />
+        </div>
+      ) : (
+        hasLink && (
+          <Link
+            href={detailHref}
+            className="inline-block mt-2 text-xs font-bold text-[var(--lighttext)] hover:text-[var(--ogangetext)] transition-colors border-b border-[var(--border)] pb-0.5"
+          >
+            {event.productSlug ? '制作物の記事を読む →' : '詳しく見る →'}
+          </Link>
+        )
       )}
     </div>
   );

@@ -8,6 +8,7 @@ import {
   HISTORY_KINDS,
   buildHistoryGraph,
   reverseHistoryGraph,
+  historyEraLabel,
   historyKindColor,
   historyPeriodLabel,
   type HistoryLaneState,
@@ -183,6 +184,16 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
                 thumbnail: event.thumbnail,
                 hasDetail: event.content.trim() !== '',
                 productSlug: event.productSlug,
+                // 詳細はダイアログで表示するので、本文などをカードに渡しておく（制作物の記事がある出来事は記事へのリンクのまま）
+                detail: {
+                  dateLabel: event.dateLabel,
+                  eraLabel: historyEraLabel(event.era),
+                  title: event.title,
+                  summary: event.summary,
+                  badge: event.badge,
+                  thumbnail: event.thumbnail,
+                  content: event.content,
+                },
                 period: branchColor ? { label: historyPeriodLabel(event.endDate), color: branchColor } : null,
               };
               return (

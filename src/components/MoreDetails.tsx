@@ -60,33 +60,74 @@ export default function MoreDetails({
         // Tailwind の preflight が margin を 0 にするので m-auto で中央に戻す。
         // backdrop: は開いているときの背面（::backdrop）のスタイル。
         // starting: は表示し始めの状態（@starting-style）で、そこから opacity / scale が変化してふわっと出る
-        className="m-auto w-[calc(100%-2rem)] max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden rounded-3xl bg-white p-0 shadow-2xl backdrop:bg-black/50 backdrop:backdrop-blur-sm transition-[opacity,scale] duration-200 starting:opacity-0 starting:scale-95"
+        // 外枠（幅・角丸・影）は MORE_DETAILS_PANEL_CLASS を共有し、管理画面のプレビューと一致させる
+        className={`m-auto ${MORE_DETAILS_PANEL_CLASS} max-h-[90vh] overflow-y-auto backdrop:bg-black/50 backdrop:backdrop-blur-sm transition-[opacity,scale] duration-200 starting:opacity-0 starting:scale-95`}
       >
-        {/* 閉じるボタン。sticky + 高さ 0 の箱に入れることで、中身をスクロールしても右上に残り続ける */}
-        <div className="sticky top-0 z-10 h-0 flex justify-end">
-          <button
-            type="button"
-            onClick={close}
-            aria-label="閉じる"
-            className="mt-3 mr-3 shrink-0 size-10 rounded-full flex items-center justify-center bg-white/90 text-black shadow-md backdrop-blur cursor-pointer transition-colors hover:bg-[var(--enableorange)] hover:text-[var(--ogangetext)]"
-          >
-            <svg viewBox="0 0 24 24" className="size-5 fill-current" aria-hidden="true">
-              <path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-            </svg>
-          </button>
-        </div>
-
-        {media}
-
-        <div className="p-6 sm:p-8">
-          {/* 画像がないときは閉じるボタンと見出しが重ならないよう右に余白を取る */}
-          <h3 className={`text-xl sm:text-2xl font-bold text-black leading-snug ${media ? '' : 'pr-12'}`}>{title}</h3>
-          {header && <div className="mt-4">{header}</div>}
-          {/* カードにもあった情報と、ここで初めて読む本文との区切り */}
-          <div className="my-6 h-px bg-[var(--softborder)]" />
+        <MoreDetailsBody title={title} media={media} header={header} onClose={close}>
           {children}
-        </div>
+        </MoreDetailsBody>
       </dialog>
     </>
   );
 }
+
+const CLOSE_BUTTON_CLASS =
+  'mt-3 mr-3 shrink-0 size-10 rounded-full flex items-center justify-center bg-white/90 text-black shadow-md backdrop-blur cursor-pointer transition-colors hover:bg-[var(--enableorange)] hover:text-[var(--ogangetext)]';
+
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="size-5 fill-current" aria-hidden="true">
+      <path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+    </svg>
+  );
+}
+
+// ポップアップの中身（閉じるボタン・画像・見出し・見出しの下の情報・区切り線・本文）
+// 「くわしく」のポップアップ本体と、管理画面のプレビュー（年表エディタ）の両方で使い、見た目を一致させる
+// onClose を渡さないときは、閉じるボタンを押せない見本として表示する（プレビュー用）
+export function MoreDetailsBody({
+  title,
+  media,
+  header,
+  onClose,
+  children,
+}: {
+  title: string;
+  media?: ReactNode;
+  header?: ReactNode;
+  onClose?: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <>
+      {/* 閉じるボタン。sticky + 高さ 0 の箱に入れることで、中身をスクロールしても右上に残り続ける */}
+      <div className="sticky top-0 z-10 h-0 flex justify-end">
+        {onClose ? (
+          <button type="button" onClick={onClose} aria-label="閉じる" className={CLOSE_BUTTON_CLASS}>
+            <CloseIcon />
+          </button>
+        ) : (
+          // プレビューでは押せない見本なので、形だけ表示する
+          <span aria-hidden="true" className={CLOSE_BUTTON_CLASS}>
+            <CloseIcon />
+          </span>
+        )}
+      </div>
+
+      {media}
+
+      <div className="p-6 sm:p-8">
+        {/* 画像がないときは閉じるボタンと見出しが重ならないよう右に余白を取る */}
+        <h3 className={`text-xl sm:text-2xl font-bold text-black leading-snug ${media ? '' : 'pr-12'}`}>{title}</h3>
+        {header && <div className="mt-4">{header}</div>}
+        {/* カードにもあった情報と、ここで初めて読む本文との区切り */}
+        <div className="my-6 h-px bg-[var(--softborder)]" />
+        {children}
+      </div>
+    </>
+  );
+}
+
+// ポップアップ本体（<dialog>）と同じ外枠のクラス。プレビューでも同じ角丸・影・幅にするために共有する
+export const MORE_DETAILS_PANEL_CLASS =
+  'w-[calc(100%-2rem)] max-w-2xl overflow-x-hidden rounded-3xl bg-white p-0 shadow-2xl';
