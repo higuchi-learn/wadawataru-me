@@ -23,14 +23,14 @@ export function attachImageUpload(mde: EasyMDE, onChange: (value: string) => voi
     uploadImage(file)
       .then((url) => {
         if (!url) {
-          onError('画像のアップロードに失敗しました');
+          onError('画像のアップロードに失敗しました。');
           return;
         }
         // cm.replaceSelection() でカーソル位置に Markdown の画像記法を挿入する
         cm.replaceSelection(`![](${url})`);
         onChange(cm.getValue());
       })
-      .catch(() => onError('画像のアップロードに失敗しました'));
+      .catch(() => onError('画像のアップロードに失敗しました。'));
   };
 
   cm.on('paste', (_: unknown, e: ClipboardEvent) => {

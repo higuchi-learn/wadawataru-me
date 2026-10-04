@@ -30,7 +30,7 @@ const awards: Award[] = [
   {
     title: 'Gesture Audio',
     href: '/products/gesture-audio',
-    catchcopy: '腕を振るだけで音楽を操作できる、腕に着けるコントローラー',
+    catchcopy: '腕を振るだけで音楽を操作できる、腕に着けるコントローラー。',
     image: '/images/gesture-audio-demo.webp',
     imageHint: '腕に着けたコントローラーの写真、またはデモの様子（16:9）',
     honors: [{ rank: '最優秀賞', event: '技育CAMP2025 ハッカソン Vol.10', date: '2025年8月' }],
@@ -39,7 +39,7 @@ const awards: Award[] = [
   {
     title: 'ジュニアマイスター顕彰',
     href: '/qualifications',
-    catchcopy: '全国の工業高校生の中で、歴代最高の 270pt を取得',
+    catchcopy: '全国の工業高校生の中で、歴代最高の 270pt を取得。',
     image: '/images/meti-award.webp',
     imageHint: '表彰式や賞状の写真（16:9）',
     honors: [{ rank: '経済産業大臣賞', event: '公益社団法人全国工業高等学校長協会', date: '2024年3月' }],
@@ -47,7 +47,7 @@ const awards: Award[] = [
   {
     title: 'Bingo!2',
     href: '/products/bingo2',
-    catchcopy: 'PC 1台と参加者のスマホだけで、大人数のビンゴ大会ができるアプリ',
+    catchcopy: 'PC 1台と参加者のスマホだけで、大人数のビンゴ大会ができるアプリ。',
     image: '/images/bingo2-1.webp',
     imageHint: 'ビンゴカードやランキング画面のスクリーンショット（16:9）',
     honors: [
@@ -58,7 +58,7 @@ const awards: Award[] = [
   {
     title: 'ステキなステッキ',
     href: '/products/lovely-stick',
-    catchcopy: '魔法の杖を振って MP を溜め、攻撃・防御する体感型の対戦ゲーム',
+    catchcopy: '魔法の杖を振って MP を溜め、攻撃・防御する体感型の対戦ゲーム。',
     image: '/images/lovely-stick-1.webp',
     imageHint: '杖を振って遊んでいる様子、または杖の実物（16:9）',
     honors: [
@@ -70,7 +70,7 @@ const awards: Award[] = [
   {
     title: 'SysPay',
     href: '/products/syspay',
-    catchcopy: '大学祭の模擬店で使う、スマホから注文できるオンライン注文システム',
+    catchcopy: '大学祭の模擬店で使う、スマホから注文できるオンライン注文システム。',
     honors: [{ rank: '優秀賞', event: '愛知工業大学 工科展2024', date: '2024年10月' }],
     tech: ['TypeScript', 'React', 'Vite', 'MUI', 'Firebase'],
   },

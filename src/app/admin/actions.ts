@@ -178,7 +178,7 @@ export async function archiveAction(payload: {
 //      （画面では入力欄を読み取り専用にしているが、Server Action は画面を通さずにも呼べるため、ここでも守る）
 async function resolveSlug(id: string | undefined, slug: string): Promise<{ slug: string } | { error: string }> {
   if (!id) {
-    if (await isSlugTaken(slug)) return { error: 'このURLパスはすでに使われています' };
+    if (await isSlugTaken(slug)) return { error: 'このURLパスはすでに使われています。' };
     return { slug };
   }
   const savedSlug = await getPostSlugById(id);

@@ -4,15 +4,15 @@ export type Genre = 'products' | 'blogs' | 'books';
 export const GENRE_INFO: Record<Genre, { title: string; description: string }> = {
   products: {
     title: '制作物',
-    description: '個人開発やハッカソンで制作したプロダクトの紹介です.',
+    description: '個人開発やハッカソンで制作したプロダクトの紹介です。',
   },
   blogs: {
     title: 'ブログ',
-    description: '日記です. 大学やサークルでの出来事やふと思ったことを書き残します.',
+    description: '日記です。大学やサークルでの出来事やふと思ったことを書き残します。',
   },
   books: {
     title: '読書記録',
-    description: '技術書の内容をざっくりまとめて, 学んだことをアウトプットする場です.',
+    description: '技術書の内容をざっくりまとめて、学んだことをアウトプットする場です。',
   },
 };
 

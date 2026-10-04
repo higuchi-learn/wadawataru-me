@@ -53,7 +53,7 @@ export default function HistoryArticlePicker({
             selected.title
           ) : (
             <span className="text-[var(--error)]">
-              「{value}」は公開中の{genreLabel}の記事に見つかりません
+              「{value}」は公開中の{genreLabel}の記事に見つかりません。
             </span>
           )}
         </p>

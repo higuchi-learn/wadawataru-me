@@ -156,7 +156,7 @@ export function SearchBarView({
       </div>
       {/* 読み込み中であることを読み上げソフトにも伝える（画面には表示しない） */}
       <p role="status" className="sr-only">
-        {isPending ? '絞り込み中です' : ''}
+        {isPending ? '絞り込み中です。' : ''}
       </p>
 
       {isOverlayOpen && (

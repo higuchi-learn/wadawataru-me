@@ -233,7 +233,7 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
     } catch {
       // fetch や res.json() が例外をスローした場合（ネットワークエラー・不正レスポンスなど）
       // try/catch がないと unhandled rejection になるためここで捕捉してエラー表示する
-      setServerError('画像のアップロードに失敗しました');
+      setServerError('画像のアップロードに失敗しました。');
     }
   };
 

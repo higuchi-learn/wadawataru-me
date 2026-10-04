@@ -76,7 +76,7 @@ export default function DiaryEditor({ date, initialContent, initialSavedAt }: Pr
             {initialSavedAt ? (
               <span className="text-[var(--successtext,#497d00)]">最終保存日時 : {initialSavedAt}</span>
             ) : (
-              <span className="text-[var(--lighttext,#6a7282)]">まだ保存されていません</span>
+              <span className="text-[var(--lighttext,#6a7282)]">まだ保存されていません。</span>
             )}
           </span>
           <button

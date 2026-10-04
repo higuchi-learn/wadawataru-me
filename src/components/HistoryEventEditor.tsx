@@ -81,7 +81,7 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
   const mdeOptions = useMemo(
     () => ({
       spellChecker: false,
-      placeholder: '詳細ページに表示する本文（任意）。画像は貼り付け・ドロップでアップロードできます',
+      placeholder: '詳細ページに表示する本文（任意）。画像は貼り付け・ドロップでアップロードできます。',
     }),
     [],
   );
@@ -101,9 +101,9 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
     try {
       const url = await uploadImage(file);
       if (url) set('thumbnail')(url);
-      else setServerError('画像のアップロードに失敗しました');
+      else setServerError('画像のアップロードに失敗しました。');
     } catch {
-      setServerError('画像のアップロードに失敗しました');
+      setServerError('画像のアップロードに失敗しました。');
     }
   };
 

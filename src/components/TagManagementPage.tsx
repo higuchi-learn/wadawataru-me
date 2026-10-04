@@ -309,7 +309,7 @@ function OtherGenreTagPicker({ tags, genre, onAdded, onClose }: OtherGenreTagPic
           </p>
         )}
         {tags.length === 0 ? (
-          <p className="text-sm text-[var(--lighttext)]">追加できるタグがありません</p>
+          <p className="text-sm text-[var(--lighttext)]">追加できるタグがありません。</p>
         ) : (
           <div className="overflow-auto flex-1">
             <div className="grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] gap-2">
@@ -484,7 +484,7 @@ export default function TagManagementPage({ initialTagsByGenre }: Props) {
         selectedGenre,
         newTags.map((t) => t.id),
       );
-      setStatusMessage(result?.error ?? '並び順を保存しました');
+      setStatusMessage(result?.error ?? '並び順を保存しました。');
     } catch {
       // 画面上は並び替え済みだが保存はされていない状態なので、それが分かるメッセージを出す
       setStatusMessage('並び順の保存に失敗しました。再読み込みして確認してください。');
@@ -502,13 +502,13 @@ export default function TagManagementPage({ initialTagsByGenre }: Props) {
       }
       return next;
     });
-    setStatusMessage(`「${updated.name}」を更新しました`);
+    setStatusMessage(`「${updated.name}」を更新しました。`);
   };
 
   const handleRemovedFromGenre = (id: string) => {
     const removed = currentTags.find((t) => t.id === id);
     updateCurrentTags((prev) => prev.filter((t) => t.id !== id));
-    if (removed) setStatusMessage(`「${removed.name}」をこのジャンルから除外しました`);
+    if (removed) setStatusMessage(`「${removed.name}」をこのジャンルから除外しました。`);
   };
 
   const handleDeleted = (id: string) => {
@@ -522,18 +522,18 @@ export default function TagManagementPage({ initialTagsByGenre }: Props) {
       }
       return next;
     });
-    if (removed) setStatusMessage(`「${removed.name}」を完全に削除しました`);
+    if (removed) setStatusMessage(`「${removed.name}」を完全に削除しました。`);
   };
 
   const handleCreated = (tag: TagItem) => {
     updateCurrentTags((prev) => [...prev, tag]);
-    setStatusMessage(`「${tag.name}」を追加しました`);
+    setStatusMessage(`「${tag.name}」を追加しました。`);
   };
 
   const handleAddedFromOtherGenre = (tag: TagItem) => {
     updateCurrentTags((prev) => [...prev, tag]);
     setIsPickerOpen(false);
-    setStatusMessage(`「${tag.name}」をこのジャンルに追加しました`);
+    setStatusMessage(`「${tag.name}」をこのジャンルに追加しました。`);
   };
 
   return (

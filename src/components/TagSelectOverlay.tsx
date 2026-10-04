@@ -190,7 +190,7 @@ export default function TagSelectOverlay({
               <p className="text-xs text-[var(--lighttext)]">他ジャンルのタグ（クリックでこのジャンルに追加）</p>
               {otherGenreError && <p className="text-xs text-[var(--error)]">{otherGenreError}</p>}
               {otherGenreTags.length === 0 ? (
-                <p className="text-xs text-[var(--lighttext)]">追加できるタグがありません</p>
+                <p className="text-xs text-[var(--lighttext)]">追加できるタグがありません。</p>
               ) : (
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(80px,1fr))] gap-2">
                   {otherGenreTags.map((tag) => (

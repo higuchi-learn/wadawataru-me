@@ -32,7 +32,7 @@ export default function PostListSkeleton({ genre }: { genre: Genre }) {
           （本物のページでは main が幅いっぱいに広がり、カードはその幅を基準に w-full で広がる） */}
       <div aria-busy="true" className="flex flex-col w-full">
         <p role="status" className="sr-only">
-          読み込み中です
+          読み込み中です。
         </p>
         {/* 検索バー（本物の SearchBar は w-[365px] max-w-full h-9 のピル型） */}
         <div className="flex flex-col items-center pt-8 pb-2 px-4 w-full shrink-0">
