@@ -1,6 +1,14 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import ImageSlot from '@/components/ImageSlot';
 import { PX, CARD_SHADOW, CARD_FOOTER, PageHero, ReadMore } from '@/components/PageSection';
+import { pageMetadata } from '@/lib/siteMetadata';
+
+// ページ上部の見出しと紹介文。ブラウザのタブや SNS のプレビューに出す題名・説明にも使う
+const PAGE_TITLE = '受賞歴';
+const PAGE_LEAD = 'ハッカソンや顕彰制度でいただいた賞です。カードを押すと、作ったものや学んだことをくわしく読めます。';
+
+export const metadata: Metadata = pageMetadata(PAGE_TITLE, PAGE_LEAD);
 
 // 同じプロダクトで複数のイベントから受賞した場合に1枚のカードにまとめられるよう、
 // 賞・イベント・日付の組を配列で持つ
@@ -158,11 +166,7 @@ function AwardSummary({ award }: { award: Award }) {
 export default function AwardsPage() {
   return (
     <div className="flex-1 flex flex-col">
-      <PageHero
-        en="Awards"
-        ja="受賞歴"
-        lead="ハッカソンや顕彰制度でいただいた賞です。カードを押すと、作ったものや学んだことをくわしく読めます。"
-      />
+      <PageHero en="Awards" ja={PAGE_TITLE} lead={PAGE_LEAD} />
 
       <div className={`bg-[var(--cream)] ${PX} py-3.5 sm:py-5`}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">

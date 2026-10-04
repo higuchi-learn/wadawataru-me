@@ -1,6 +1,15 @@
+import type { Metadata } from 'next';
 import ImageSlot from '@/components/ImageSlot';
 import { CARD_SHADOW, CARD_FOOTER, PageHero, Section, Watermark } from '@/components/PageSection';
 import MoreDetails from '@/components/MoreDetails';
+import { pageMetadata } from '@/lib/siteMetadata';
+
+// ページ上部の見出しと紹介文。ブラウザのタブや SNS のプレビューに出す題名・説明にも使う
+const PAGE_TITLE = 'プロフィール';
+const PAGE_LEAD =
+  'どんな人なのかと、PC の自作から工業高校、大学、そして Web エンジニアのインターンまでの経歴をまとめています。';
+
+export const metadata: Metadata = pageMetadata(PAGE_TITLE, PAGE_LEAD);
 
 type TimelineItem = {
   period: string;
@@ -81,7 +90,7 @@ type Activity = {
 
 const activities: Activity[] = [
   {
-    title: '生徒会長',
+    title: '生徒会活動',
     period: '2021.10 〜 2023.09（4期連続）',
     summary: '4期連続で役員を務め、意見箱の Web 化や全業務のマニュアル化に取り組んだ。',
     image: '/images/student-council.webp',
@@ -453,11 +462,7 @@ function SubHeading({ en, ja }: { en: string; ja: string }) {
 export default function CareerPage() {
   return (
     <div className="flex-1 flex flex-col">
-      <PageHero
-        en="Profile"
-        ja="プロフィール"
-        lead="どんな人なのかと、PC の自作から工業高校、大学、そして Web エンジニアのインターンまでの経歴をまとめています。"
-      />
+      <PageHero en="Profile" ja={PAGE_TITLE} lead={PAGE_LEAD} />
 
       <Section en="About me" ja="自己紹介">
         <p className="text-base text-black leading-8 max-w-3xl">{intro}</p>

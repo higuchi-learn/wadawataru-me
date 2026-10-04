@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Noto_Sans_JP, Geist_Mono } from 'next/font/google';
 import './globals.css';
+import { SITE_NAME, SITE_TWITTER, siteOpenGraph } from '@/lib/siteMetadata';
 
 // next/font/google でフォントを読み込むと、ビルド時に Google Fonts からフォントファイルを取得して
 // 自己ホスティングするため、実行時に外部リクエストが発生しない（プライバシーと速度の改善）
@@ -30,10 +31,15 @@ export const metadata: Metadata = {
   // 子ページが title: '記事タイトル' を返すと、'記事タイトル | わだわたるのログマガ' になる
   // 子ページが title を指定しない場合は default の 'わだわたるのログマガ' が使われる
   title: {
-    default: 'わだわたるのログマガ',
-    template: '%s | わだわたるのログマガ',
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
   },
   description: 'わだわたるのポートフォリオサイト',
+  // Slack や X は og:image の画像を URL のプレビューに使う。指定がないと画像の場所が空いたままになる。
+  // ここに書いた値は、openGraph を自分で指定しないページ（トップ・経歴・一覧など）にそのまま引き継がれる。
+  // 記事ページは generatePostMetadata.ts、年表は各ページで上書きしている（中身は src/lib/siteMetadata.ts）
+  openGraph: siteOpenGraph(),
+  twitter: SITE_TWITTER,
 };
 
 export default function RootLayout({

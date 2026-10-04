@@ -1,5 +1,13 @@
+import type { Metadata } from 'next';
 import ImageSlot from '@/components/ImageSlot';
 import { PageHero, Section } from '@/components/PageSection';
+import { pageMetadata } from '@/lib/siteMetadata';
+
+// ページ上部の見出しと紹介文。ブラウザのタブや SNS のプレビューに出す題名・説明にも使う
+const PAGE_TITLE = '資格';
+const PAGE_LEAD = 'IT・セキュリティから電気・通信まで、15の資格をすべて高校在学中に取得しました。';
+
+export const metadata: Metadata = pageMetadata(PAGE_TITLE, PAGE_LEAD);
 
 // 賞状や表彰式の写真を用意したら public/ 以下のパスを書く
 const awardImage: string | undefined = '/images/meti-award.webp';
@@ -112,11 +120,7 @@ const notes = [
 export default function QualificationsPage() {
   return (
     <div className="flex-1 flex flex-col">
-      <PageHero
-        en="Certifications"
-        ja="資格"
-        lead="IT・セキュリティから電気・通信まで、15の資格をすべて高校在学中に取得しました。"
-      />
+      <PageHero en="Certifications" ja={PAGE_TITLE} lead={PAGE_LEAD} />
 
       {/* ジュニアマイスター顕彰ハイライト */}
       <Section en="Special Award" ja="ジュニアマイスター顕彰 経済産業大臣賞">
@@ -178,7 +182,7 @@ export default function QualificationsPage() {
             </div>
 
             <p className="text-sm text-black leading-7">
-              高校1年の入学直後から、この制度でいちばん上の賞である経済産業大臣賞を目標に資格の勉強を始めました。
+              高校1年の秋、部活動をやめる決断をしてから、この制度でいちばん上の賞である経済産業大臣賞を目標に資格の勉強を始めました。
               高校3年では歴代最高得点の更新を目標にし、最終的に 270pt を取ることができました。
             </p>
 

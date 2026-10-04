@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import HistoryTimelinePage from '@/components/HistoryTimelinePage';
+import { siteOpenGraph } from '@/lib/siteMetadata';
 
 export const metadata: Metadata = {
   title: '年表（新しい順）',
+  openGraph: siteOpenGraph('年表（新しい順）'),
   // 内容は /history と同じ（並び順だけ違う）ので、検索エンジンには /history を正式な URL として伝える
   alternates: { canonical: '/history' },
 };

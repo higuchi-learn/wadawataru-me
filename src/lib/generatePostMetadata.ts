@@ -28,6 +28,13 @@ export async function generatePostMetadata(genre: Genre, slug: string): Promise<
       description: post.description,
       images: [ogImage],
     },
+    // 書かないと layout.tsx の twitter（本人の写真・小さな四角）が引き継がれるので、記事の画像で上書きする
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.description,
+      images: [ogImage.url],
+    },
   };
 }
 
