@@ -50,7 +50,7 @@ const works: Work[] = [
     title: 'ステキなステッキ',
     catchcopy: '魔法の杖を振って MP を溜め、攻撃・防御する体感型の対戦ゲーム。',
     award: '優秀賞 ＋ ゆめみ企業賞',
-    image: '/images/lovely-stick-1.webp',
+    image: '/images/lovely-stick-2.webp',
     imageHint: '杖を振って遊んでいる様子、または杖の実物（16:9）',
     tech: [
       { name: 'MicroPython', icon: 'micropython' },

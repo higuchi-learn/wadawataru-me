@@ -59,7 +59,7 @@ const awards: Award[] = [
     title: 'ステキなステッキ',
     href: '/products/lovely-stick',
     catchcopy: '魔法の杖を振って MP を溜め、攻撃・防御する体感型の対戦ゲーム。',
-    image: '/images/lovely-stick-1.webp',
+    image: '/images/lovely-stick-2.webp',
     imageHint: '杖を振って遊んでいる様子、または杖の実物（16:9）',
     honors: [
       { rank: '優秀賞（2位）', event: '技育CAMP2024 ハッカソン Vol.19', date: '2024年12月' },
