@@ -201,6 +201,11 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
 
   const handleArchive = async () => {
     if (!initialData?.id) return;
+    // アーカイブすると公開ページから記事が消えるので、押し間違いに備えて実行前に確認する（年表の削除などと同じく window.confirm）
+    if (
+      !window.confirm(`「${title}」をアーカイブします。公開中の場合は公開ページから見えなくなります。よろしいですか？`)
+    )
+      return;
     setServerError(null);
     setIsLoading(true);
     try {
@@ -248,7 +253,8 @@ export default function BlogEditor({ genre, mode, initialData, availableTags = [
       />
 
       {serverError && (
-        <div className="px-2 py-1 text-sm text-[var(--error)] bg-[var(--error-bg)] rounded-sm shrink-0">
+        // role="alert": 保存・削除の失敗を読み上げソフトにもすぐ伝える
+        <div role="alert" className="px-2 py-1 text-sm text-[var(--error)] bg-[var(--error-bg)] rounded-sm shrink-0">
           {serverError}
         </div>
       )}

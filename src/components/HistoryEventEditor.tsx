@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo, useRef } from 'react';
+import { useState, useCallback, useMemo, useRef, useId } from 'react';
 import EasyMDE from 'easymde';
 import dynamic from 'next/dynamic';
 import { unstable_rethrow } from 'next/navigation';
@@ -56,6 +56,9 @@ const buttonClass =
 
 export default function HistoryEventEditor({ id, initialData, savedAt, badges: initialBadges }: Props) {
   const [form, setForm] = useState<HistoryEventInput>(initialData ?? EMPTY);
+  // ラベル（FormLabel）と入力欄・選択欄を htmlFor / id で結び付けるための、ページ内で重複しない id の元
+  // 結び付けると、ラベルを押せば入力欄に移り、読み上げソフトでも欄の名前が読み上げられる
+  const fid = useId();
   // エディタ上で新しいラベルを追加したら、ページを再読み込みせずに選択肢へ反映するため state で持つ
   const [badges, setBadges] = useState(initialBadges);
   // null のときは「新しいラベルを追加」の入力欄を閉じている
@@ -204,7 +207,8 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
       </div>
 
       {serverError && (
-        <div className="px-2 py-1 text-sm text-[var(--error)] bg-[var(--error-bg)] rounded-sm shrink-0">
+        // role="alert": 保存・削除の失敗を読み上げソフトにもすぐ伝える
+        <div role="alert" className="px-2 py-1 text-sm text-[var(--error)] bg-[var(--error-bg)] rounded-sm shrink-0">
           {serverError}
         </div>
       )}
@@ -238,10 +242,15 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
               error={fieldErrors.dateLabel}
             />
             <div className="flex flex-col gap-0 p-1 w-full">
-              <FormLabel name="ラベル" error={badgeError ?? fieldErrors.badgeId} />
+              <FormLabel name="ラベル" error={badgeError ?? fieldErrors.badgeId} htmlFor={`${fid}-badge`} />
               {newBadgeName === null ? (
                 <div className="flex items-center gap-1">
-                  <select value={form.badgeId} onChange={(e) => set('badgeId')(e.target.value)} className={selectClass}>
+                  <select
+                    id={`${fid}-badge`}
+                    value={form.badgeId}
+                    onChange={(e) => set('badgeId')(e.target.value)}
+                    className={selectClass}
+                  >
                     <option value="">ラベルなし</option>
                     {badges.map((badge) => (
                       <option key={badge.id} value={badge.id}>
@@ -256,6 +265,7 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
               ) : (
                 <div className="flex items-center gap-1">
                   <input
+                    id={`${fid}-badge`}
                     type="text"
                     value={newBadgeName}
                     onChange={(e) => setNewBadgeName(e.target.value)}
@@ -288,9 +298,10 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
             </div>
           </div>
           <div className="flex flex-col gap-0 p-1 w-full">
-            <FormLabel name="画像（年表に表示）" />
+            <FormLabel name="画像（年表に表示）" htmlFor={`${fid}-thumbnail`} />
             <div className="flex items-center gap-1">
               <input
+                id={`${fid}-thumbnail`}
                 type="text"
                 value={form.thumbnail}
                 onChange={(e) => set('thumbnail')(e.target.value)}
@@ -329,8 +340,9 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
         <div className="flex flex-col flex-1 min-w-0 py-1">
           <div className="flex">
             <div className="flex flex-col gap-0 p-1 w-full">
-              <FormLabel name="時代" required hint="必須" error={fieldErrors.era} />
+              <FormLabel name="時代" required hint="必須" error={fieldErrors.era} htmlFor={`${fid}-era`} />
               <select
+                id={`${fid}-era`}
                 value={form.era}
                 onChange={(e) => set('era')(e.target.value as HistoryEventInput['era'])}
                 className={selectClass}
@@ -343,8 +355,9 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
               </select>
             </div>
             <div className="flex flex-col gap-0 p-1 w-full">
-              <FormLabel name="種類" required hint="必須" error={fieldErrors.kind} />
+              <FormLabel name="種類" required hint="必須" error={fieldErrors.kind} htmlFor={`${fid}-kind`} />
               <select
+                id={`${fid}-kind`}
                 value={form.kind}
                 onChange={(e) => set('kind')(e.target.value as HistoryEventInput['kind'])}
                 className={selectClass}
@@ -357,8 +370,15 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
               </select>
             </div>
             <div className="flex flex-col gap-0 p-1 w-full">
-              <FormLabel name="並び順の基準日" required hint="必須" error={fieldErrors.sortDate} />
+              <FormLabel
+                name="並び順の基準日"
+                required
+                hint="必須"
+                error={fieldErrors.sortDate}
+                htmlFor={`${fid}-sortDate`}
+              />
               <input
+                id={`${fid}-sortDate`}
                 type="date"
                 value={form.sortDate}
                 onChange={(e) => set('sortDate')(e.target.value)}
@@ -371,8 +391,9 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
           </p>
           <div className="flex">
             <div className="flex flex-col gap-0 p-1 w-full">
-              <FormLabel name="期間" error={fieldErrors.period} />
+              <FormLabel name="期間" error={fieldErrors.period} htmlFor={`${fid}-period`} />
               <select
+                id={`${fid}-period`}
                 value={form.period}
                 onChange={(e) => set('period')(e.target.value as HistoryEventInput['period'])}
                 className={selectClass}
@@ -383,8 +404,9 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
               </select>
             </div>
             <div className="flex flex-col gap-0 p-1 w-full">
-              <FormLabel name="終了日" error={fieldErrors.endDate} />
+              <FormLabel name="終了日" error={fieldErrors.endDate} htmlFor={`${fid}-endDate`} />
               <input
+                id={`${fid}-endDate`}
                 type="date"
                 value={form.endDate}
                 onChange={(e) => set('endDate')(e.target.value)}
@@ -397,8 +419,9 @@ export default function HistoryEventEditor({ id, initialData, savedAt, badges: i
             期間のある出来事は、年表で本線から分かれた線として、始まりから終わりまでの長さが表示されます。
           </p>
           <div className="flex flex-col gap-0 p-1 w-full">
-            <FormLabel name="制作物の記事（slug）" error={fieldErrors.productSlug} />
+            <FormLabel name="制作物の記事（slug）" error={fieldErrors.productSlug} htmlFor={`${fid}-productSlug`} />
             <input
+              id={`${fid}-productSlug`}
               type="text"
               value={form.productSlug}
               onChange={(e) => set('productSlug')(e.target.value)}

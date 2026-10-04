@@ -63,10 +63,12 @@ export default function HistoryBadgeManager({ badges }: { badges: Badge[] }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-bold text-black">ラベル</h2>
         <div className="flex items-center gap-1">
+          {/* 見えるラベルがない入力欄なので、aria-label で読み上げソフト向けの名前を付ける（placeholder は名前の代わりにならない） */}
           <input
             type="text"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
+            aria-label="新しいラベル名"
             placeholder="新しいラベル（最大10字）"
             className={`${inputClass} w-48`}
           />
@@ -86,7 +88,11 @@ export default function HistoryBadgeManager({ badges }: { badges: Badge[] }) {
         </div>
       </div>
 
-      {error && <p className="text-xs text-[var(--error)]">{error}</p>}
+      {error && (
+        <p role="alert" className="text-xs text-[var(--error)]">
+          {error}
+        </p>
+      )}
 
       {badges.length === 0 ? (
         <p className="text-xs text-[var(--lighttext)]">まだラベルがありません。</p>
@@ -99,6 +105,7 @@ export default function HistoryBadgeManager({ badges }: { badges: Badge[] }) {
                   type="text"
                   value={editing.name}
                   onChange={(e) => setEditing({ id: badge.id, name: e.target.value })}
+                  aria-label={`ラベル「${badge.name}」の新しい名前`}
                   autoFocus
                   className={inputClass}
                 />

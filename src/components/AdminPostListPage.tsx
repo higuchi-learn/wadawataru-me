@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { GenreAbout, SelectPageBar, CardList } from '@/components';
 import AdminSelectBar from '@/components/AdminSelectBar';
 import type { Genre } from '@/components';
@@ -11,6 +12,8 @@ import type { SelectPost } from '@/db/schema';
 // これにより VALID_STATUSES[number] で 'draft' | 'published' | 'archived' という Union 型が得られる
 const VALID_STATUSES = ['draft', 'published', 'archived'] as const;
 type Status = (typeof VALID_STATUSES)[number];
+// 0 件のときの案内に使う、状態の表示名（StatusBar のボタンと同じ呼び方）
+const STATUS_LABEL: Record<Status, string> = { draft: '未公開', published: '公開中', archived: 'アーカイブ済' };
 
 // URL の ?status= パラメータは文字列なので、想定外の値が来ても安全にデフォルト値に落とす
 function toStatus(value: string | undefined): SelectPost['status'] {
@@ -62,15 +65,35 @@ export default async function AdminPostListPage({ genre, searchParams }: Props) 
         <AdminSelectBar genre={genre} availableTags={allTags} className="w-full" />
       </div>
       <main className="flex-1 flex flex-col items-center gap-2.5">
-        <div className="flex flex-col gap-1.5 items-center py-1 w-full">
-          <Suspense>
-            <SelectPageBar totalPages={totalPages} />
-          </Suspense>
-          <CardList cards={cards} />
-          <Suspense>
-            <SelectPageBar totalPages={totalPages} />
-          </Suspense>
-        </div>
+        {cards.length === 0 ? (
+          // 0 件のとき、何も出さないと一覧の場所が真っ白になり、壊れているのか該当がないのか区別できない
+          // タグで絞り込んでいるときは、状態（status）だけを残して絞り込みを解除するリンクも出す
+          <div className="flex flex-col items-center gap-3 py-12 px-4 text-center">
+            <p className="text-sm text-[var(--lighttext)]">
+              {tagIds.length > 0
+                ? '選択したタグに一致する記事はありません。'
+                : `${STATUS_LABEL[status]}の記事はありません。`}
+            </p>
+            {tagIds.length > 0 && (
+              <Link
+                href={`/admin/${genre}?status=${status}`}
+                className="text-sm font-bold text-[var(--ogangetext)] bg-[var(--enableorange)] rounded-full px-5 py-2 hover:bg-[var(--onmouseorange)] transition-colors"
+              >
+                絞り込みを解除
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1.5 items-center py-1 w-full">
+            <Suspense>
+              <SelectPageBar totalPages={totalPages} />
+            </Suspense>
+            <CardList cards={cards} />
+            <Suspense>
+              <SelectPageBar totalPages={totalPages} />
+            </Suspense>
+          </div>
+        )}
       </main>
     </>
   );

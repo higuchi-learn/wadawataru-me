@@ -93,15 +93,22 @@ export default function DiaryEditor({ date, initialContent, initialSavedAt }: Pr
       </div>
 
       {error && (
-        <div className="px-2 py-1 text-sm text-[var(--error)] bg-[var(--error-bg)] rounded-sm shrink-0">{error}</div>
+        // role="alert": 保存に失敗したことを読み上げソフトにもすぐ伝える
+        <div role="alert" className="px-2 py-1 text-sm text-[var(--error)] bg-[var(--error-bg)] rounded-sm shrink-0">
+          {error}
+        </div>
       )}
 
       <div className="flex flex-1 min-h-0 gap-3 pb-1 bg-white">
         <div className="w-1/2 pl-1 flex flex-col h-full overflow-hidden items-center">
           {/* 横に長すぎると読み書きしづらいので、最大幅を決めて中央寄せにしている */}
           <div className="w-full max-w-2xl flex flex-col flex-1 min-h-0">
-            <p className="text-xs leading-4 text-black mb-0.5">本文（横書きで入力）</p>
+            {/* label + htmlFor で本文の入力欄に名前を付ける（ラベルを押すと入力欄に移り、読み上げソフトでも名前が伝わる） */}
+            <label htmlFor="diary-content" className="text-xs leading-4 text-black mb-0.5">
+              本文（横書きで入力）
+            </label>
             <textarea
+              id="diary-content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="今日あったことを書く..."

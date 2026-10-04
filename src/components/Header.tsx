@@ -40,13 +40,16 @@ export default function Header({ variant = 'public' }: HeaderProps) {
         </div>
 
         {/* モバイル・タブレット（lg 未満）: ハンバーガーメニュー */}
+        {/* aria-expanded・aria-controls: メニューが開いているか、どのメニューを開くボタンかを読み上げソフトに伝える */}
         <button
           type="button"
           onClick={() => setSidebarOpen(true)}
           className="flex lg:hidden size-8 items-center justify-center cursor-pointer"
           aria-label="メニューを開く"
+          aria-expanded={sidebarOpen}
+          aria-controls="site-menu"
         >
-          <svg viewBox="0 0 24 24" className="size-5 fill-current text-[var(--lighttext)]">
+          <svg viewBox="0 0 24 24" className="size-5 fill-current text-[var(--lighttext)]" aria-hidden="true">
             <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
           </svg>
         </button>

@@ -50,7 +50,7 @@ export default function SelectBar({ items = NAV_ITEMS, className }: SelectBarPro
   const pathname = usePathname();
 
   return (
-    <nav className={className ?? 'flex items-center gap-2'}>
+    <nav className={className ?? 'flex items-center gap-2'} aria-label="サイト内のページ">
       {items.map(({ label, href }) => (
         // 今いる場所（そのページか、その配下のページ）のボタンを Enabled（選択済み）スタイルにする
         <RoundButton key={label} href={href} state={isNavActive(pathname, href) ? 'Enabled' : 'Disabled'}>

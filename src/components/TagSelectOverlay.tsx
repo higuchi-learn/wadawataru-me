@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useId, useRef, useState } from 'react';
+import { useId, useState } from 'react';
+import { useDialog } from '@/lib/useDialog';
 import RoundButton from '@/components/RoundButton';
 import type { TagItem } from '@/app/admin/tag-actions';
 import { createTagAction, addExistingTagToGenreAction, type GenreTab } from '@/app/admin/tag-actions';
@@ -20,9 +21,6 @@ type Props = {
   // ダイアログの見出し（読み上げソフトにも、何のための画面かとして伝わる）
   title?: string;
 };
-
-// ダイアログ内で Tab キーの移動先になる要素
-const FOCUSABLE = 'button:not([disabled]), input:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
 
 export default function TagSelectOverlay({
   tags: initialTags,
@@ -50,57 +48,10 @@ export default function TagSelectOverlay({
   const [isCreating, setIsCreating] = useState(false);
   const [addingId, setAddingId] = useState<string | null>(null);
 
-  // ---- ダイアログとしての振る舞い（キーボード・読み上げソフトでも使えるようにする） ----
-  const panelRef = useRef<HTMLDivElement>(null);
+  // ダイアログとしての振る舞い（フォーカスの移動・トラップ・復帰、Esc で閉じる、背後のスクロール停止）は useDialog にまとめている
+  // このコンポーネントは開いているときだけ描画されるので、open は常に true を渡す
+  const panelRef = useDialog(true, onClose);
   const titleId = useId();
-  // onClose は親が描画のたびに作り直すことがあるので、最新のものを ref に入れておき、
-  // 下の useEffect（開いたときに 1 回だけ登録する）からは ref 経由で呼ぶ
-  // ref の書き換えは描画中ではなく useEffect の中で行う（描画中の書き換えは react-hooks/refs で禁止されている）
-  const onCloseRef = useRef(onClose);
-  useEffect(() => {
-    onCloseRef.current = onClose;
-  });
-
-  useEffect(() => {
-    // 開く前にフォーカスしていた要素（検索バーなど）を覚えておき、閉じたらそこへ戻す
-    // 戻さないと、閉じた後のフォーカスがページの先頭に飛び、キーボード利用者がどこにいるか分からなくなる
-    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    // 開いている間は背後のページがスクロールしないようにする（暗くした背景が動くと、どこを操作しているか分かりにくい）
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    // フォーカスをダイアログの中へ移す。背後の検索バーに残ったままだと、Tab で暗くなった背後のページを移動してしまう
-    panelRef.current?.focus();
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      // Esc で閉じる（ダイアログの一般的な操作）
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onCloseRef.current();
-        return;
-      }
-      // Tab がダイアログの外へ出ないよう、最後の要素の次は最初へ、最初の要素の前は最後へ回す（フォーカストラップ）
-      if (e.key !== 'Tab' || !panelRef.current) return;
-      const items = panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE);
-      if (items.length === 0) return;
-      const first = items[0];
-      const last = items[items.length - 1];
-      const active = document.activeElement;
-      if (e.shiftKey && (active === first || active === panelRef.current)) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && active === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    };
-    document.addEventListener('keydown', onKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      document.body.style.overflow = previousOverflow;
-      previouslyFocused?.focus();
-    };
-  }, []);
 
   const toggleTag = (name: string) => {
     setSelected((prev) => (prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]));
@@ -282,8 +233,10 @@ export default function TagSelectOverlay({
                 maxLength={20}
                 className="bg-[var(--inputcontainer)] border border-[var(--inputborder,#9f9fa9)] rounded-sm shadow-sm px-2 h-7 text-sm leading-5 flex-1 focus:outline-none focus:ring-1 focus:ring-[var(--ogangetext)]"
               />
+              {/* 作成中や名前が空のときは本当に押せなくする（見た目だけ灰色にしても押せてしまうため） */}
               <RoundButton
-                state={!isCreating && newTagName.trim() ? 'Enabled' : 'Disabled'}
+                state="Enabled"
+                disabled={isCreating || !newTagName.trim()}
                 onClick={() => void handleCreate()}
               >
                 {isCreating ? '作成中…' : '作成'}

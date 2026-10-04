@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
 type Props = {
@@ -17,6 +17,9 @@ type Props = {
 export default function DiaryDatePicker({ today, existingDates }: Props) {
   const router = useRouter();
   const [date, setDate] = useState('');
+  // 日記の編集ページはサーバーで描画するので、押してから開くまで時間がかかることがある
+  // startTransition の isPending の間はボタンを「開いています…」にして押せなくし、反応があることを示す
+  const [isPending, startTransition] = useTransition();
 
   // Set にしておくと has() で O(1) 判定でき、日記が増えても毎回配列を走査せずに済む
   const existing = new Set(existingDates);
@@ -37,11 +40,11 @@ export default function DiaryDatePicker({ today, existingDates }: Props) {
       />
       <button
         type="button"
-        onClick={() => router.push(`/admin/diary/${date}`)}
-        disabled={!isValid}
+        onClick={() => startTransition(() => router.push(`/admin/diary/${date}`))}
+        disabled={!isValid || isPending}
         className="text-sm leading-5 px-3 py-1.5 rounded-full whitespace-nowrap border border-[var(--inputborder,#9f9fa9)] text-[var(--lighttext)] hover:bg-[var(--onmouseorange)] hover:text-[var(--ogangetext)] transition-colors disabled:opacity-40 disabled:pointer-events-none"
       >
-        {hasEntry ? 'この日の日記を編集する' : 'この日の日記を書く'}
+        {isPending ? '開いています…' : hasEntry ? 'この日の日記を編集する' : 'この日の日記を書く'}
       </button>
     </div>
   );

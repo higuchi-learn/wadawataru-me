@@ -1,8 +1,23 @@
 'use client';
 
-import { useState } from 'react';
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, rectSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable';
+import { useId, useState } from 'react';
+import { useDialog } from '@/lib/useDialog';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  rectSortingStrategy,
+  sortableKeyboardCoordinates,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import SquareButton from '@/components/SquareButton';
 import { InputField } from '@/components/InputField';
@@ -46,9 +61,12 @@ function SortableTagCard({ tag, onEdit }: SortableTagCardProps) {
     <div ref={setNodeRef} style={style} className="flex flex-col items-center gap-1 bg-white rounded-xl p-1 shadow-sm">
       {/* 画像エリアがドラッグハンドル。PointerSensor の distance:8 制約により単なるクリックではドラッグが起動しない
           画像のないタグでもこの枠は残す（消すと、つかむ場所がなくなり並べ替えられなくなるため） */}
+      {/* attributes には role="button"・tabIndex などが入っていて、キーボードでもつかめる（KeyboardSensor）
+          aria-label で何をするボタンか伝え、focus-visible でキーボード操作中にどこにいるかを見せる */}
       <div
-        className="w-full aspect-square rounded-lg overflow-hidden bg-white cursor-grab active:cursor-grabbing"
+        className="w-full aspect-square rounded-lg overflow-hidden bg-white cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ogangetext)]"
         {...attributes}
+        aria-label={`${tag.name}を並べ替え（Space で持ち上げ、矢印キーで移動）`}
         {...listeners}
       >
         {tag.imageUrl ? <img src={tag.imageUrl} alt={tag.name} className="w-full h-full object-cover" /> : null}
@@ -57,6 +75,7 @@ function SortableTagCard({ tag, onEdit }: SortableTagCardProps) {
       <button
         type="button"
         onClick={() => onEdit(tag)}
+        aria-label={`${tag.name}を編集`}
         className="text-xs leading-4 text-black text-center w-full truncate hover:opacity-60 transition-opacity"
       >
         {tag.name}
@@ -104,6 +123,13 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
   };
 
   const handleRemoveFromGenre = async () => {
+    // 押し間違いで消えないよう、実行前に確認する（年表の削除などと同じく window.confirm を使う）
+    if (
+      !window.confirm(
+        `タグ「${tag.name}」をこのジャンルから除外します。このジャンルの記事からこのタグが外れます。よろしいですか？`,
+      )
+    )
+      return;
     setIsLoading(true);
     setError(null);
     try {
@@ -122,6 +148,13 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
   };
 
   const handleDelete = async () => {
+    // すべてのジャンル・記事からタグが消え、元に戻せないので、実行前に確認する
+    if (
+      !window.confirm(
+        `タグ「${tag.name}」を完全に削除します。すべての記事からこのタグが外れ、元に戻せません。よろしいですか？`,
+      )
+    )
+      return;
     setIsLoading(true);
     setError(null);
     try {
@@ -155,11 +188,30 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
     }
   };
 
+  // フォーカスの移動・トラップ・復帰、Esc で閉じる、背後のスクロール停止（共通処理）
+  const panelRef = useDialog(true, onClose);
+  const titleId = useId();
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-lg p-4 w-80 flex flex-col gap-3" onClick={(e) => e.stopPropagation()}>
-        <p className="text-sm font-medium text-black">タグを編集</p>
-        {error && <p className="text-sm text-[var(--error)] bg-[var(--error-bg)] px-2 py-1 rounded-sm">{error}</p>}
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className="bg-white rounded-xl shadow-lg p-4 w-80 flex flex-col gap-3 focus:outline-none"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 id={titleId} className="text-sm font-medium text-black">
+          タグを編集
+        </h2>
+        {/* role="alert": エラーが出たことを読み上げソフトにすぐ伝える */}
+        {error && (
+          <p role="alert" className="text-sm text-[var(--error)] bg-[var(--error-bg)] px-2 py-1 rounded-sm">
+            {error}
+          </p>
+        )}
         <InputField
           label="タグ名"
           required
@@ -182,7 +234,8 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
           <img src={imageUrl} alt="プレビュー" className="w-16 h-16 rounded-lg object-cover bg-white ml-1" />
         )}
         <div className="flex items-center gap-2 flex-wrap">
-          <SquareButton state={!isLoading && name.trim() ? 'Enabled' : 'Disabled'} onClick={() => void handleSave()}>
+          {/* disabled: 保存中や名前が空のときは本当に押せなくする（見た目だけ灰色にしても押せてしまい、空の名前の送信や連打が起きる） */}
+          <SquareButton state="Enabled" disabled={isLoading || !name.trim()} onClick={() => void handleSave()}>
             {isLoading ? '保存中…' : '保存'}
           </SquareButton>
           <SquareButton state="Disabled" onClick={onClose}>
@@ -191,10 +244,10 @@ function TagEditModal({ tag, genre, onSaved, onRemovedFromGenre, onDeleted, onCl
         </div>
         {/* 破壊的操作は下段に分ける */}
         <div className="flex items-center gap-2 flex-wrap border-t border-neutral-100 pt-2">
-          <SquareButton state={isLoading ? 'Disabled' : 'Enabled'} onClick={() => void handleRemoveFromGenre()}>
+          <SquareButton state="Enabled" disabled={isLoading} onClick={() => void handleRemoveFromGenre()}>
             このジャンルから除外
           </SquareButton>
-          <SquareButton state={isLoading ? 'Disabled' : 'Enabled'} onClick={() => void handleDelete()}>
+          <SquareButton state="Enabled" disabled={isLoading} onClick={() => void handleDelete()}>
             完全に削除
           </SquareButton>
         </div>
@@ -233,14 +286,28 @@ function OtherGenreTagPicker({ tags, genre, onAdded, onClose }: OtherGenreTagPic
     }
   };
 
+  const panelRef = useDialog(true, onClose);
+  const titleId = useId();
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
       <div
-        className="bg-white rounded-xl shadow-lg p-4 w-96 max-h-[70vh] flex flex-col gap-3"
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        className="bg-white rounded-xl shadow-lg p-4 w-96 max-w-[calc(100vw-2rem)] max-h-[70vh] flex flex-col gap-3 focus:outline-none"
         onClick={(e) => e.stopPropagation()}
       >
-        <p className="text-sm font-medium text-black">他ジャンルのタグを追加</p>
-        {error && <p className="text-sm text-[var(--error)] bg-[var(--error-bg)] px-2 py-1 rounded-sm">{error}</p>}
+        <h2 id={titleId} className="text-sm font-medium text-black">
+          他ジャンルのタグを追加
+        </h2>
+        {error && (
+          <p role="alert" className="text-sm text-[var(--error)] bg-[var(--error-bg)] px-2 py-1 rounded-sm">
+            {error}
+          </p>
+        )}
         {tags.length === 0 ? (
           <p className="text-sm text-[var(--lighttext)]">追加できるタグがありません</p>
         ) : (
@@ -326,7 +393,11 @@ function TagCreateForm({ genre, onCreated }: TagCreateFormProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm p-3 flex flex-col gap-2">
       <p className="text-sm font-medium text-black">タグを追加</p>
-      {error && <p className="text-sm text-[var(--error)] bg-[var(--error-bg)] px-2 py-1 rounded-sm">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-[var(--error)] bg-[var(--error-bg)] px-2 py-1 rounded-sm">
+          {error}
+        </p>
+      )}
       <InputField
         label="タグ名"
         required
@@ -345,7 +416,7 @@ function TagCreateForm({ genre, onCreated }: TagCreateFormProps) {
       />
       {imageUrl && <img src={imageUrl} alt="プレビュー" className="w-16 h-16 rounded-lg object-cover bg-white ml-1" />}
       <div className="ml-1">
-        <SquareButton state={!isLoading && name.trim() ? 'Enabled' : 'Disabled'} onClick={() => void handleSubmit()}>
+        <SquareButton state="Enabled" disabled={isLoading || !name.trim()} onClick={() => void handleSubmit()}>
           {isLoading ? '追加中…' : '追加'}
         </SquareButton>
       </div>
@@ -387,7 +458,13 @@ export default function TagManagementPage({ initialTagsByGenre }: Props) {
     setTagsByGenre((prev) => ({ ...prev, [selectedGenre]: updater(prev[selectedGenre]) }));
   };
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+  // KeyboardSensor: マウスが使えない人でも並べ替えられるようにする
+  // 画像（つかむ場所）に Tab で移動し、Space で持ち上げ → 矢印キーで移動 → Space で置く（Esc で取り消し）
+  // sortableKeyboardCoordinates は、矢印キーを押したときに隣のタグの位置へ動かすための計算
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -478,6 +555,8 @@ export default function TagManagementPage({ initialTagsByGenre }: Props) {
           <SquareButton
             key={value}
             state={selectedGenre === value ? 'Enabled' : 'Disabled'}
+            // 選択中のタブを色だけでなく読み上げソフトにも伝える
+            pressed={selectedGenre === value}
             onClick={() => {
               setSelectedGenre(value);
               setStatusMessage(null);
@@ -497,7 +576,12 @@ export default function TagManagementPage({ initialTagsByGenre }: Props) {
         />
       )}
 
-      {statusMessage && <span className="text-sm text-[var(--successtext,#497d00)]">{statusMessage}</span>}
+      {/* role="status": 「並び順を保存しました」などの結果を、読み上げソフトにも伝える */}
+      {statusMessage && (
+        <span role="status" className="text-sm text-[var(--successtext,#497d00)]">
+          {statusMessage}
+        </span>
+      )}
 
       {/* 他ジャンルのタグを追加するボタン */}
       <div>
@@ -507,15 +591,26 @@ export default function TagManagementPage({ initialTagsByGenre }: Props) {
       </div>
 
       {/* タググリッド：画像ドラッグ→並び替え、タグ名クリック→編集モーダル */}
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(event) => void handleDragEnd(event)}>
-        <SortableContext items={currentTags.map((t) => t.id)} strategy={rectSortingStrategy}>
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-3">
-            {currentTags.map((tag) => (
-              <SortableTagCard key={tag.id} tag={tag} onEdit={setEditingTag} />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
+      {/* タグが 1 つもないジャンルでは、空の場所だけが残って何をすればよいか分からないので、案内を出す */}
+      {currentTags.length === 0 ? (
+        <p className="text-sm text-[var(--lighttext)]">
+          このジャンルにはまだタグがありません。下の「タグを追加」から作成するか、「他ジャンルのタグを追加」から選んでください。
+        </p>
+      ) : (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={(event) => void handleDragEnd(event)}
+        >
+          <SortableContext items={currentTags.map((t) => t.id)} strategy={rectSortingStrategy}>
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-3">
+              {currentTags.map((tag) => (
+                <SortableTagCard key={tag.id} tag={tag} onEdit={setEditingTag} />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      )}
 
       <TagCreateForm genre={selectedGenre} onCreated={handleCreated} />
     </div>
