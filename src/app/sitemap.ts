@@ -23,8 +23,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // 年表の出来事は詳細本文があるものだけ個別ページを持つ
+  // 記事にリンクしている出来事の個別ページは、その記事へ移動（307）するだけなので載せない
+  // （移動するだけの URL をサイトマップに載せると、検索エンジンにとって無駄な URL になる。記事の URL は postRoutes に載っている）
   const historyRoutes: MetadataRoute.Sitemap = historyEvents
-    .filter((event) => event.content.trim() !== '')
+    .filter((event) => event.content.trim() !== '' && !event.productSlug)
     .map((event) => ({ url: `${BASE_URL}/history/${event.id}`, lastModified: event.updatedAt }));
 
   return [...staticRoutes, ...postRoutes, ...historyRoutes];
