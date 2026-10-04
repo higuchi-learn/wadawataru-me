@@ -3,11 +3,11 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { getHistoryEventById } from '@/db/queries/select';
+import { getPublicHistoryEvent } from '@/db/queries/cached';
 import { historyArticleHref, historyEraLabel, historyKindColor } from '@/lib/history';
 
-// 管理画面での編集をすぐ反映するため、リクエストごとにレンダリングする
-export const dynamic = 'force-dynamic';
+// 出来事のデータは作り置き（getPublicHistoryEvent）を使い、アクセスのたびに Neon へ問い合わせないようにする
+// 管理画面で保存すると作り置きを捨て、次のアクセスで最新になる
 
 // id は uuid なので、形式が違う値で DB に問い合わせると型エラーになる。先に弾いて 404 にする
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -17,7 +17,7 @@ type Props = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   if (!UUID_PATTERN.test(id)) return {};
-  const event = await getHistoryEventById(id);
+  const event = await getPublicHistoryEvent(id);
   if (!event) return {};
   return {
     title: `${event.title}（${event.dateLabel}）`,
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function HistoryEventPage({ params }: Props) {
   const { id } = await params;
   if (!UUID_PATTERN.test(id)) notFound();
-  const event = await getHistoryEventById(id);
+  const event = await getPublicHistoryEvent(id);
   if (!event) notFound();
   // 記事にリンクしている出来事は詳細を記事に一本化しているので、URL を直接開いた場合もその記事（種類により制作物かブログ）へ移す
   if (event.productSlug) redirect(historyArticleHref(event.kind, event.productSlug));

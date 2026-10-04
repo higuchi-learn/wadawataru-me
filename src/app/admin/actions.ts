@@ -9,6 +9,7 @@ import { updatePostById, syncPostTags } from '@/db/queries/update';
 import { isSlugTaken, getPostSlugById } from '@/db/queries/select';
 import { articleSchema } from '@/lib/schemas';
 import { isAuthenticated } from '@/lib/authGuard';
+import { revalidatePostPages } from '@/lib/revalidatePublic';
 import type { Genre } from '@/components/GenreAbout';
 
 type SavePayload = {
@@ -77,6 +78,8 @@ export async function saveAsDraftAction(payload: SavePayload): Promise<ActionRes
   // try/catch の中で呼ぶと、その例外が catch ブロックに捕まってしまい
   // 「保存に失敗しました」エラーが返ってしまう。だから try の外に書く必要がある
   // （try を抜けた時点で DB 処理は成功しているため、ここに来たら必ずリダイレクトする）
+  // 公開中の記事を下書きに戻した場合に備えて、公開ページの作り置きを捨てる（残すと非公開にした記事が見え続ける）
+  revalidatePostPages(genre, savedSlug.slug);
   redirect(`/admin/${genre}`);
 }
 
@@ -133,6 +136,8 @@ export async function publishAction(payload: SavePayload & { wasAlreadyPublished
 
   // try/catch の外に書く理由は saveAsDraftAction と同じ
   // redirect() が throw する例外を catch に捕まえさせないため
+  // 公開ページの作り置き（記事ページ・一覧・サイトマップ）を捨ててから記事ページへ移る。移った先で最新の記事が作られる
+  revalidatePostPages(genre, savedSlug.slug);
   redirect(`/${genre}/${savedSlug.slug}`);
 }
 
@@ -151,12 +156,18 @@ export async function archiveAction(payload: {
 
   const { id, genre, title, description, content, thumbnail } = payload;
 
+  let slug: string | null;
   try {
+    // 作り置きを捨てる記事ページの URL を知るため、保存済みの slug を取得する（アーカイブの画面からは slug が送られない）
+    slug = await getPostSlugById(id);
+    if (slug === null) return { error: '記事が見つかりませんでした。' };
     await updatePostById(id, title, description, thumbnail || null, genre, 'archived', content);
   } catch {
     return { error: 'アーカイブに失敗しました。もう一度お試しください。' };
   }
 
+  // アーカイブした記事は公開ページから消す必要がある。作り置きを捨てないと、アーカイブ後も記事が見え続ける
+  revalidatePostPages(genre, slug);
   // try/catch の外に書く理由は saveAsDraftAction と同じ
   redirect(`/admin/${genre}`);
 }

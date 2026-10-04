@@ -5,7 +5,9 @@ import { GENRE_INFO, GENRE_LABEL_EN } from '@/components/GenreAbout';
 import { PageHero } from '@/components/PageSection';
 import type { Genre } from '@/components';
 import type { CardData } from '@/components';
-import { getPostsList, getPostsCount, getTagsForGenre, PAGE_SIZE } from '@/db/queries/select';
+import { PAGE_SIZE } from '@/db/queries/select';
+// 公開ページなので、DB の結果を作り置きする版を使う（管理画面の一覧は select.ts を直接使う）
+import { getPublishedPostsList, getPublishedPostsCount, getPublicTagsForGenre } from '@/db/queries/cached';
 import { formatDate } from '@/lib/formatDate';
 
 type Props = {
@@ -17,14 +19,14 @@ export default async function PostListPage({ genre, searchParams }: Props) {
   const page = Math.max(1, Number(searchParams.page ?? '1'));
   const tagNames = searchParams.tags?.split(',').filter(Boolean) ?? [];
 
-  const allTags = await getTagsForGenre(genre);
+  const allTags = await getPublicTagsForGenre(genre);
   const tagIds = allTags.filter((t) => tagNames.includes(t.name)).map((t) => t.id);
 
   // 記事一覧と総件数を並列取得する
   const [posts, totalCount] = await Promise.all([
     // 公開側は常に 'published' 固定（下書き・アーカイブは表示しない）
-    getPostsList(genre, 'published', tagIds, page),
-    getPostsCount(genre, 'published', tagIds),
+    getPublishedPostsList(genre, tagIds, page),
+    getPublishedPostsCount(genre, tagIds),
   ]);
 
   // Math.ceil で端数を切り上げ（21件・20件/ページなら2ページ必要）

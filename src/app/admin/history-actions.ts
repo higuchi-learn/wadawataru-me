@@ -10,6 +10,7 @@ import { deleteHistoryEventById, deleteHistoryBadgeById } from '@/db/queries/del
 import { getHistoryBadgesList } from '@/db/queries/select';
 import { historyEventSchema, historyBadgeNameSchema, type HistoryEventInput } from '@/lib/schemas';
 import { isAuthenticated } from '@/lib/authGuard';
+import { revalidateHistoryPages } from '@/lib/revalidatePublic';
 
 type ActionResult = { error: string } | undefined;
 
@@ -48,6 +49,8 @@ export async function saveHistoryEventAction(id: string | undefined, input: Hist
     return { error: '保存に失敗しました。もう一度お試しください。' };
   }
 
+  // 公開ページの年表・詳細・サイトマップの作り置きを捨て、次のアクセスで最新の内容にする
+  revalidateHistoryPages();
   // redirect() は例外を throw して遷移を実現するため、try/catch の外で呼ぶ必要がある
   redirect('/admin/history');
 }
@@ -64,6 +67,8 @@ export async function deleteHistoryEventAction(id: string): Promise<ActionResult
     return { error: '削除に失敗しました。もう一度お試しください。' };
   }
 
+  // 削除した出来事が公開ページの年表に残らないよう、作り置きを捨てる
+  revalidateHistoryPages();
   redirect('/admin/history');
 }
 
@@ -119,6 +124,8 @@ export async function renameHistoryBadgeAction(id: string, name: string): Promis
     return { error: 'ラベル名の変更に失敗しました。もう一度お試しください。' };
   }
   revalidatePath('/admin/history');
+  // ラベル名は公開ページの年表のカードに出ているので、作り置きを捨てる
+  revalidateHistoryPages();
 }
 
 // 年表のラベルを削除する。付いていた出来事は「ラベルなし」になる
@@ -133,4 +140,6 @@ export async function deleteHistoryBadgeAction(id: string): Promise<ActionResult
     return { error: 'ラベルの削除に失敗しました。もう一度お試しください。' };
   }
   revalidatePath('/admin/history');
+  // 付いていた出来事が「ラベルなし」になり、公開ページの年表の表示が変わるので、作り置きを捨てる
+  revalidateHistoryPages();
 }

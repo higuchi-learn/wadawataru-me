@@ -6,6 +6,7 @@ import { deleteTagById, removeTagFromGenre } from '@/db/queries/delete';
 import { updateTagById, updateGenreTagsSortOrder } from '@/db/queries/update';
 import { getMaxGenreTagSortOrder } from '@/db/queries/select';
 import { isAuthenticated } from '@/lib/authGuard';
+import { revalidatePostLists, revalidateAllPostPages } from '@/lib/revalidatePublic';
 
 // GenreTab はフロントとサーバーの両方で使うため、ここで一元定義して export する
 // DB の articlesGenreEnum と同じ値にしておくことで型の整合性を保つ
@@ -42,6 +43,8 @@ export async function addExistingTagToGenreAction(tag: TagItem, genre: GenreTab)
     // Server Action が DB を変更したのでページのキャッシュを破棄する
     // これにより次回 /admin/tags を開いたとき最新データが取得される
     revalidatePath('/admin/tags');
+    // 公開ページの一覧の検索バー（このジャンルのタグ）が変わるので、作り置きを捨てる
+    revalidatePostLists();
     // 呼び出し元が UI を即時更新できるよう、追加したタグのデータをそのまま返す
     return tag;
   } catch {
@@ -94,6 +97,8 @@ export async function createTagAction(
     }
 
     revalidatePath('/admin/tags');
+    // 公開ページの一覧の検索バー（このジャンルのタグ）が変わるので、作り置きを捨てる
+    revalidatePostLists();
     return { id, name: trimmed, imageUrl: resolvedImageUrl };
   } catch {
     return { error: '追加に失敗しました。もう一度お試しください。' };
@@ -114,6 +119,8 @@ export async function updateTagAction(id: string, name: string, imageUrl: string
   try {
     await updateTagById(id, trimmed, imageUrl);
     revalidatePath('/admin/tags');
+    // タグの名前・画像は一覧のカードと各記事ページに出ているので、すべての作り置きを捨てる
+    revalidateAllPostPages();
     return { id, name: trimmed, imageUrl };
   } catch {
     return { error: '更新に失敗しました。もう一度お試しください。' };
@@ -130,6 +137,8 @@ export async function removeTagFromGenreAction(id: string, genre: GenreTab): Pro
   try {
     await removeTagFromGenre(id, genre);
     revalidatePath('/admin/tags');
+    // 公開ページの一覧の検索バー（このジャンルのタグ）が変わるので、作り置きを捨てる
+    revalidatePostLists();
   } catch {
     return { error: 'ジャンルからの除外に失敗しました。もう一度お試しください。' };
   }
@@ -146,6 +155,8 @@ export async function deleteTagAction(id: string): Promise<{ error: string } | u
   try {
     await deleteTagById(id);
     revalidatePath('/admin/tags');
+    // 削除したタグは一覧のカードと各記事ページから消えるので、すべての作り置きを捨てる
+    revalidateAllPostPages();
   } catch {
     return { error: '削除に失敗しました。もう一度お試しください。' };
   }
@@ -164,6 +175,8 @@ export async function updateTagsSortOrderAction(
   try {
     await updateGenreTagsSortOrder(genre, tagIds);
     revalidatePath('/admin/tags');
+    // 公開ページの一覧の検索バーのタグの並び順が変わるので、作り置きを捨てる
+    revalidatePostLists();
   } catch {
     return { error: '並び替えの保存に失敗しました。もう一度お試しください。' };
   }

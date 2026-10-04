@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import HistoryEventCard from '@/components/HistoryEventCard';
 import { PageHero } from '@/components/PageSection';
-import { getHistoryEventsList } from '@/db/queries/select';
+import { getPublicHistoryEvents } from '@/db/queries/cached';
 import {
   HISTORY_KINDS,
   buildHistoryGraph,
@@ -14,8 +14,8 @@ import {
   type HistoryLaneState,
 } from '@/lib/history';
 
-// 管理画面で出来事を追加・編集したらすぐ反映されるよう、ビルド時の静的生成ではなくリクエストごとにレンダリングする
-export const dynamic = 'force-dynamic';
+// ページは並び順（?order=）を読むのでリクエストごとに作るが、出来事のデータは作り置き（getPublicHistoryEvents）を使い、
+// アクセスのたびに Neon へ問い合わせないようにする。管理画面で保存すると作り置きを捨て、次のアクセスで最新になる
 
 export const metadata: Metadata = {
   title: '年表',
@@ -89,7 +89,7 @@ function LaneSegments({
 export default async function HistoryPage({ searchParams }: { searchParams: Promise<{ order?: string }> }) {
   // ?order=newest のときだけ新しい順にする。ボタンはこのクエリを付け外しするリンク
   const newestFirst = (await searchParams).order === 'newest';
-  const events = await getHistoryEventsList();
+  const events = await getPublicHistoryEvents();
   const graph = buildHistoryGraph(events);
   const { laneCount, openLanes } = graph;
   const rows = newestFirst ? reverseHistoryGraph(graph.rows, openLanes) : graph.rows;

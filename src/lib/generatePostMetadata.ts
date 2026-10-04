@@ -25,3 +25,13 @@ export async function generatePostMetadata({ params }: { params: Promise<{ slug:
     },
   };
 }
+
+// 記事ページをページごと作り置きにするための指定（blogs/products/books の各 [slug]/page.tsx から re-export する）
+//
+// 空の配列を返すと、ビルド時には1ページも作らず、「最初にアクセスされたときに作って保存し、以降は保存したページを返す」動きになる。
+// これがないと、[slug] のページは毎回作られ、そのたびに Neon へ問い合わせる。
+// 保存したページは、管理画面で記事を保存・公開・アーカイブしたときに revalidatePath で捨てる（src/lib/revalidatePublic.ts）。
+// ビルド時に全記事を作らないのは、ビルドが DB に依存しないようにするため（公開後の最初のアクセスで作られれば十分）
+export function generateStaticParams(): { slug: string }[] {
+  return [];
+}

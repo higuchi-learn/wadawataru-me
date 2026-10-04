@@ -49,6 +49,21 @@
     {
       "binding": "R2",
       "bucket_name": "wadawataru-me"
+    },
+    // 公開ページの作り置き（OpenNext の incremental cache）。作ったページや DB の結果を保存する
+    // 画像（R2）と混ざらないよう、バケットを分けている。バインディング名は OpenNext が決めている名前
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "wadawataru-me-cache"
+    }
+  ],
+  // 作り置きの「古くなった」記録（OpenNext の tag cache）。revalidatePath / updateTag で書き込まれる
+  // 世界中の Worker から、書いた直後に同じ内容が見える必要があるので D1 を使う。表は `pnpm run deploy` が作る
+  "d1_databases": [
+    {
+      "binding": "NEXT_TAG_CACHE_D1",
+      "database_name": "wadawataru-me-tag-cache",
+      "database_id": "7e7e875d-27df-4de1-80c7-e3fdc5663a53"
     }
   ]
 	/**
