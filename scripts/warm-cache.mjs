@@ -16,7 +16,7 @@ const BASE_URL = (process.argv[2] ?? 'https://wadawataru.me').replace(/\/$/, '')
 const CONCURRENCY = 4;
 
 // サイトマップに載っていない、DB を読む公開ページ（一覧・年表）
-const EXTRA_PATHS = ['/blogs', '/products', '/books', '/history', '/history?order=newest'];
+const EXTRA_PATHS = ['/blogs', '/products', '/books', '/history', '/history/newest'];
 
 async function fetchStatus(url) {
   const startedAt = Date.now();

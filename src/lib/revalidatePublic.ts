@@ -46,6 +46,9 @@ export function revalidateAllPostPages() {
 // 年表の出来事・ラベルを保存・削除したとき
 export function revalidateHistoryPages() {
   updateTag(CACHE_TAGS.history);
+  // 年表のページ（古い順・新しい順）も作り置きなので捨てる
+  revalidatePath('/history');
+  revalidatePath('/history/newest');
   // サイトマップ（詳細のある出来事の URL を載せている）
   revalidatePath('/sitemap.xml');
 }
