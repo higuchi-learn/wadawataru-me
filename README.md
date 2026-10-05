@@ -1,6 +1,13 @@
 # わだわたるポートフォリオサイト
 ## 公開URL
 [わだわたる](https://wadawataru.me/)
+## 管理者ページの動画
+### 記事編集画面
+https://github.com/user-attachments/assets/d7aff221-45e5-462a-9729-6debe36d1c82
+
+### 年表編集画面
+https://github.com/user-attachments/assets/767e354e-5831-4ef5-9df6-5806827439d1
+
 ## Figmaページ
 [Figma](https://www.figma.com/design/js6RZs7E0hbl6yQcoEN4em/%E3%83%9D%E3%83%BC%E3%83%88%E3%83%95%E3%82%A9%E3%83%AA%E3%82%AA%E3%82%B5%E3%82%A4%E3%83%88?node-id=8-257&t=GawAvr6926AMOBsB-1)
 ここをかなり作り込んだので, FigmaMCPを用いた結果ほぼスタイルに関してコーディングを行うことは無かった
