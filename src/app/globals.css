@@ -163,6 +163,14 @@ body {
 /* =====================
    Markdown Preview
    ===================== */
+/* 長い URL など、途中に空白のない英数字の並びは折り返す位置がなく、1行のまま枠の外へはみ出す
+   （年表の詳細に貼った Google スライドの URL がカードからはみ出していた）。
+   anywhere は「ほかに折り返せる位置がないときだけ、どこででも折り返す」指定なので、普通の文章の折り返し方は変わらない。
+   break-word と違い、表のセルなどの最小幅の計算にも効くので、表の中の長い URL でも表ごと広がらない。
+   コードブロック（pre）は white-space: pre で折り返さないため、これまでどおり横スクロールになる */
+.markdown-preview {
+  overflow-wrap: anywhere;
+}
 .markdown-preview h1 {
   font-size: 1.5rem; /* 24px = text-2xl */
   font-weight: 700;
