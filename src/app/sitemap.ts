@@ -1,7 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getPublishedPostsForSitemap, getHistoryEventsList } from '@/db/queries/select';
-
-const BASE_URL = 'https://wadawataru.me';
+import { SITE_URL as BASE_URL } from '@/lib/siteMetadata';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [posts, historyEvents] = await Promise.all([getPublishedPostsForSitemap(), getHistoryEventsList()]);

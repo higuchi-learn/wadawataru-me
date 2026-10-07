@@ -48,7 +48,8 @@ pnpm lint:fix  # 自動修正できる lint エラー・整形を直す
 | `scripts/migrate-github-images.mjs` | GitHub 上の画像を WebP にして R2 へ移すスクリプト（既定は下見のみ、`--apply` で実行。バックアップは `backups/`）|
 | `src/app/api/og/route.tsx` | サムネイル未設定記事の OG 画像を自動生成（`next/og`）|
 | `src/lib/generatePostMetadata.ts` | 記事ページの metadata（OGP）生成 |
-| `src/lib/siteMetadata.ts` | 記事以外の公開ページの題名・説明・SNS 用画像（本人の写真 `public/og-profile.jpg`）。独自の題名を持つページは `pageMetadata` / `siteOpenGraph` を使う（title だけ書くと og:title がサイト名のままになる）|
+| `src/lib/siteMetadata.ts` | 記事以外の公開ページの題名・説明・SNS 用画像（本人の写真 `public/og-profile.jpg`）。独自の題名を持つページは `pageMetadata` / `siteOpenGraph` を使う（title だけ書くと og:title がサイト名のままになる）。公開ページには `canonical(path)` で正式な URL を付ける（layout には書かない）。トップの題名・説明は `HOME_TITLE` / `HOME_DESCRIPTION`、トップには本人とサイトの構造化データ（JSON-LD）がある|
+| `src/app/robots.ts` / `src/app/sitemap.ts` | robots.txt（sitemap.xml の場所を書く）とサイトマップ |
 | `src/app/admin/tag-actions.ts` | タグの Server Actions（作成・編集・削除・ジャンル追加/除外・並べ替え）|
 | `src/components/TagManagementPage.tsx` | タグ管理画面（`/admin/tags`）。dnd-kit で並べ替え |
 | `src/components/TagSelectOverlay.tsx` | 記事エディタ内のタグ選択・新規作成オーバーレイ |

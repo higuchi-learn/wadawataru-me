@@ -2,11 +2,12 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import HistoryTimelinePage from '@/components/HistoryTimelinePage';
 import HistoryLegacyOrderRedirect from '@/components/HistoryLegacyOrderRedirect';
-import { siteOpenGraph } from '@/lib/siteMetadata';
+import { canonical, siteOpenGraph } from '@/lib/siteMetadata';
 
 export const metadata: Metadata = {
   title: '年表',
   openGraph: siteOpenGraph('年表'),
+  alternates: canonical('/history'),
 };
 
 // 年表（古い順）。ページごと作り置きにする（並び順の切り替えは /history/newest という別のページ）

@@ -1,7 +1,19 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import ImageSlot from '@/components/ImageSlot';
 import { PX, CARD_SHADOW, CARD_FOOTER, ReadMore, Section, Watermark } from '@/components/PageSection';
 import MoreDetails from '@/components/MoreDetails';
+import { HOME_DESCRIPTION, HOME_TITLE, SITE_NAME, SITE_URL, canonical, siteOpenGraph } from '@/lib/siteMetadata';
+
+// トップページの題名・説明・正式な URL。中身と理由は siteMetadata.ts の HOME_TITLE を参照
+// title.absolute は layout.tsx の「%s | わだわたるのログマガ」を付けずにそのまま使う指定（HOME_TITLE にサイト名を入れてあるため）
+export const metadata: Metadata = {
+  title: { absolute: HOME_TITLE },
+  description: HOME_DESCRIPTION,
+  // siteOpenGraph(題名) は「題名 | サイト名」にするので、題名だけ HOME_TITLE で上書きする
+  openGraph: { ...siteOpenGraph(undefined, HOME_DESCRIPTION), title: HOME_TITLE },
+  alternates: canonical('/'),
+};
 
 // ─────────────────────────────────────────────────────────────
 // 画像の差し替え方
@@ -409,6 +421,37 @@ const links = [
   { label: 'Qiita', icon: 'qiita', href: 'https://qiita.com/wada_wataru' },
 ];
 
+// 検索エンジン向けの構造化データ（JSON-LD）。画面には何も表示されない
+// HTML の文章だけでは「このサイトが誰のものか」を検索エンジンが推測するしかないので、決まった形式（schema.org）で伝える
+//   WebSite : サイトの名前。検索結果の URL の上に出るサイト名に使われる
+//   Person  : このサイトの本人。名前（わだわたる・本名）・写真・所属と、sameAs で GitHub などの本人のアカウントを結び付ける。
+//             「わだわたる」で検索されたとき、トップページを本人のページとして扱ってもらいやすくなる
+// 情報はトップページに表示している内容（名前・所属・下の links）と同じものだけを書く（画面にない情報を書くと信頼されない）
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: SITE_NAME,
+      alternateName: 'わだわたる',
+      inLanguage: 'ja',
+      publisher: { '@id': `${SITE_URL}/#person` },
+    },
+    {
+      '@type': 'Person',
+      '@id': `${SITE_URL}/#person`,
+      name: 'わだわたる',
+      alternateName: '樋口 陽輝',
+      url: SITE_URL,
+      image: `${SITE_URL}/og-profile.jpg`,
+      affiliation: { '@type': 'CollegeOrUniversity', name: '愛知工業大学' },
+      sameAs: links.map((link) => link.href),
+    },
+  ],
+};
+
 // ─────────────────────────────────────────────────────────────
 
 function TechLogo({ icon, name, size = 16 }: { icon: string; name: string; size?: number }) {
@@ -430,6 +473,12 @@ function TechLogo({ icon, name, size = 16 }: { icon: string; name: string; size?
 export default function HomePage() {
   return (
     <div className="flex-1 flex flex-col">
+      {/* 構造化データ。JSON の中に </script> が入っても script タグが閉じないよう、< を \u003c に置き換えて埋め込む
+          （JSON としては同じ文字なので、検索エンジンが読む内容は変わらない） */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }}
+      />
       {/* ── Hero ─────────────────────────────────────────────── */}
       {/* relative + overflow-hidden で、背景のぼかし円がはみ出してもスクロールが出ないようにする */}
       <section className={`relative overflow-hidden bg-[var(--cream)] ${PX} pt-3.5 pb-3 sm:pt-5 lg:pt-6 lg:pb-4`}>

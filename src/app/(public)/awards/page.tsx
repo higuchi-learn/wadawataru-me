@@ -8,7 +8,7 @@ import { pageMetadata } from '@/lib/siteMetadata';
 const PAGE_TITLE = '受賞歴';
 const PAGE_LEAD = 'ハッカソンや顕彰制度でいただいた賞です。カードを押すと、作ったものや学んだことをくわしく読めます。';
 
-export const metadata: Metadata = pageMetadata(PAGE_TITLE, PAGE_LEAD);
+export const metadata: Metadata = pageMetadata(PAGE_TITLE, PAGE_LEAD, '/awards');
 
 // 同じプロダクトで複数のイベントから受賞した場合に1枚のカードにまとめられるよう、
 // 賞・イベント・日付の組を配列で持つ

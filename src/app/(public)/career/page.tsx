@@ -9,7 +9,7 @@ const PAGE_TITLE = 'プロフィール';
 const PAGE_LEAD =
   'どんな人なのかと、PC の自作から工業高校、大学、そして Web エンジニアのインターンまでの経歴をまとめています。';
 
-export const metadata: Metadata = pageMetadata(PAGE_TITLE, PAGE_LEAD);
+export const metadata: Metadata = pageMetadata(PAGE_TITLE, PAGE_LEAD, '/career');
 
 type TimelineItem = {
   period: string;

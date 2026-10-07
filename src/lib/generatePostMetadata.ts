@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { Genre } from '@/components/GenreAbout';
 import { getPostById } from '@/db/queries/select';
 import { isPublishedPostSlug } from '@/db/queries/cached';
+import { canonical } from '@/lib/siteMetadata';
 
 // blogs/products/books の各 [slug]/page.tsx の generateMetadata から呼ぶ
 // ジャンルで絞って記事を探すため、genre を受け取る（違うジャンルの URL では記事を見つけない）
@@ -28,6 +29,7 @@ export async function generatePostMetadata(genre: Genre, slug: string): Promise<
       description: post.description,
       images: [ogImage],
     },
+    alternates: canonical(`/${genre}/${slug}`),
     // 書かないと layout.tsx の twitter（本人の写真・小さな四角）が引き継がれるので、記事の画像で上書きする
     twitter: {
       card: 'summary_large_image',

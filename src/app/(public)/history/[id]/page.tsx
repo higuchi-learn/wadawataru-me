@@ -5,7 +5,7 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { getPublicHistoryEvent } from '@/db/queries/cached';
 import { HISTORY_EVENT_ID_PATTERN, historyEraLabel, historyKindColor } from '@/lib/history';
-import { siteOpenGraph } from '@/lib/siteMetadata';
+import { canonical, siteOpenGraph } from '@/lib/siteMetadata';
 
 // 出来事のデータは作り置き（getPublicHistoryEvent）を使い、アクセスのたびに Neon へ問い合わせないようにする
 // 管理画面で保存すると作り置きを捨て、次のアクセスで最新になる
@@ -26,6 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // 題名を og:title にも入れる。画像があれば出来事の画像、なければサイト共通の画像（本人の写真）
     openGraph: event.thumbnail ? { ...siteOpenGraph(title), images: [{ url: event.thumbnail }] } : siteOpenGraph(title),
     // 画像があるときは、layout.tsx の twitter（本人の写真）を出来事の画像で上書きする
+    alternates: canonical(`/history/${id}`),
     twitter: event.thumbnail ? { card: 'summary_large_image', images: [event.thumbnail] } : undefined,
   };
 }

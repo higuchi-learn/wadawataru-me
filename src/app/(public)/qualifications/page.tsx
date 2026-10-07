@@ -7,7 +7,7 @@ import { pageMetadata } from '@/lib/siteMetadata';
 const PAGE_TITLE = '資格';
 const PAGE_LEAD = 'IT・セキュリティから電気・通信まで、15の資格をすべて高校在学中に取得しました。';
 
-export const metadata: Metadata = pageMetadata(PAGE_TITLE, PAGE_LEAD);
+export const metadata: Metadata = pageMetadata(PAGE_TITLE, PAGE_LEAD, '/qualifications');
 
 // 賞状や表彰式の写真を用意したら public/ 以下のパスを書く
 const awardImage: string | undefined = '/images/meti-award.webp';
