@@ -69,11 +69,12 @@ export default function HistoryEventCard({ event, align }: { event: HistoryEvent
         )}
       </h3>
       {event.summary && <p className="text-xs text-[var(--lighttext)] mt-1 leading-6">{event.summary}</p>}
+      {/* 画像は切り抜かず、元の比率のまま表示する（縦長の画像なら、その出来事のぶんだけ縦に長くなる） */}
       {event.thumbnail && (
         <img
           src={event.thumbnail}
           alt={event.title}
-          className={`mt-3 w-full max-w-sm aspect-video object-cover rounded-lg border border-[var(--unclickable)] ${align === 'left' ? 'md:ml-auto' : ''}`}
+          className={`mt-3 w-full max-w-sm rounded-lg border border-[var(--unclickable)] ${align === 'left' ? 'md:ml-auto' : ''}`}
         />
       )}
       {dialogDetail ? (

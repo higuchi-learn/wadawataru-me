@@ -39,9 +39,14 @@ export function historyDetailParts(detail: HistoryEventDetail): {
   body: ReactNode;
 } {
   return {
-    // 画像はポップアップの上部に全幅で出す（経歴ページの「くわしく」と同じ配置）
+    // 画像はポップアップの上部に出す（経歴ページの「くわしく」と同じ配置）
+    // 切り抜かずに元の比率のまま全体を見せる。ただし縦長の画像を全幅で出すと、開いた直後に画像しか見えず
+    // 題名や本文まで長くスクロールすることになるので、高さを画面の 60% までに抑え、はみ出す分は縮めて中央に置く。
+    // 縮めて空いた左右は淡い暖色（--cream）で埋め、白地の本文と画像の範囲の区別がつくようにする
     media: detail.thumbnail ? (
-      <img src={detail.thumbnail} alt={detail.title} className="w-full aspect-video object-cover" />
+      <div className="bg-[var(--cream)]">
+        <img src={detail.thumbnail} alt={detail.title} className="block mx-auto max-w-full max-h-[60vh]" />
+      </div>
     ) : undefined,
     // 見出しの下: 日付・時代・ラベル → 概要（詳細ページ /history/[id] と同じ並び）
     header: (
