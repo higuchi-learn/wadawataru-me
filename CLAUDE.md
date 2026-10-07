@@ -29,6 +29,7 @@ pnpm lint:fix  # 自動修正できる lint エラー・整形を直す
 
 - ローカル: `.dev.vars`（`.env.local` ではない）
 - 本番: `wrangler secret put <KEY>`
+- ローカルも DB は本番の Neon を読むため、画像の R2（`R2` バインディング）は `wrangler.jsonc` の `"remote": true` で本番のバケットにつないでいる（`wrangler login` が必要。ローカルでアップロードした画像も本番のバケットに入る）。作り置きの R2・D1 はローカルのまま
 
 ## 主要ファイル
 
