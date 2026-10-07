@@ -61,7 +61,9 @@ export default function MoreDetails({
         // backdrop: は開いているときの背面（::backdrop）のスタイル。
         // starting: は表示し始めの状態（@starting-style）で、そこから opacity / scale が変化してふわっと出る
         // 外枠（幅・角丸・影）は MORE_DETAILS_PANEL_CLASS を共有し、管理画面のプレビューと一致させる
-        className={`m-auto ${MORE_DETAILS_PANEL_CLASS} max-h-[90vh] overflow-y-auto backdrop:bg-black/50 backdrop:backdrop-blur-sm transition-[opacity,scale] duration-200 starting:opacity-0 starting:scale-95`}
+        // text-left: <dialog> は最前面に表示されても DOM 上はボタンの隣にあり、text-align を親から受け継ぐ。
+        // 年表で中央線の左に置くカードは md:text-right なので、指定しないとそこから開いたときだけ中身が右寄せになる
+        className={`m-auto text-left ${MORE_DETAILS_PANEL_CLASS} max-h-[90vh] overflow-y-auto backdrop:bg-black/50 backdrop:backdrop-blur-sm transition-[opacity,scale] duration-200 starting:opacity-0 starting:scale-95`}
       >
         <MoreDetailsBody title={title} media={media} header={header} onClose={close}>
           {children}
